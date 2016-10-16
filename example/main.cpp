@@ -17,6 +17,8 @@ int main() {
 	glfwSetKeyCallback(window, keyCallback);
 
 	simpleGL::startDrawThread();
+	
+	simpleGL::addTexture("example\\body_front.png");
 
 	boost::asio::io_service io;
 	boost::asio::deadline_timer timer(io);

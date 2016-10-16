@@ -18,7 +18,7 @@ namespace simpleGL {
 
 	void joinDrawThread();
 
-	unsigned addTexture(std::string path);
+	SimpleTextureI* addTexture(std::string path);
 
 	void removeTexture();
 

@@ -1,6 +1,5 @@
 #include <fstream>
 #include <list>
-#include <queue>
 #include <boost/thread.hpp>
 #include <iostream>//TODO: logs
 
@@ -10,6 +9,7 @@
 #include <zlib.h>
 
 #include "simpleGL.hpp"
+#include "simpleTexture.hpp"
 
 //TODO: clean up
 struct ShaderAttribs { enum E { POSITION, BOUNDS, COLOR, TEX_DATA, COUNT }; };
@@ -28,18 +28,6 @@ struct ShaderAttribsSizes {
 	}
 };
 
-class SimpleTexture {
-private:
-	GLuint texture;
-	std::list<unsigned> sprites;
-
-public:
-	SimpleTexture(GLuint id) : texture(id) {}
-
-	void draw() {}
-
-};
-
 unsigned windowWidth, windowHeight;
 GLFWwindow* window = nullptr;
 
@@ -48,13 +36,13 @@ GLuint vbos[ShaderAttribs::COUNT];
 
 boost::thread thread;
 
-std::list<SimpleTexture*> textures;
+std::list<std::unique_ptr<SimpleTexture>> textures;
 
 boost::mutex mutex;
-std::queue<std::string> textureQueue;
+std::string texturePath;
 
 boost::condition_variable returnReady;
-unsigned returnValue = -1;
+SimpleTextureI* returnValue = nullptr;
 
 void errorCallback(int error, const char* description) {
 	std::cout << "GLFW Error (" << error << "): " << description << std::endl;
@@ -181,12 +169,16 @@ GLuint loadShader(std::string filename, GLenum type) {
 	return shader;
 }
 
-void loadtextures() {
-	FILE *file = fopen("example\\body_front.png", "rb");
+void loadTexture() {
+	std::cout << "Loading texture: " << texturePath << std::endl;
+
+	FILE *file = fopen(texturePath.c_str(), "rb");
 	if (!file) {
 		std::cout << "Error opening texture" << std::endl;
 		return;
 	}
+
+	texturePath.clear();
 
 	png_byte header[8];
 	fread(header, 1, 8, file);
@@ -227,21 +219,26 @@ void loadtextures() {
 	png_uint_32 width, height;
 	png_get_IHDR(png_ptr, info_ptr, &width, &height, nullptr, nullptr, nullptr, nullptr, nullptr);
 
-	glActiveTexture(GL_TEXTURE0);
 	GLuint texture;
 	glGenTextures(1, &texture);
 
+	SimpleTexture* st = new SimpleTexture(width, height, texture);
+	textures.push_back(std::unique_ptr<SimpleTexture>(st));
+
+	returnValue = st;
+	returnReady.notify_one();
+
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	//return;
-
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
-	std::unique_ptr<png_byte> row(new png_byte[width]);
+	std::unique_ptr<png_byte> row(new png_byte[4*width]);
 
 	for (png_uint_32 i = height; i > 0; i--) {
 		png_read_row(png_ptr, row.get(), nullptr);
@@ -251,8 +248,14 @@ void loadtextures() {
 	png_read_end(png_ptr, nullptr);
 	png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 	fclose(file);
+}
 
-	std::cout << "Finito" << std::endl;
+void checkTextures() {
+	mutex.lock();
+	bool empty = texturePath.empty();
+	mutex.unlock();
+
+	if (!empty)	loadTexture();
 }
 
 void draw() {
@@ -362,9 +365,9 @@ void draw() {
 		offset += attSize;
 	}
 
-	loadtextures();
-
 	while (!glfwWindowShouldClose(window)) {
+		checkTextures();
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glBindVertexArray(vao);
@@ -387,7 +390,15 @@ void simpleGL::joinDrawThread() {
 	thread.join();
 }
 
-unsigned simpleGL::addTexture(std::string path) {
+SimpleTextureI* simpleGL::addTexture(std::string path) {
+	boost::unique_lock<boost::mutex> lock(mutex);
+	returnValue = nullptr;
 
-	return 0;
+	texturePath = path;
+
+	do {
+		returnReady.wait(lock);
+	} while (!returnValue);
+
+	return returnValue;
 }

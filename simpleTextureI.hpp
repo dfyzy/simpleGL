@@ -1,13 +1,14 @@
-#ifndef SIMPLE_TEXTURE_H
-#define SIMPLE_TEXTURE_H
+#ifndef SIMPLE_TEXTURE_I_H
+#define SIMPLE_TEXTURE_I_H
 
 class SimpleTextureI {
 protected:
-	int width, height;
+	unsigned width, height;
+	SimpleTextureI(unsigned w, unsigned h) : width(w), height(h) {}
 
 public:
-	int getWidth() { return width; }
-	int getHeight() { return height; }
+	unsigned getWidth() { return width; }
+	unsigned getHeight() { return height; }
 
 
 
