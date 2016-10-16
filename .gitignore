@@ -1,2 +1,4 @@
 *.exe
 patchwork/*.*
+Makefile
+FreeImage.dll
