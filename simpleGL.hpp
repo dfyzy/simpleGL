@@ -20,7 +20,7 @@ namespace simpleGL {
 
 	SimpleTextureI* addTexture(std::string path);
 
-	void removeTexture();
+	void removeTexture(SimpleTextureI*);
 
 }
 

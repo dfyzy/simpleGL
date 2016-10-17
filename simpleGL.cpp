@@ -1,48 +1,19 @@
 #include <fstream>
-#include <list>
 #include <boost/thread.hpp>
 #include <iostream>//TODO: logs
 
 #include <windows.h>
 
-#include <libpng/png.h>
-#include <zlib.h>
-
 #include "simpleGL.hpp"
 #include "simpleTexture.hpp"
+#include "textureUtil.hpp"
 
-//TODO: clean up
-struct ShaderAttribs { enum E { POSITION, BOUNDS, COLOR, TEX_DATA, COUNT }; };
-struct ShaderAttribsSizes {
-	enum E { POSITION = 3, BOUNDS = 2, COLOR = 4, TEX_DATA = 4,
-				SUM = POSITION + BOUNDS + COLOR + TEX_DATA, DEFAULT = 0 };
-
-	static E get(ShaderAttribs::E e) {
-		switch (e) {
-			case ShaderAttribs::POSITION:	return POSITION;
-			case ShaderAttribs::BOUNDS:	return BOUNDS;
-			case ShaderAttribs::COLOR:		return COLOR;
-			case ShaderAttribs::TEX_DATA:	return TEX_DATA;
-			default:								return DEFAULT;
-		}
-	}
-};
-
-unsigned windowWidth, windowHeight;
 GLFWwindow* window = nullptr;
 
 GLuint vao;
-GLuint vbos[ShaderAttribs::COUNT];
+GLuint vbos[SHADER_ATTRIB_COUNT];
 
 boost::thread thread;
-
-std::list<std::unique_ptr<SimpleTexture>> textures;
-
-boost::mutex mutex;
-std::string texturePath;
-
-boost::condition_variable returnReady;
-SimpleTextureI* returnValue = nullptr;
 
 void errorCallback(int error, const char* description) {
 	std::cout << "GLFW Error (" << error << "): " << description << std::endl;
@@ -169,93 +140,12 @@ GLuint loadShader(std::string filename, GLenum type) {
 	return shader;
 }
 
-void loadTexture() {
-	std::cout << "Loading texture: " << texturePath << std::endl;
+inline void setAttrib(int id, int size, GLenum type) {
+	glBindBuffer(GL_ARRAY_BUFFER, vbos[id]);
 
-	FILE *file = fopen(texturePath.c_str(), "rb");
-	if (!file) {
-		std::cout << "Error opening texture" << std::endl;
-		return;
-	}
-
-	texturePath.clear();
-
-	png_byte header[8];
-	fread(header, 1, 8, file);
-	if (png_sig_cmp(header, 0, 8)) {
-		std::cout << "Not a png" << std::endl;
-		fclose(file);
-		return;
-	}
-
-	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-	if (!png_ptr) {
-		std::cout << "Failed to create read struct" << std::endl;
-		fclose(file);
-		return;
-	}
-
-	png_infop info_ptr = png_create_info_struct(png_ptr);
-	if (!info_ptr) {
-		std::cout << "Failed to create info struct" << std::endl;
-		png_destroy_read_struct(&png_ptr, nullptr, nullptr);
-		fclose(file);
-		return;
-	}
-
-	if (setjmp(png_jmpbuf(png_ptr))) {
-		std::cout << "Libpng error" << std::endl;
-		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
-		fclose(file);
-		return;
-	}
-
-	png_init_io(png_ptr, file);
-
-	png_set_sig_bytes(png_ptr, 8);
-
-	png_read_info(png_ptr, info_ptr);
-
-	png_uint_32 width, height;
-	png_get_IHDR(png_ptr, info_ptr, &width, &height, nullptr, nullptr, nullptr, nullptr, nullptr);
-
-	GLuint texture;
-	glGenTextures(1, &texture);
-
-	SimpleTexture* st = new SimpleTexture(width, height, texture);
-	textures.push_back(std::unique_ptr<SimpleTexture>(st));
-
-	returnValue = st;
-	returnReady.notify_one();
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-
-	std::unique_ptr<png_byte> row(new png_byte[4*width]);
-
-	for (png_uint_32 i = height; i > 0; i--) {
-		png_read_row(png_ptr, row.get(), nullptr);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, i - 1, width, 1, GL_RGBA, GL_UNSIGNED_BYTE, row.get());
-	}
-
-	png_read_end(png_ptr, nullptr);
-	png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
-	fclose(file);
-}
-
-void checkTextures() {
-	mutex.lock();
-	bool empty = texturePath.empty();
-	mutex.unlock();
-
-	if (!empty)	loadTexture();
+	glVertexAttribPointer(id + 1, size, type, GL_FALSE, 0, nullptr);
+	glEnableVertexAttribArray(id + 1);
+	glVertexAttribDivisor(id + 1, 1);
 }
 
 void draw() {
@@ -336,34 +226,19 @@ void draw() {
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 	glEnableVertexAttribArray(0);
 
-	/*glGenBuffers(ShaderAttribs::COUNT, vbos);
+	glGenBuffers(SHADER_ATTRIB_COUNT, vbos);
 
-	for (int i = 0; i < ShaderAttribs::COUNT; i++) {
-		glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
+	//POSITION
+	setAttrib(0, 3, GL_FLOAT);
 
-		int attSize = ShaderAttribsSizes::get(static_cast<ShaderAttribs::E> (i));
+	//BOUNDS
+	setAttrib(1, 2, GL_FLOAT);
 
-		glVertexAttribPointer(i + 1, attSize, GL_FLOAT, GL_FALSE, 0, nullptr);
-		glEnableVertexAttribArray(i + 1);
-		glVertexAttribDivisor(i + 1, 1);
-	}*/
+	//COLOR
+	setAttrib(2, 4, GL_FLOAT);
 
-	glGenBuffers(1, vbos);
-	glBindBuffer(GL_ARRAY_BUFFER, vbos[0]);
-
-	float data[] = {0, 0, 0, 1, 1, 0, 0, 0, 1, 0.5f, 0.5f, 1, 1};
-	glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
-
-	int offset = 0;
-	for (int j = 0; j < ShaderAttribs::COUNT; j++) {
-		int attSize = ShaderAttribsSizes::get(static_cast<ShaderAttribs::E> (j));
-
-		glVertexAttribPointer(j + 1, attSize, GL_FLOAT, GL_FALSE, sizeof(float) * ShaderAttribsSizes::SUM, (void*) (sizeof(float) * offset));
-		glEnableVertexAttribArray(j + 1);
-		glVertexAttribDivisor(j + 1, 1);
-
-		offset += attSize;
-	}
+	//TEX DATA
+	setAttrib(3, 4, GL_FLOAT);
 
 	while (!glfwWindowShouldClose(window)) {
 		checkTextures();
@@ -388,17 +263,4 @@ void simpleGL::startDrawThread() {
 
 void simpleGL::joinDrawThread() {
 	thread.join();
-}
-
-SimpleTextureI* simpleGL::addTexture(std::string path) {
-	boost::unique_lock<boost::mutex> lock(mutex);
-	returnValue = nullptr;
-
-	texturePath = path;
-
-	do {
-		returnReady.wait(lock);
-	} while (!returnValue);
-
-	return returnValue;
 }

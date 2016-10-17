@@ -17,8 +17,10 @@ int main() {
 	glfwSetKeyCallback(window, keyCallback);
 
 	simpleGL::startDrawThread();
-	
-	simpleGL::addTexture("example\\body_front.png");
+
+	SimpleTextureI* texture = simpleGL::addTexture("example\\body_front.png");
+
+	texture->createSprite(0, 0, 0, Color(1));
 
 	boost::asio::io_service io;
 	boost::asio::deadline_timer timer(io);
