@@ -3,10 +3,8 @@
 
 #include "simpleGL.hpp"
 #include "simpleTexture.hpp"
+#include "simpleUtil.hpp"
 #include "threadUtil.hpp"
-#include "textureUtil.hpp"
-
-std::list<std::unique_ptr<SimpleTexture>> textures;
 
 std::string texturePath;
 SimpleTextureI* returnValue = nullptr;
@@ -106,9 +104,8 @@ SimpleTextureI* simpleGL::addTexture(std::string path) {
 
 	texturePath = path;
 
-	do {
-		returnReady.wait(lock);
-	} while (!returnValue);
+	do 	returnReady.wait(lock);
+	while	(!returnValue);
 
 	return returnValue;
 }

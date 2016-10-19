@@ -5,10 +5,12 @@
 #include <windows.h>
 
 #include "simpleGL.hpp"
-#include "simpleTexture.hpp"
-#include "textureUtil.hpp"
+#include "simpleUtil.hpp"
+
+const int SHADER_ATTRIB_COUNT = 4;
 
 GLFWwindow* window = nullptr;
+unsigned windowWidth, windowHeight;
 
 GLuint vao;
 GLuint vbos[SHADER_ATTRIB_COUNT];
@@ -140,6 +142,37 @@ GLuint loadShader(std::string filename, GLenum type) {
 	return shader;
 }
 
+void programStuff() {
+	GLuint program = glCreateProgram();
+
+	GLuint vertexShader = loadShader("simpleV.glsl", GL_VERTEX_SHADER);
+	glAttachShader(program, vertexShader);
+
+	GLuint fragmentShader = loadShader("simpleF.glsl", GL_FRAGMENT_SHADER);
+	glAttachShader(program, fragmentShader);
+
+	glLinkProgram(program);
+	GLint status;
+	glGetProgramiv(program, GL_LINK_STATUS, &status);
+	if (!status) {
+		printOutProgInfoLog(program);
+		glfwTerminate();
+		exit(EXIT_FAILURE);
+	} else	std::cout << "Program #" << program << " linked" << std::endl;
+
+	glValidateProgram(program);
+	glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
+	if (!status) {
+		printOutProgInfoLog(program);
+		glfwTerminate();
+		exit(EXIT_FAILURE);
+	} else	std::cout << "Program #" << program << " validated" << std::endl;
+
+	glUseProgram(program);
+
+	glUniform1f(glGetUniformLocation(program, "rAspect"), ((float) windowHeight) / windowWidth);
+}
+
 inline void setAttrib(int id, int size, GLenum type) {
 	glBindBuffer(GL_ARRAY_BUFFER, vbos[id]);
 
@@ -181,35 +214,7 @@ void draw() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	//Program stuff
-	GLuint program = glCreateProgram();
-
-	GLuint vertexShader = loadShader("simpleV.glsl", GL_VERTEX_SHADER);
-	glAttachShader(program, vertexShader);
-
-	GLuint fragmentShader = loadShader("simpleF.glsl", GL_FRAGMENT_SHADER);
-	glAttachShader(program, fragmentShader);
-
-	glLinkProgram(program);
-	GLint status;
-	glGetProgramiv(program, GL_LINK_STATUS, &status);
-	if (!status) {
-		printOutProgInfoLog(program);
-		glfwTerminate();
-		exit(EXIT_FAILURE);
-	} else	std::cout << "Program #" << program << " linked" << std::endl;
-
-	glValidateProgram(program);
-	glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
-	if (!status) {
-		printOutProgInfoLog(program);
-		glfwTerminate();
-		exit(EXIT_FAILURE);
-	} else	std::cout << "Program #" << program << " validated" << std::endl;
-
-	glUseProgram(program);
-
-	glUniform1f(glGetUniformLocation(program, "rAspect"), ((float) windowHeight) / windowWidth);
+	programStuff();
 
 	//Data stuff
 	glGenVertexArrays(1, &vao);
@@ -242,6 +247,7 @@ void draw() {
 
 	while (!glfwWindowShouldClose(window)) {
 		checkTextures();
+		checkSprites();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
