@@ -1,9 +1,16 @@
 #ifndef SIMPLE_UTIL_H
 #define SIMPLE_UTIL_H
 
-void checkTextures();
-void drawTextures();
+namespace simpleUtil {
 
-void checkSprites();
+	void initBuffers();
+	void setResolution(unsigned w, unsigned h);
+
+	void checkTextures();
+	void drawTextures();
+
+	void checkSprites();
+
+}
 
 #endif

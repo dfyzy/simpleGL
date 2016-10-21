@@ -7,7 +7,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "simpleTextureI.hpp"
+#include "simpleTexture.hpp"
 
 namespace simpleGL {
 
@@ -18,9 +18,9 @@ namespace simpleGL {
 
 	void joinDrawThread();
 
-	SimpleTextureI* addTexture(std::string path);
+	SimpleTexture* addTexture(std::string path);
 
-	void removeTexture(SimpleTextureI*);
+	void removeTexture(SimpleTexture*);
 
 }
 

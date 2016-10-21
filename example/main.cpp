@@ -18,7 +18,7 @@ int main() {
 
 	simpleGL::startDrawThread();
 
-	SimpleTextureI* texture = simpleGL::addTexture("example\\body_front.png");
+	SimpleTexture* texture = simpleGL::addTexture("example\\body_front.png");
 
 	texture->createSprite(0, 0, 0, Color(1));
 

@@ -1,13 +1,18 @@
 #include <libpng/png.h>
 #include <zlib.h>
+#include <boost/thread.hpp>
 
 #include "simpleGL.hpp"
-#include "simpleTexture.hpp"
+#include "complexTexture.hpp"
 #include "simpleUtil.hpp"
-#include "threadUtil.hpp"
+
+std::list<std::unique_ptr<ComplexTexture>> textures;
+
+boost::mutex textureMutex;
+boost::condition_variable returnReady;
 
 std::string texturePath;
-SimpleTextureI* returnValue = nullptr;
+SimpleTexture* returnValue = nullptr;
 
 void loadTexture() {
 	std::cout << "Loading texture: " << texturePath << std::endl;
@@ -62,27 +67,26 @@ void loadTexture() {
 	GLuint texture;
 	glGenTextures(1, &texture);
 
-	SimpleTexture* st = new SimpleTexture(width, height, texture);
-	textures.push_back(std::unique_ptr<SimpleTexture>(st));
+	ComplexTexture* st = new ComplexTexture(width, height, texture);
+	textures.push_back(std::unique_ptr<ComplexTexture>(st));
 
 	returnValue = st;
 	returnReady.notify_one();
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_RECTANGLE, texture);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
 	std::unique_ptr<png_byte> row(new png_byte[4*width]);
 
 	for (png_uint_32 i = height; i > 0; i--) {
 		png_read_row(png_ptr, row.get(), nullptr);
-		glTexSubImage2D(GL_TEXTURE_2D, 0, 0, i - 1, width, 1, GL_RGBA, GL_UNSIGNED_BYTE, row.get());
+		glTexSubImage2D(GL_TEXTURE_RECTANGLE, 0, 0, i - 1, width, 1, GL_RGBA, GL_UNSIGNED_BYTE, row.get());
 	}
 
 	png_read_end(png_ptr, nullptr);
@@ -90,16 +94,16 @@ void loadTexture() {
 	fclose(file);
 }
 
-void checkTextures() {
-	mutex.lock();
+void simpleUtil::checkTextures() {
+	textureMutex.lock();
 	bool empty = texturePath.empty();
-	mutex.unlock();
+	textureMutex.unlock();
 
 	if (!empty)	loadTexture();
 }
 
-SimpleTextureI* simpleGL::addTexture(std::string path) {
-	boost::unique_lock<boost::mutex> lock(mutex);
+SimpleTexture* simpleGL::addTexture(std::string path) {
+	boost::unique_lock<boost::mutex> lock(textureMutex);
 	returnValue = nullptr;
 
 	texturePath = path;
@@ -108,4 +112,9 @@ SimpleTextureI* simpleGL::addTexture(std::string path) {
 	while	(!returnValue);
 
 	return returnValue;
+}
+
+void simpleUtil::drawTextures() {
+	for (auto it = textures.begin(); it != textures.end(); it++)
+		(*it)->draw();
 }

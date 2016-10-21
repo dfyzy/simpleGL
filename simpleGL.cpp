@@ -7,13 +7,10 @@
 #include "simpleGL.hpp"
 #include "simpleUtil.hpp"
 
-const int SHADER_ATTRIB_COUNT = 4;
-
 GLFWwindow* window = nullptr;
 unsigned windowWidth, windowHeight;
 
 GLuint vao;
-GLuint vbos[SHADER_ATTRIB_COUNT];
 
 boost::thread thread;
 
@@ -43,6 +40,7 @@ inline void setCreationHints(bool resizable, bool decorated) {
 
 inline void createWindow(const char* title, GLFWmonitor* monitor) {
 	window = glfwCreateWindow(windowWidth, windowHeight, title, monitor, nullptr);
+	simpleUtil::setResolution(windowWidth, windowHeight);
 
 	if (!window) {
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -173,14 +171,6 @@ void programStuff() {
 	glUniform1f(glGetUniformLocation(program, "rAspect"), ((float) windowHeight) / windowWidth);
 }
 
-inline void setAttrib(int id, int size, GLenum type) {
-	glBindBuffer(GL_ARRAY_BUFFER, vbos[id]);
-
-	glVertexAttribPointer(id + 1, size, type, GL_FALSE, 0, nullptr);
-	glEnableVertexAttribArray(id + 1);
-	glVertexAttribDivisor(id + 1, 1);
-}
-
 void draw() {
 	glfwMakeContextCurrent(window);
 
@@ -216,44 +206,22 @@ void draw() {
 
 	programStuff();
 
-	//Data stuff
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	GLuint instanceVBO;
-	glGenBuffers(1, &instanceVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+	simpleUtil::initBuffers();
 
-	float instanceData [] {-0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f};//the quad I'm going to draw instances of
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(instanceData), instanceData, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-	glEnableVertexAttribArray(0);
-
-	glGenBuffers(SHADER_ATTRIB_COUNT, vbos);
-
-	//POSITION
-	setAttrib(0, 3, GL_FLOAT);
-
-	//BOUNDS
-	setAttrib(1, 2, GL_FLOAT);
-
-	//COLOR
-	setAttrib(2, 4, GL_FLOAT);
-
-	//TEX DATA
-	setAttrib(3, 4, GL_FLOAT);
+	glActiveTexture(GL_TEXTURE0);
 
 	while (!glfwWindowShouldClose(window)) {
-		checkTextures();
-		checkSprites();
+		simpleUtil::checkTextures();
+		simpleUtil::checkSprites();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glBindVertexArray(vao);
 
-		glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, 1);
+		simpleUtil::drawTextures();
 
 		glBindVertexArray(0);
 

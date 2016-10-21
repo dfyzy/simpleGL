@@ -1,29 +1,31 @@
 #ifndef SIMPLE_TEXTURE_H
 #define SIMPLE_TEXTURE_H
-//Maybe rename?
-#include <list>
-#include <memory>
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include "color.hpp"
+#include "simpleSprite.hpp"
 
-#include "simpleTextureI.hpp"
-
-class SimpleTexture : public SimpleTextureI {
-private:
-	GLuint texture;
-	std::list<unsigned> sprites;
+class SimpleTexture {
+protected:
+	unsigned width, height;
+	SimpleTexture(unsigned w, unsigned h) : width(w), height(h) {}
 
 public:
-	SimpleTexture(unsigned w, unsigned h, GLuint id) : SimpleTextureI(w, h), texture(id) {}
+	unsigned getWidth() { return width; }
+	unsigned getHeight() { return height; }
 
-	unsigned* createSprite(float x, float y, float z, float w, float h, Color c, float texX, float texY, float texW, float texH);
+	virtual SimpleSprite* createSprite(float x, float y, float z, float w, float h, Color c,
+													float texX, float texY, float texW, float texH) =0;
 
-	void draw();
+	SimpleSprite* createSprite(float x, float y, float z, float w, float h, Color c) {
+		return createSprite(x, y, z, w, h, c, 0, 0, width, height);
+	}
 
+	SimpleSprite* createSprite(float x, float y, float z, Color c) {
+		return createSprite(x, y, z, width, height, c);
+	}
+
+//	virtual void changeSprite() =0;
+//	virtual void deleteSprite() =0;
 };
-
-std::list<std::unique_ptr<SimpleTexture>> textures;
 
 #endif

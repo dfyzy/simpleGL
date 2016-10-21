@@ -5,9 +5,9 @@ in vec2 vTexPosition;
 
 out vec4 fColor;
 
-uniform sampler2D text;
+uniform sampler2DRect text;
 
 void main() {
 
-	fColor = texture(text, vTexPosition);
+	fColor = texture(text, vTexPosition) * vColor;
 }
