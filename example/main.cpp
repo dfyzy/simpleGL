@@ -3,6 +3,9 @@
 #include "../simpleGL.hpp"
 #include <iostream>
 
+SimpleTexture* bodyFront;
+
+SimpleSprite* body;
 SimpleSprite* light;
 
 int width, height;
@@ -17,6 +20,19 @@ void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
 	light->changeColor(Color(xpos/width, 1 - ypos/height, 0));
 }
 
+bool loaded = true;
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+	if (action == GLFW_PRESS) {
+		if (loaded) {
+			body->unload();
+		} else {
+			body = bodyFront->loadSprite(0, 0, 0, Color(1));
+		}
+
+		loaded = !loaded;
+	}
+}
+
 int main() {
 
 	width = 500;
@@ -25,14 +41,15 @@ int main() {
 
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetCursorPosCallback(window, cursorPosCallback);
+	glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
 	simpleGL::startDrawThread();
 
-	SimpleTexture* bodyFront = simpleGL::addTexture("example\\body_front.png");
-	SimpleTexture* brim = simpleGL::addTexture("example\\brim.png");
+	bodyFront = simpleGL::loadTexture("example\\body_front.png");
+	SimpleTexture* brim = simpleGL::loadTexture("example\\brim.png");
 
-	bodyFront->createSprite(0, 0, 0, Color(1));
-	light = brim->createSprite(0, 68.5, 0, Color(1));
+	body = bodyFront->loadSprite(0, 0, 0, Color(1));
+	light = brim->loadSprite(0, 68.5, 0, Color(1));
 
 	boost::asio::io_service io;
 	boost::asio::deadline_timer timer(io);

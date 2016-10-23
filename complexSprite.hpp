@@ -9,7 +9,7 @@ class ComplexSprite : public SimpleSprite {
 public:
 	struct Attrib {
 		enum E { POSITION, BOUNDS, COLOR, TEX_DATA, COUNT } type;
-	 	static const int sizes[4];
+	 	static const unsigned sizes[4];
 
 		std::unique_ptr<float> data;
 		unsigned spriteId;
@@ -31,6 +31,12 @@ public:
 	void changeBounds(float width, float height);
 	void changeColor(Color c);
 	void changeTexData(float texX, float texY, float texW, float texH);
+
+	void unload();
+
+	bool operator==(const ComplexSprite& other) const {
+		return id == other.id;
+	}
 
 };
 

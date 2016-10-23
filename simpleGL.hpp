@@ -52,13 +52,7 @@ namespace simpleGL {
 	 *
 	 * returns: handle to texture object.
 	 */
-	SimpleTexture* addTexture(std::string path);
-
-
-	/*
-	 *	Unloads texture from memory.
-	 */
-	void removeTexture(SimpleTexture* texture);
+	SimpleTexture* loadTexture(std::string path);
 
 }
 

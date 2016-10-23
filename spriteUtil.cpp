@@ -4,9 +4,12 @@
 #include "complexTexture.hpp"
 #include "simpleUtil.hpp"
 
-const int ComplexSprite::Attrib::sizes[4] = {3, 2, 4, 4};
+const unsigned ComplexSprite::Attrib::sizes[4] = {3, 2, 4, 4};
 
-typedef std::array<float, 3 + 2 + 4 + 4> SpriteData;
+struct SpriteData {
+	unsigned spriteId;
+	std::array<float, 3 + 2 + 4 + 4> data;
+};
 
 unsigned resWidth, resHeight;
 const float ZPOINT = 0.0001f;
@@ -15,12 +18,27 @@ GLuint vbos[ComplexSprite::Attrib::COUNT];
 
 boost::mutex spriteMutex;
 std::queue<SpriteData> spriteQueue;
+std::queue<unsigned> deletedQueue;
 
 boost::mutex changeMutex;
 std::queue<ComplexSprite::Attrib> changeQueue;
 
+boost::mutex enableMutex;
+
 unsigned spriteCount = 0;
 unsigned spriteCapacity = 0;
+
+void SimpleSprite::setEnabled(bool b) {
+	boost::lock_guard<boost::mutex> lock(enableMutex);
+
+	enabled = b;
+}
+
+bool SimpleSprite::isEnabled() {
+	boost::lock_guard<boost::mutex> lock(enableMutex);
+
+	return enabled;
+}
 
 void simpleUtil::initBuffers() {
 	GLuint instanceVBO;
@@ -45,28 +63,29 @@ void simpleUtil::initBuffers() {
 	}
 }
 
-void bindSpriteAttrib(ComplexSprite::Attrib::E type, unsigned offset, void* data) {
+void bindSpriteAttrib(ComplexSprite::Attrib::E type, unsigned offset, float* data) {
 	glBindBuffer(GL_ARRAY_BUFFER, vbos[type]);
-	glBufferSubData(GL_ARRAY_BUFFER, offset * ComplexSprite::Attrib::sizes[type] * sizeof(float),
-																ComplexSprite::Attrib::sizes[type] * sizeof(float), data);
+
+	int size = ComplexSprite::Attrib::sizes[type] * sizeof(float);
+	glBufferSubData(GL_ARRAY_BUFFER, offset * size, size, data);
 }
 
 void loadSprites() {
-	for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
-		glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
-		glBufferData(GL_ARRAY_BUFFER, spriteCount * ComplexSprite::Attrib::sizes[i] * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+	if (spriteCapacity < spriteCount) {
+		for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
+			glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
+			glBufferData(GL_ARRAY_BUFFER, spriteCount * ComplexSprite::Attrib::sizes[i] * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+		}
+		spriteCapacity = spriteCount;
 	}
-	spriteCapacity = spriteCount;
 
 	while (!spriteQueue.empty()) {
-		unsigned position = spriteCount - spriteQueue.size();
-
 		SpriteData data = spriteQueue.front();
 		spriteQueue.pop();
 
 		int dataOffset = 0;
 		for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
-			bindSpriteAttrib(static_cast<ComplexSprite::Attrib::E>(i), position, data.data() + dataOffset);
+			bindSpriteAttrib(static_cast<ComplexSprite::Attrib::E>(i), data.spriteId, data.data.data() + dataOffset);
 
 			dataOffset += ComplexSprite::Attrib::sizes[i];
 		}
@@ -106,20 +125,36 @@ void simpleUtil::setResolution(unsigned w, unsigned h) {
 	resHeight = h;
 }
 
-SimpleSprite* ComplexTexture::createSprite(float x, float y, float z, float w, float h, Color c,
+SimpleSprite* ComplexTexture::loadSprite(float x, float y, float z, float w, float h, Color c,
 															float texX, float texY, float texW, float texH) {
 	SpriteData data;
-	data[0] = 2*x/resWidth;			data[1] = 2*y/resHeight;			data[2] = z*ZPOINT;
-	data[3] = 2*w*width/resWidth;	data[4] = 2*h*height/resHeight;
-	data[5] = c.r;						data[6] = c.g;							data[7] = c.b;				data[8] = c.a;
-	data[9] = texX+texW/2;			data[10] = texY+texH/2;				data[11] = texW;			data[12] = texH;
+	data.data[0] = 2*x/resWidth;			data.data[1] = 2*y/resHeight;				data.data[2] = z*ZPOINT;
+	data.data[3] = 2*w*width/resWidth;	data.data[4] = 2*h*height/resHeight;
+	data.data[5] = c.r;						data.data[6] = c.g;							data.data[7] = c.b;			data.data[8] = c.a;
+	data.data[9] = texX+texW/2;			data.data[10] = texY+texH/2;				data.data[11] = texW;		data.data[12] = texH;
 
 	boost::lock_guard<boost::mutex> lock(spriteMutex);
+	unsigned id;
+	if (!deletedQueue.empty()) {
+		id = deletedQueue.front();
+		deletedQueue.pop();
+	}else	id = spriteCount++;
+
+	data.spriteId = id;
 	spriteQueue.push(data);
 
-	sprites.push_back(ComplexSprite(spriteCount++, this));
+	sprites.push_back(ComplexSprite(id, this));
 
 	return &(*--sprites.end());
+}
+
+void ComplexSprite::unload() {
+	boost::lock_guard<boost::mutex> lock(spriteMutex);
+
+	if (id < spriteCount - 1)
+		deletedQueue.push(id);
+
+	texture->removeSprite(this);
 }
 
 void ComplexTexture::draw() {

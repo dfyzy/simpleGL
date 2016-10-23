@@ -99,10 +99,11 @@ void simpleUtil::checkTextures() {
 	bool empty = texturePath.empty();
 	textureMutex.unlock();
 
-	if (!empty)	loadTexture();//this happens only when main thread is waiting so we don't need lock here
+	//this happens only when main thread is waiting for notify so we don't need lock here
+	if (!empty)	loadTexture();
 }
 
-SimpleTexture* simpleGL::addTexture(std::string path) {
+SimpleTexture* simpleGL::loadTexture(std::string path) {
 	boost::unique_lock<boost::mutex> lock(textureMutex);
 	returnValue = nullptr;
 
@@ -112,6 +113,11 @@ SimpleTexture* simpleGL::addTexture(std::string path) {
 	while	(!returnValue);
 
 	return returnValue;
+}
+
+void ComplexTexture::unload() {
+
+	
 }
 
 void simpleUtil::drawTextures() {
