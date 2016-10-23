@@ -153,6 +153,8 @@ void ComplexSprite::unload() {
 
 	if (id < spriteCount - 1)
 		deletedQueue.push(id);
+	else
+		spriteCount--;
 
 	texture->removeSprite(this);
 }
