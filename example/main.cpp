@@ -18,9 +18,11 @@ int main() {
 
 	simpleGL::startDrawThread();
 
-	SimpleTexture* texture = simpleGL::addTexture("example\\body_front.png");
+	SimpleTexture* bodyFront = simpleGL::addTexture("example\\body_front.png");
+	SimpleTexture* brim = simpleGL::addTexture("example\\brim.png");
 
-	texture->createSprite(0, 0, 0, Color(1));
+	bodyFront->createSprite(0, 0, 0, Color(1));
+	brim->createSprite(0, 68.5, 0, Color(1));
 
 	boost::asio::io_service io;
 	boost::asio::deadline_timer timer(io);

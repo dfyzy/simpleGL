@@ -6,7 +6,7 @@
 #include "complexTexture.hpp"
 #include "simpleUtil.hpp"
 
-std::list<std::unique_ptr<ComplexTexture>> textures;
+std::list<ComplexTexture> textures;
 
 boost::mutex textureMutex;
 boost::condition_variable returnReady;
@@ -67,10 +67,10 @@ void loadTexture() {
 	GLuint texture;
 	glGenTextures(1, &texture);
 
-	ComplexTexture* st = new ComplexTexture(width, height, texture);
-	textures.push_back(std::unique_ptr<ComplexTexture>(st));
+	ComplexTexture ct(width, height, texture);
+	textures.push_back(ct);
 
-	returnValue = st;
+	returnValue = &(*--textures.end());
 	returnReady.notify_one();
 
 	glBindTexture(GL_TEXTURE_RECTANGLE, texture);
@@ -99,7 +99,7 @@ void simpleUtil::checkTextures() {
 	bool empty = texturePath.empty();
 	textureMutex.unlock();
 
-	if (!empty)	loadTexture();
+	if (!empty)	loadTexture();//this happens only when main thread is waiting so we don't need lock here
 }
 
 SimpleTexture* simpleGL::addTexture(std::string path) {
@@ -116,5 +116,5 @@ SimpleTexture* simpleGL::addTexture(std::string path) {
 
 void simpleUtil::drawTextures() {
 	for (auto it = textures.begin(); it != textures.end(); it++)
-		(*it)->draw();
+		it->draw();
 }
