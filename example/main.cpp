@@ -3,6 +3,9 @@
 #include "../simpleGL.hpp"
 #include <iostream>
 
+SimpleSprite* light;
+
+int width, height;
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
 	if ((action == GLFW_PRESS) && (key == GLFW_KEY_ESCAPE))
@@ -10,11 +13,18 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 
 }
 
+void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
+	light->changeColor(Color(xpos/width, 1 - ypos/height, 0));
+}
+
 int main() {
 
-	GLFWwindow* window = simpleGL::createWindowedWindow("Title", 500, 500, false, true);
+	width = 500;
+	height = 500;
+	GLFWwindow* window = simpleGL::createWindowedWindow("Title", width, height, false, true);
 
 	glfwSetKeyCallback(window, keyCallback);
+	glfwSetCursorPosCallback(window, cursorPosCallback);
 
 	simpleGL::startDrawThread();
 
@@ -22,7 +32,7 @@ int main() {
 	SimpleTexture* brim = simpleGL::addTexture("example\\brim.png");
 
 	bodyFront->createSprite(0, 0, 0, Color(1));
-	brim->createSprite(0, 68.5, 0, Color(1));
+	light = brim->createSprite(0, 68.5, 0, Color(1));
 
 	boost::asio::io_service io;
 	boost::asio::deadline_timer timer(io);
