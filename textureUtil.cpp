@@ -116,8 +116,10 @@ SimpleTexture* simpleGL::loadTexture(std::string path) {
 }
 
 void ComplexTexture::unload() {
+	for (auto it = sprites.begin(); it != sprites.end(); it++)
+		it->unload();
 
-	
+	glDeleteTextures(1, &texture);
 }
 
 void simpleUtil::drawTextures() {
