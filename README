@@ -6,6 +6,6 @@ TODO:
 -Better texture loading(clusters)
 -Window resizability
 -Fonts
--Particles????(because really, we already draw instances, surely there is no need for futher optimization)
+-Particles????(because really, we already draw instances, surely there is no need for further optimization)
 -Audio
 -Custom shaders
