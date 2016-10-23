@@ -1,1 +1,12 @@
-stuff
+Using OpenGL, GLFW, GLEW and libpng.
+
+You can draw stuff now.
+
+TODO:
+-Better sprite data managment(resizing buffers)
+-Better texture loading(clusters)
+-Window resizability
+-Fonts
+-Particles
+-Audio
+-Custom shaders

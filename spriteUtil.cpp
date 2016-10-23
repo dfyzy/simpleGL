@@ -61,6 +61,12 @@ void simpleUtil::initBuffers() {
 		glEnableVertexAttribArray(i + 1);
 		glVertexAttribDivisor(i + 1, 1);
 	}
+
+	for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
+		glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
+		glBufferData(GL_ARRAY_BUFFER, 10 * ComplexSprite::Attrib::sizes[i] * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+	}
+	spriteCapacity = 10;
 }
 
 void bindSpriteAttrib(ComplexSprite::Attrib::E type, unsigned offset, float* data) {
@@ -71,13 +77,13 @@ void bindSpriteAttrib(ComplexSprite::Attrib::E type, unsigned offset, float* dat
 }
 
 void loadSprites() {
-	if (spriteCapacity < spriteCount) {
+	/*if (spriteCapacity < spriteCount) {
 		for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
 			glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
 			glBufferData(GL_ARRAY_BUFFER, spriteCount * ComplexSprite::Attrib::sizes[i] * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 		}
 		spriteCapacity = spriteCount;
-	}
+	}*/
 
 	while (!spriteQueue.empty()) {
 		SpriteData data = spriteQueue.front();

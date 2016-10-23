@@ -13,7 +13,6 @@ public:
 	unsigned getWidth() { return width; }
 	unsigned getHeight() { return height; }
 
-	//SpriteData?
 	virtual SimpleSprite* loadSprite(float x, float y, float z, float w, float h, Color c,
 													float texX, float texY, float texW, float texH) =0;
 
@@ -30,7 +29,7 @@ public:
 	}
 
 	virtual void unload() =0;
-	
+
 };
 
 #endif
