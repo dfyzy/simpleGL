@@ -41,9 +41,9 @@ bool SimpleSprite::isEnabled() {
 }
 
 void simpleUtil::initBuffers() {
-	GLuint instanceVBO;
-	glGenBuffers(1, &instanceVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+	GLuint instanceVbo;
+	glGenBuffers(1, &instanceVbo);
+	glBindBuffer(GL_ARRAY_BUFFER, instanceVbo);
 
 	float instanceData [] {-0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f};//the quad I'm going to draw instances of
 
@@ -62,14 +62,14 @@ void simpleUtil::initBuffers() {
 		glVertexAttribDivisor(i + 1, 1);
 	}
 
+	spriteCapacity = 5;
 	for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
 		glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
-		glBufferData(GL_ARRAY_BUFFER, 10 * ComplexSprite::Attrib::sizes[i] * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, spriteCapacity * ComplexSprite::Attrib::sizes[i] * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 	}
-	spriteCapacity = 10;
 }
 
-void bindSpriteAttrib(ComplexSprite::Attrib::E type, unsigned offset, float* data) {
+inline void bindSpriteAttrib(ComplexSprite::Attrib::E type, unsigned offset, float* data) {
 	glBindBuffer(GL_ARRAY_BUFFER, vbos[type]);
 
 	int size = ComplexSprite::Attrib::sizes[type] * sizeof(float);
@@ -77,13 +77,34 @@ void bindSpriteAttrib(ComplexSprite::Attrib::E type, unsigned offset, float* dat
 }
 
 void loadSprites() {
-	/*if (spriteCapacity < spriteCount) {
+	if (spriteCapacity < spriteCount) {
+		GLuint tempVbo;
+		glGenBuffers(1, &tempVbo);
+
 		for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
-			glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
-			glBufferData(GL_ARRAY_BUFFER, spriteCount * ComplexSprite::Attrib::sizes[i] * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+			int size = ComplexSprite::Attrib::sizes[i] * sizeof(float);
+
+			glBindBuffer(GL_COPY_WRITE_BUFFER, tempVbo);
+			glBufferData(GL_COPY_WRITE_BUFFER, spriteCapacity * size, nullptr, GL_DYNAMIC_DRAW);
+
+			glBindBuffer(GL_COPY_READ_BUFFER, vbos[i]);
+			glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, spriteCapacity * size);
+
+			glBindBuffer(GL_COPY_WRITE_BUFFER, vbos[i]);
+			glBufferData(GL_COPY_WRITE_BUFFER, spriteCount * size, nullptr, GL_DYNAMIC_DRAW);
+
+			glBindBuffer(GL_COPY_READ_BUFFER, tempVbo);
+			glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, spriteCapacity * size);
+
+			// TODO: check if one copy/change of attrib is faster than copy/copy
+			// GLuint t = vbos[i];
+			// vbos[i] = tempVbo;
+			// tempVbo = t;
 		}
+		glDeleteBuffers(1, &tempVbo);
+
 		spriteCapacity = spriteCount;
-	}*/
+	}
 
 	while (!spriteQueue.empty()) {
 		SpriteData data = spriteQueue.front();

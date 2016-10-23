@@ -3,10 +3,9 @@ Using OpenGL, GLFW, GLEW and libpng.
 You can draw stuff now.
 
 TODO:
--Better sprite data managment(resizing buffers)
 -Better texture loading(clusters)
 -Window resizability
 -Fonts
--Particles
+-Particles????(because really, we already draw instances, surely there is no need for futher optimization)
 -Audio
 -Custom shaders

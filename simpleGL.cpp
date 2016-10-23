@@ -213,7 +213,17 @@ void draw() {
 
 	glActiveTexture(GL_TEXTURE0);
 
+	double lastFPSTime = glfwGetTime();
+	int frames = 0;
 	while (!glfwWindowShouldClose(window)) {
+		double currentTime = glfwGetTime();
+		frames++;
+		if (currentTime - lastFPSTime >= 1.0) {
+			std::cout << "fps: " << frames << "; spf: " << 1.0/frames << ";" << std::endl;
+			frames = 0;
+			lastFPSTime = currentTime;
+		}
+
 		simpleUtil::checkTextures();
 		simpleUtil::checkSprites();
 
