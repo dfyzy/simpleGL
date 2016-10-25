@@ -67,8 +67,7 @@ void loadTexture() {
 	GLuint texture;
 	glGenTextures(1, &texture);
 
-	ComplexTexture ct(width, height, texture);
-	textures.push_back(ct);
+	textures.push_back(ComplexTexture(width, height, texture));
 
 	returnValue = &(*--textures.end());
 	returnReady.notify_one();
@@ -116,10 +115,14 @@ SimpleTexture* simpleGL::loadTexture(std::string path) {
 }
 
 void ComplexTexture::unload() {
-	for (auto it = sprites.begin(); it != sprites.end(); it++)
-		it->unload();
+	boost::lock_guard<boost::mutex> lock(textureMutex);
 
-	glDeleteTextures(1, &texture);
+	for (auto it = sprites.begin(); it != sprites.end(); it++)
+		it->deleteData();
+
+	glDeleteTextures(1, &texture);//not sure if this can change value of texture. no reason why it should.
+
+	textures.remove(*this);
 }
 
 void simpleUtil::drawTextures() {

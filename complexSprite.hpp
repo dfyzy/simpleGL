@@ -32,6 +32,8 @@ public:
 	void changeColor(Color c);
 	void changeTexData(float texX, float texY, float texW, float texH);
 
+	void deleteData();
+
 	void unload();
 
 	bool operator==(const ComplexSprite& other) const {

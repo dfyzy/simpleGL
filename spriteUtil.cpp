@@ -96,7 +96,7 @@ void loadSprites() {
 			glBindBuffer(GL_COPY_READ_BUFFER, tempVbo);
 			glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, spriteCapacity * size);
 
-			// TODO: check if one copy/change of attrib is faster than copy/copy
+			// TODO: check if one copy/attribpointer is faster than copy/copy
 			// GLuint t = vbos[i];
 			// vbos[i] = tempVbo;
 			// tempVbo = t;
@@ -154,7 +154,7 @@ void simpleUtil::setResolution(unsigned w, unsigned h) {
 
 SimpleSprite* ComplexTexture::loadSprite(float x, float y, float z, float w, float h, Color c,
 															float texX, float texY, float texW, float texH) {
-	SpriteData data;
+	SpriteData data;//hmmmmmmmmmmmmmmmmmmm
 	data.data[0] = 2*x/resWidth;			data.data[1] = 2*y/resHeight;				data.data[2] = z*ZPOINT;
 	data.data[3] = 2*w*width/resWidth;	data.data[4] = 2*h*height/resHeight;
 	data.data[5] = c.r;						data.data[6] = c.g;							data.data[7] = c.b;			data.data[8] = c.a;
@@ -175,19 +175,25 @@ SimpleSprite* ComplexTexture::loadSprite(float x, float y, float z, float w, flo
 	return &(*--sprites.end());
 }
 
-void ComplexSprite::unload() {
-	boost::lock_guard<boost::mutex> lock(spriteMutex);
-
+void ComplexSprite::deleteData() {
 	if (id < spriteCount - 1)
 		deletedQueue.push(id);
 	else
 		spriteCount--;
+}
+
+void ComplexSprite::unload() {
+	boost::lock_guard<boost::mutex> lock(spriteMutex);
+
+	deleteData();
 
 	texture->removeSprite(this);
 }
 
 void ComplexTexture::draw() {
 	glBindTexture(GL_TEXTURE_RECTANGLE, texture);
+
+	boost::lock_guard<boost::mutex> lock(spriteMutex);
 
 	for (ComplexSprite cs : sprites) {
 		unsigned id = cs.getId();

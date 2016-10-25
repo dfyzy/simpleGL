@@ -29,6 +29,10 @@ public:
 
 	void unload();
 
+	bool operator==(const ComplexTexture& other) const {
+		return texture == other.texture;
+	}
+
 };
 
 #endif

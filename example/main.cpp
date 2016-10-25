@@ -3,9 +3,7 @@
 #include "../simpleGL.hpp"
 #include <iostream>
 
-SimpleTexture* eye;
-
-SimpleSprite* light;
+SimpleSprite* brimSprite;
 
 int width, height;
 
@@ -16,17 +14,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 }
 
 void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
-	light->changeColor(Color(xpos/width, 1 - ypos/height, 0));
-	eye->loadSprite(xpos - width*0.5f, height*0.5f - ypos, -1, Color(1));
-}
-
-void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-	if (action == GLFW_PRESS) {
-		double x, y;
-		glfwGetCursorPos(window, &x, &y);
-
-
-	}
+	brimSprite->changeColor(Color(xpos/width, 1 - ypos/height, 0));
 }
 
 int main() {
@@ -37,16 +25,19 @@ int main() {
 
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetCursorPosCallback(window, cursorPosCallback);
-	// glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
 	simpleGL::startDrawThread();
 
 	SimpleTexture* bodyFront = simpleGL::loadTexture("example\\body_front.png");
 	SimpleTexture* brim = simpleGL::loadTexture("example\\brim.png");
-	eye = simpleGL::loadTexture("example\\eye.png");
+	SimpleTexture* light = simpleGL::loadTexture("example\\light.png");
+	SimpleTexture* eye = simpleGL::loadTexture("example\\eye.png");
 
-	bodyFront->loadSprite(0, 0, 0, Color(1));
-	light = brim->loadSprite(0, 68.5, 0, Color(1));
+	bodyFront->loadSprite(0, 0, 0, Color(1));//338/101.25*(0.499 + ) + 123/2 + /2
+	brimSprite = brim->loadSprite(0, 68.6, 0, Color(1));
+	light->loadSprite(0, 108.8, 1, Color(1));
+	eye->loadSprite(50.2, 32.1, -1, Color(1));
+	eye->loadSprite(-50.2, 32.1, -1, Color(1));
 
 	boost::asio::io_service io;
 	boost::asio::deadline_timer timer(io);
