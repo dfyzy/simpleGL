@@ -15,11 +15,12 @@ std::string texturePath;
 SimpleTexture* returnValue = nullptr;
 
 void loadTexture() {
-	std::cout << "Loading texture: " << texturePath << std::endl;
+	simpleUtil::print("Loading texture");
 
 	FILE *file = fopen(texturePath.c_str(), "rb");
 	if (!file) {
-		std::cout << "Error opening texture" << std::endl;
+		simpleUtil::print("Error opening texture");
+		texturePath.clear();
 		return;
 	}
 
@@ -28,28 +29,28 @@ void loadTexture() {
 	png_byte header[8];
 	fread(header, 1, 8, file);
 	if (png_sig_cmp(header, 0, 8)) {
-		std::cout << "Not a png" << std::endl;
+		simpleUtil::print("Not a png");
 		fclose(file);
 		return;
 	}
 
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	if (!png_ptr) {
-		std::cout << "Failed to create read struct" << std::endl;
+		simpleUtil::print("Failed to create read struct");
 		fclose(file);
 		return;
 	}
 
 	png_infop info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr) {
-		std::cout << "Failed to create info struct" << std::endl;
+		simpleUtil::print("Failed to create info struct");
 		png_destroy_read_struct(&png_ptr, nullptr, nullptr);
 		fclose(file);
 		return;
 	}
 
 	if (setjmp(png_jmpbuf(png_ptr))) {
-		std::cout << "Libpng error" << std::endl;
+		simpleUtil::print("Libpng error");
 		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 		fclose(file);
 		return;

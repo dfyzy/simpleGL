@@ -1,6 +1,5 @@
 #include <fstream>
 #include <boost/thread.hpp>
-#include <iostream>//TODO: logs
 
 #include <windows.h>
 
@@ -15,16 +14,16 @@ GLuint vao;
 boost::thread thread;
 
 void errorCallback(int error, const char* description) {
-	std::cout << "GLFW Error (" << error << "): " << description << std::endl;
+	simpleUtil::print(description);
 }
 
 inline void init() {
 	glfwSetErrorCallback(errorCallback);
 
 	if(!glfwInit()) {
-		std::cout << "Failed to initialize GLFW" << std::endl;
+		simpleUtil::print("Failed to initialize GLFW");
 		exit(EXIT_FAILURE);
-	} else std::cout << "GLFW initialized" << std::endl;
+	} else simpleUtil::print("GLFW initialized");
 }
 
 inline void setCreationHints(bool resizable, bool decorated) {
@@ -43,7 +42,7 @@ inline void createWindow(const char* title, GLFWmonitor* monitor) {
 	simpleUtil::setResolution(windowWidth, windowHeight);
 
 	if (!window) {
-		std::cout << "Failed to create GLFW window" << std::endl;
+		simpleUtil::print("Failed to create GLFW window");
 		glfwTerminate();
 		exit(EXIT_FAILURE);
 	}
@@ -51,7 +50,7 @@ inline void createWindow(const char* title, GLFWmonitor* monitor) {
 
 GLFWwindow* simpleGL::createFullscreenWindow(const char* title, bool borderless) {
 	if (window)	{
-		std::cout << "Why would you need more than one window?" << std::endl;
+		simpleUtil::print("Why would you need more than one window?");
 		return nullptr;
 	}
 
@@ -78,7 +77,7 @@ GLFWwindow* simpleGL::createFullscreenWindow(const char* title, bool borderless)
 
 GLFWwindow* simpleGL::createWindowedWindow(const char* title, unsigned width, unsigned height, bool resizable, bool decorated) {
 	if (window)	{
-		std::cout << "Why would you need more than one window?" << std::endl;
+		simpleUtil::print("Why would you need more than one window?");
 		return nullptr;
 	}
 
@@ -101,7 +100,7 @@ void printOutProgInfoLog(GLuint program) {
 	std::unique_ptr<GLchar> infoLog(new GLchar[length + 1]);
 	glGetProgramInfoLog(program, length, nullptr, infoLog.get());
 
-	std::cout << "Program #" << program << " infolog: " << infoLog.get() << std::endl;
+	simpleUtil::print(infoLog.get());
 }
 
 const int MAX_PATH_CHARS = 64;
@@ -134,8 +133,8 @@ GLuint loadShader(std::string filename, GLenum type) {
 		std::unique_ptr<GLchar> infoLog(new GLchar[length + 1]);
 		glGetShaderInfoLog(shader, length, nullptr, infoLog.get());
 
-		std::cout << "Compilation error in shader #" << type << ": " << infoLog.get() << std::endl;
-	} else	std::cout << "Compiled shader #" << type << std::endl;
+		simpleUtil::print(infoLog.get());
+	} else	simpleUtil::print("Compiled shader");
 
 	return shader;
 }
@@ -156,7 +155,7 @@ void programStuff() {
 		printOutProgInfoLog(program);
 		glfwTerminate();
 		exit(EXIT_FAILURE);
-	} else	std::cout << "Program #" << program << " linked" << std::endl;
+	} else	simpleUtil::print("Program linked");
 
 	glValidateProgram(program);
 	glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
@@ -164,7 +163,7 @@ void programStuff() {
 		printOutProgInfoLog(program);
 		glfwTerminate();
 		exit(EXIT_FAILURE);
-	} else	std::cout << "Program #" << program << " validated" << std::endl;
+	} else	simpleUtil::print("Program validated");
 
 	glUseProgram(program);
 
@@ -178,10 +177,10 @@ void draw() {
 	glewExperimental = GL_TRUE;
 	// Initialize GLEW to setup the OpenGL Function pointers
 	if (glewInit() != GLEW_OK) {
-		std::cout << "Failed to initialize GLEW" << std::endl;
+		simpleUtil::print("Failed to initialize GLEW");
 		glfwTerminate();
 		exit(EXIT_FAILURE);
-	} else	std::cout << "GLEW initialized" << std::endl;
+	} else	simpleUtil::print("GLEW initialized");
 
 	#ifdef _WIN32
 	// Turn on vertical screen sync under Windows.
@@ -213,16 +212,20 @@ void draw() {
 
 	glActiveTexture(GL_TEXTURE0);
 
-	double lastFPSTime = glfwGetTime();
-	int frames = 0;
+	#if defined FPS_COUNTER && defined DEBUG
+		double lastFPSTime = glfwGetTime();
+		int frames = 0;
+	#endif
 	while (!glfwWindowShouldClose(window)) {
-		double currentTime = glfwGetTime();
-		frames++;
-		if (currentTime - lastFPSTime >= 1.0) {
-			std::cout << "fps: " << frames << "; spf: " << 1.0/frames << ";" << std::endl;
-			frames = 0;
-			lastFPSTime = currentTime;
-		}
+		#if defined FPS_COUNTER && defined DEBUG
+			double currentTime = glfwGetTime();
+			frames++;
+			if (currentTime - lastFPSTime >= 1.0) {
+				std::cout << "fps: " << frames << "; spf: " << 1.0/frames << ";" << std::endl;
+				frames = 0;
+				lastFPSTime = currentTime;
+			}
+		#endif
 
 		simpleUtil::checkTextures();
 		simpleUtil::checkSprites();
