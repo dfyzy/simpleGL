@@ -7,7 +7,7 @@
 
 namespace simpleUtil {
 
-	void print(const char* str) {
+	inline void print(const char* str) {
 		#ifdef DEBUG
 			std::cout << str << std::endl;
 		#endif

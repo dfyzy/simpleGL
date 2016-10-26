@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include <boost/thread.hpp>
+
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -38,12 +40,7 @@ namespace simpleGL {
 	 * Starts thread on which the opengl context will be initializated.
 	 * Should call this function before loading textures.
 	 */
-	void startDrawThread();
-
-	/*
-	 * Waits for draw thread to finish. Do not call if glfwWindowShouldClose is false.
-	 */
-	void joinDrawThread();
+	boost::thread startDrawThread();
 
 	/*
 	 * Loads texture from file into opengl texture object. Only works with png images(for now?).

@@ -9,10 +9,16 @@
 std::list<ComplexTexture> textures;
 
 boost::mutex textureMutex;
-boost::condition_variable returnReady;
+boost::condition_variable condVariable;
+bool returnReady;
 
 std::string texturePath;
 SimpleTexture* returnValue = nullptr;
+
+inline void notify() {
+	returnReady = true;
+	condVariable.notify_one();
+}
 
 void loadTexture() {
 	simpleUtil::print("Loading texture");
@@ -21,6 +27,7 @@ void loadTexture() {
 	if (!file) {
 		simpleUtil::print("Error opening texture");
 		texturePath.clear();
+		notify();
 		return;
 	}
 
@@ -31,6 +38,7 @@ void loadTexture() {
 	if (png_sig_cmp(header, 0, 8)) {
 		simpleUtil::print("Not a png");
 		fclose(file);
+		notify();
 		return;
 	}
 
@@ -38,6 +46,7 @@ void loadTexture() {
 	if (!png_ptr) {
 		simpleUtil::print("Failed to create read struct");
 		fclose(file);
+		notify();
 		return;
 	}
 
@@ -46,6 +55,7 @@ void loadTexture() {
 		simpleUtil::print("Failed to create info struct");
 		png_destroy_read_struct(&png_ptr, nullptr, nullptr);
 		fclose(file);
+		notify();
 		return;
 	}
 
@@ -53,6 +63,7 @@ void loadTexture() {
 		simpleUtil::print("Libpng error");
 		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 		fclose(file);
+		notify();
 		return;
 	}
 
@@ -71,7 +82,7 @@ void loadTexture() {
 	textures.push_back(ComplexTexture(width, height, texture));
 
 	returnValue = &(*--textures.end());
-	returnReady.notify_one();
+	notify();
 
 	glBindTexture(GL_TEXTURE_RECTANGLE, texture);
 
@@ -105,12 +116,12 @@ void simpleUtil::checkTextures() {
 
 SimpleTexture* simpleGL::loadTexture(std::string path) {
 	boost::unique_lock<boost::mutex> lock(textureMutex);
-	returnValue = nullptr;
+	returnReady = false;
 
 	texturePath = path;
 
-	do 	returnReady.wait(lock);
-	while	(!returnValue);
+	do 	condVariable.wait(lock);
+	while	(!returnReady);
 
 	return returnValue;
 }

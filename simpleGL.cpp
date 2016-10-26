@@ -1,5 +1,4 @@
 #include <fstream>
-#include <boost/thread.hpp>
 
 #include <windows.h>
 
@@ -10,8 +9,6 @@ GLFWwindow* window = nullptr;
 unsigned windowWidth, windowHeight;
 
 GLuint vao;
-
-boost::thread thread;
 
 void errorCallback(int error, const char* description) {
 	simpleUtil::print(description);
@@ -244,10 +241,6 @@ void draw() {
 	glfwTerminate();//raii
 }
 
-void simpleGL::startDrawThread() {
-	thread = boost::thread(draw);
-}
-
-void simpleGL::joinDrawThread() {
-	thread.join();
+boost::thread simpleGL::startDrawThread() {
+	return boost::thread(draw);
 }

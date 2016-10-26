@@ -1,7 +1,7 @@
-#include <boost/asio.hpp>
-
-#include "../simpleGL.hpp"
+#include <simpleGL/simpleGL.hpp>
 #include <iostream>
+
+typedef boost::chrono::duration<double, boost::ratio<1, 30>> duration;
 
 SimpleSprite* brimSprite;
 
@@ -26,7 +26,7 @@ int main() {
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetCursorPosCallback(window, cursorPosCallback);
 
-	simpleGL::startDrawThread();
+	boost::thread thread = simpleGL::startDrawThread();
 
 	SimpleTexture* bodyFront = simpleGL::loadTexture("example\\body_front.png");
 	SimpleTexture* brim = simpleGL::loadTexture("example\\brim.png");
@@ -39,15 +39,14 @@ int main() {
 	eye->loadSprite(50.2, 32.1, -1, Color(1));
 	eye->loadSprite(-50.2, 32.1, -1, Color(1));
 
-	boost::asio::io_service io;
-	boost::asio::deadline_timer timer(io);
-
 	while (!glfwWindowShouldClose(window)) {
-		timer.expires_from_now(boost::posix_time::milliseconds(25));
+		auto lastTimePoint = boost::chrono::system_clock::now();
+
 		glfwPollEvents();
 
-		timer.wait();
+		auto thisTimePoint = boost::chrono::system_clock::now();
+		boost::this_thread::sleep_for(duration(1) - (thisTimePoint - lastTimePoint));
 	}
 
-	simpleGL::joinDrawThread();
+	thread.join();
 }
