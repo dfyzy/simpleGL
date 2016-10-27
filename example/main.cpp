@@ -33,7 +33,7 @@ int main() {
 	SimpleTexture* light = simpleGL::loadTexture("example\\light.png");
 	SimpleTexture* eye = simpleGL::loadTexture("example\\eye.png");
 
-	bodyFront->loadSprite(0, 0, 0, SimpleColor(1));//338/101.25*(0.499 + ) + 123/2 + /2
+	bodyFront->loadSprite(0, 0, 0, SimpleColor(1));
 	brimSprite = brim->loadSprite(0, 68.6, 0, SimpleColor(1));
 	light->loadSprite(0, 108.8, 1, SimpleColor(1));
 	eye->loadSprite(50.2, 32.1, -1, SimpleColor(1));

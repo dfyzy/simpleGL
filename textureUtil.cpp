@@ -21,7 +21,8 @@ namespace simpleUtil {
 	ComplexTexture* unloadingTexture = nullptr;
 	bool needUnload = false;
 
-	GLenum textureFilter = GL_LINEAR;
+	GLenum textureFilter = GL_NEAREST;
+	bool needFiltering = false;
 
 	inline void notify() {
 		returnReady = true;
@@ -87,12 +88,6 @@ namespace simpleUtil {
 		GLuint texture;
 		glGenTextures(1, &texture);
 
-		glBindTexture(GL_TEXTURE_RECTANGLE, texture);
-
-		//this
-		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, textureFilter);
-		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, textureFilter);
-
 		textures.push_back(ComplexTexture(width, height, texture));
 		returnValue = &(*--textures.end());
 		notify();
@@ -120,6 +115,14 @@ namespace simpleUtil {
 		if (needUnload)	unloadingTexture->unloadTexture();
 	}
 
+	void checkFiltering() {
+		boost::lock_guard<boost::mutex> lock(textureMutex);
+
+		if (needFiltering)
+			for (auto it = textures.begin(); it != textures.end(); it++)
+				it->changeFiltering();
+	}
+
 	void checkTextures() {
 		checkUnloading();
 
@@ -129,8 +132,9 @@ namespace simpleUtil {
 
 		//loadTexture happens only when main thread is waiting for notify so we don't need lock here
 		if (!empty)	loadTexture();
-	}
 
+		checkFiltering();
+	}
 
 	void drawTextures() {
 		for (auto it = textures.begin(); it != textures.end(); it++)
@@ -154,9 +158,20 @@ SimpleTexture* simpleGL::loadTexture(std::string path) {
 }
 
 void simpleGL::changeTextureFiltering(GLenum tf) {
-	// boost::lock_guard<boost::mutex> lock(textureMutex);
+	boost::lock_guard<boost::mutex> lock(textureMutex);
+	if (tf == textureFilter)	return;
 
+	textureFilter = tf;
+	needFiltering = true;
+}
 
+void ComplexTexture::changeFiltering() {
+	glBindTexture(GL_TEXTURE_RECTANGLE, texture);
+
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, textureFilter);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, textureFilter);
+
+	needFiltering = false;
 }
 
 void ComplexTexture::unloadTexture() {

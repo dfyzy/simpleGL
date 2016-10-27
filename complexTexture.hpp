@@ -16,7 +16,9 @@ private:
 	std::list<ComplexSprite> sprites;
 
 public:
-	ComplexTexture(unsigned w, unsigned h, GLuint id) : SimpleTexture(w, h), texture(id) {}
+	ComplexTexture(unsigned w, unsigned h, GLuint id) : SimpleTexture(w, h), texture(id) {
+		changeFiltering();
+	}
 
 	SimpleSprite* loadSprite(float x, float y, float z, float w, float h, SimpleColor c,
 											float texX, float texY, float texW, float texH);
@@ -26,6 +28,8 @@ public:
 	}
 
 	void draw();
+
+	void changeFiltering();
 
 	void unloadTexture();
 
