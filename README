@@ -5,7 +5,7 @@ You can draw stuff now.
 TODO:
 -Fonts
 -Better texture loading(clusters)
--Buffer data resizing
+-Buffer data proper resizing
 -Window resizability
 -Particles????(because really, we already draw instances, surely there is no need for further optimization)
 -Audio

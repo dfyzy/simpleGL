@@ -17,6 +17,12 @@ namespace simpleUtil {
 	std::string texturePath;
 	SimpleTexture* returnValue = nullptr;
 
+	boost::mutex untextureMutex;
+	ComplexTexture* unloadingTexture = nullptr;
+	bool needUnload = false;
+
+	GLenum textureFilter = GL_LINEAR;
+
 	inline void notify() {
 		returnReady = true;
 		condVariable.notify_one();
@@ -81,15 +87,16 @@ namespace simpleUtil {
 		GLuint texture;
 		glGenTextures(1, &texture);
 
-		textures.push_back(ComplexTexture(width, height, texture));
+		glBindTexture(GL_TEXTURE_RECTANGLE, texture);
 
+		//this
+		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, textureFilter);
+		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, textureFilter);
+
+		textures.push_back(ComplexTexture(width, height, texture));
 		returnValue = &(*--textures.end());
 		notify();
 
-		glBindTexture(GL_TEXTURE_RECTANGLE, texture);
-
-		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -107,12 +114,20 @@ namespace simpleUtil {
 		fclose(file);
 	}
 
+	void checkUnloading() {
+		boost::lock_guard<boost::mutex> lock(untextureMutex);
+
+		if (needUnload)	unloadingTexture->unloadTexture();
+	}
+
 	void checkTextures() {
+		checkUnloading();
+
 		textureMutex.lock();
 		bool empty = texturePath.empty();
 		textureMutex.unlock();
 
-		//this happens only when main thread is waiting for notify so we don't need lock here
+		//loadTexture happens only when main thread is waiting for notify so we don't need lock here
 		if (!empty)	loadTexture();
 	}
 
@@ -138,13 +153,26 @@ SimpleTexture* simpleGL::loadTexture(std::string path) {
 	return returnValue;
 }
 
-void ComplexTexture::unload() {
-	boost::lock_guard<boost::mutex> lock(textureMutex);
+void simpleGL::changeTextureFiltering(GLenum tf) {
+	// boost::lock_guard<boost::mutex> lock(textureMutex);
 
+
+}
+
+void ComplexTexture::unloadTexture() {
 	for (auto it = sprites.begin(); it != sprites.end(); it++)
 		it->deleteData();
 
 	glDeleteTextures(1, &texture);//not sure if this can change value of texture. no reason why it should.
 
 	textures.remove(*this);
+
+	needUnload = false;
+}
+
+void ComplexTexture::unload() {
+	boost::lock_guard<boost::mutex> lock(untextureMutex);
+
+	unloadingTexture = this;
+	needUnload = true;
 }

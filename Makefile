@@ -21,3 +21,5 @@ install:
 
 example: $(EXM)
 	g++ $(CPPFLAGS) -o example $(EXM) -I$(INCPATH) $(STLIBS) -L$(LIBPATH) -lsimpleGL $(LIBS)
+
+all: static install example

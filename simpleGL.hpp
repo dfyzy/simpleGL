@@ -36,13 +36,21 @@ namespace simpleGL {
 	 */
 	GLFWwindow* createWindowedWindow(const char* title, unsigned width, unsigned height, bool resizable, bool decorated);
 
+	/*
+	 * Returns width of the created window.
+	 */
 	unsigned getWidth();
 
+	/*
+	 * Returns height of the created window.
+	 */
 	unsigned getHeight();
 
 	/*
 	 * Starts thread on which the opengl context will be initializated.
-	 * Should call this function before loading textures.
+	 * Should call this function before doing anything opengl related.
+	 *
+	 * returns: thread handle of the draw thread. Join the thread while closing the window to terminate GLFW properly.
 	 */
 	boost::thread startDrawThread();
 
@@ -54,6 +62,14 @@ namespace simpleGL {
 	 * returns: handle to texture object.
 	 */
 	SimpleTexture* loadTexture(std::string path);
+
+	/*
+	 * Changes texture filtering on all currently loaded textures and textures that will be loaded from this point.
+	 * Default value GL_NEAREST.
+	 *
+	 * 'tf': can only be GL_LINEAR or GL_NEAREST.
+	 */
+	void changeTextureFiltering(GLenum tf);
 
 }
 

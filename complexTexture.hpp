@@ -27,6 +27,8 @@ public:
 
 	void draw();
 
+	void unloadTexture();
+
 	void unload();
 
 	bool operator==(const ComplexTexture& other) const {
