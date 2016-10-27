@@ -36,6 +36,10 @@ namespace simpleGL {
 	 */
 	GLFWwindow* createWindowedWindow(const char* title, unsigned width, unsigned height, bool resizable, bool decorated);
 
+	unsigned getWidth();
+
+	unsigned getHeight();
+
 	/*
 	 * Starts thread on which the opengl context will be initializated.
 	 * Should call this function before loading textures.

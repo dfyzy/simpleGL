@@ -5,7 +5,7 @@ STLIBS = -static-libgcc -static-libstdc++
 LIBS = -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lboost_thread-mgw49-mt-s-1_62 \
 			-lboost_system-mgw49-mt-s-1_62 -lboost_chrono-mgw49-mt-s-1_62 -lpng16 -lz -lm
 
-INCS = simpleGL.hpp simpleTexture.hpp simpleSprite.hpp color.hpp
+INCS = simpleGL.hpp simpleTexture.hpp simpleSprite.hpp simpleColor.hpp
 OBJS = simpleGL.o spriteUtil.o textureUtil.o
 EXM = example/main.cpp
 

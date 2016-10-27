@@ -1,7 +1,6 @@
 #ifndef SIMPLE_TEXTURE_H
 #define SIMPLE_TEXTURE_H
 
-#include "color.hpp"
 #include "simpleSprite.hpp"
 
 class SimpleTexture {
@@ -13,18 +12,18 @@ public:
 	unsigned getWidth() { return width; }
 	unsigned getHeight() { return height; }
 
-	virtual SimpleSprite* loadSprite(float x, float y, float z, float w, float h, Color c,
+	virtual SimpleSprite* loadSprite(float x, float y, float z, float w, float h, SimpleColor c,
 													float texX, float texY, float texW, float texH) =0;
 
-	SimpleSprite* loadSprite(float x, float y, float z, float w, float h, Color c) {
+	SimpleSprite* loadSprite(float x, float y, float z, float w, float h, SimpleColor c) {
 		return loadSprite(x, y, z, w, h, c, 0, 0, width, height);
 	}
 
-	SimpleSprite* loadSprite(float x, float y, float z, float scale, Color c) {
+	SimpleSprite* loadSprite(float x, float y, float z, float scale, SimpleColor c) {
 		return loadSprite(x, y, z, scale, scale, c);
 	}
 
-	SimpleSprite* loadSprite(float x, float y, float z, Color c) {
+	SimpleSprite* loadSprite(float x, float y, float z, SimpleColor c) {
 		return loadSprite(x, y, z, 1, c);
 	}
 

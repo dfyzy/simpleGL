@@ -18,7 +18,7 @@ private:
 public:
 	ComplexTexture(unsigned w, unsigned h, GLuint id) : SimpleTexture(w, h), texture(id) {}
 
-	SimpleSprite* loadSprite(float x, float y, float z, float w, float h, Color c,
+	SimpleSprite* loadSprite(float x, float y, float z, float w, float h, SimpleColor c,
 											float texX, float texY, float texW, float texH);
 
 	void removeSprite(ComplexSprite* cs) {

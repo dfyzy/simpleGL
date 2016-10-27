@@ -29,7 +29,7 @@ public:
 
 	void changePosition(float x, float y, float z);
 	void changeBounds(float width, float height);
-	void changeColor(Color c);
+	void changeColor(SimpleColor c);
 	void changeTexData(float texX, float texY, float texW, float texH);
 
 	void deleteData();

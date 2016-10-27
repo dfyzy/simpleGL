@@ -2,6 +2,7 @@
 #include <boost/thread.hpp>
 
 #include "complexTexture.hpp"
+#include "simpleGL.hpp"
 #include "simpleUtil.hpp"
 
 const unsigned ComplexSprite::Attrib::sizes[4] = {3, 2, 4, 4};
@@ -11,22 +12,27 @@ struct SpriteData {
 	std::array<float, 3 + 2 + 4 + 4> data;
 };
 
-unsigned resWidth, resHeight;
-const float ZPOINT = 0.0001f;
+namespace simpleUtil {
 
-GLuint vbos[ComplexSprite::Attrib::COUNT];
+	const float ZPOINT = 0.0001f;
 
-boost::mutex spriteMutex;
-std::queue<SpriteData> spriteQueue;
-std::queue<unsigned> deletedQueue;
+	GLuint vbos[ComplexSprite::Attrib::COUNT];
 
-boost::mutex changeMutex;
-std::queue<ComplexSprite::Attrib> changeQueue;
+	boost::mutex spriteMutex;
+	std::queue<SpriteData> spriteQueue;
+	std::queue<unsigned> deletedQueue;
 
-boost::mutex enableMutex;
+	boost::mutex changeMutex;
+	std::queue<ComplexSprite::Attrib> changeQueue;
 
-unsigned spriteCount = 0;
-unsigned spriteCapacity = 0;
+	boost::mutex enableMutex;
+
+	unsigned spriteCount = 0;
+	unsigned spriteCapacity = 0;
+
+}
+
+using namespace simpleUtil;
 
 void SimpleSprite::setEnabled(bool b) {
 	boost::lock_guard<boost::mutex> lock(enableMutex);
@@ -40,121 +46,124 @@ bool SimpleSprite::isEnabled() {
 	return enabled;
 }
 
-void simpleUtil::initBuffers() {
-	GLuint instanceVbo;
-	glGenBuffers(1, &instanceVbo);
-	glBindBuffer(GL_ARRAY_BUFFER, instanceVbo);
+namespace simpleUtil {
 
-	float instanceData [] {-0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f};//the quad I'm going to draw instances of
+	void initBuffers() {
+		GLuint instanceVbo;
+		glGenBuffers(1, &instanceVbo);
+		glBindBuffer(GL_ARRAY_BUFFER, instanceVbo);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(instanceData), instanceData, GL_STATIC_DRAW);
+		float instanceData [] {-0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f};//the quad I'm going to draw instances of
 
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-	glEnableVertexAttribArray(0);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(instanceData), instanceData, GL_STATIC_DRAW);
 
-	glGenBuffers(ComplexSprite::Attrib::COUNT, vbos);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(0);
 
-	for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
-		glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
-
-		glVertexAttribPointer(i + 1, ComplexSprite::Attrib::sizes[i], GL_FLOAT, GL_FALSE, 0, nullptr);
-		glEnableVertexAttribArray(i + 1);
-		glVertexAttribDivisor(i + 1, 1);
-	}
-
-	spriteCapacity = 5;
-	for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
-		glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
-		glBufferData(GL_ARRAY_BUFFER, spriteCapacity * ComplexSprite::Attrib::sizes[i] * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-	}
-}
-
-inline void bindSpriteAttrib(ComplexSprite::Attrib::E type, unsigned offset, float* data) {
-	glBindBuffer(GL_ARRAY_BUFFER, vbos[type]);
-
-	int size = ComplexSprite::Attrib::sizes[type] * sizeof(float);
-	glBufferSubData(GL_ARRAY_BUFFER, offset * size, size, data);
-}
-
-void loadSprites() {
-	if (spriteCapacity < spriteCount) {
-		GLuint tempVbo;
-		glGenBuffers(1, &tempVbo);
+		glGenBuffers(ComplexSprite::Attrib::COUNT, vbos);
 
 		for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
-			int size = ComplexSprite::Attrib::sizes[i] * sizeof(float);
+			glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
 
-			glBindBuffer(GL_COPY_WRITE_BUFFER, tempVbo);
-			glBufferData(GL_COPY_WRITE_BUFFER, spriteCapacity * size, nullptr, GL_DYNAMIC_DRAW);
-
-			glBindBuffer(GL_COPY_READ_BUFFER, vbos[i]);
-			glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, spriteCapacity * size);
-
-			glBindBuffer(GL_COPY_WRITE_BUFFER, vbos[i]);
-			glBufferData(GL_COPY_WRITE_BUFFER, spriteCount * size, nullptr, GL_DYNAMIC_DRAW);
-
-			glBindBuffer(GL_COPY_READ_BUFFER, tempVbo);
-			glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, spriteCapacity * size);
-
-			// TODO: check if one copy/attribpointer is faster than copy/copy
-			// GLuint t = vbos[i];
-			// vbos[i] = tempVbo;
-			// tempVbo = t;
+			glVertexAttribPointer(i + 1, ComplexSprite::Attrib::sizes[i], GL_FLOAT, GL_FALSE, 0, nullptr);
+			glEnableVertexAttribArray(i + 1);
+			glVertexAttribDivisor(i + 1, 1);
 		}
-		glDeleteBuffers(1, &tempVbo);
 
-		spriteCapacity = spriteCount;
-	}
-
-	while (!spriteQueue.empty()) {
-		SpriteData data = spriteQueue.front();
-		spriteQueue.pop();
-
-		int dataOffset = 0;
+		spriteCapacity = 5;
 		for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
-			bindSpriteAttrib(static_cast<ComplexSprite::Attrib::E>(i), data.spriteId, data.data.data() + dataOffset);
-
-			dataOffset += ComplexSprite::Attrib::sizes[i];
+			glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
+			glBufferData(GL_ARRAY_BUFFER, spriteCapacity * ComplexSprite::Attrib::sizes[i] * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 		}
 	}
-}
 
-void checkSpritQueue() {
-	boost::lock_guard<boost::mutex> lock(spriteMutex);
+	inline void bindSpriteAttrib(ComplexSprite::Attrib::E type, unsigned offset, float* data) {
+		glBindBuffer(GL_ARRAY_BUFFER, vbos[type]);
 
-	if (!spriteQueue.empty())	loadSprites();
-}
-
-void changeSprites() {
-	while (!changeQueue.empty()) {
-		ComplexSprite::Attrib change = std::move(changeQueue.front());
-		changeQueue.pop();
-
-		bindSpriteAttrib(change.type, change.spriteId, change.data.get());
+		int size = ComplexSprite::Attrib::sizes[type] * sizeof(float);
+		glBufferSubData(GL_ARRAY_BUFFER, offset * size, size, data);
 	}
+
+	void loadSprites() {
+		if (spriteCapacity < spriteCount) {
+			GLuint tempVbo;
+			glGenBuffers(1, &tempVbo);
+
+			for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
+				int size = ComplexSprite::Attrib::sizes[i] * sizeof(float);
+
+				glBindBuffer(GL_COPY_WRITE_BUFFER, tempVbo);
+				glBufferData(GL_COPY_WRITE_BUFFER, spriteCapacity * size, nullptr, GL_DYNAMIC_DRAW);
+
+				glBindBuffer(GL_COPY_READ_BUFFER, vbos[i]);
+				glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, spriteCapacity * size);
+
+				glBindBuffer(GL_COPY_WRITE_BUFFER, vbos[i]);
+				glBufferData(GL_COPY_WRITE_BUFFER, spriteCount * size, nullptr, GL_DYNAMIC_DRAW);
+
+				glBindBuffer(GL_COPY_READ_BUFFER, tempVbo);
+				glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, spriteCapacity * size);
+
+				// TODO: check if one copy/attribpointer is faster than copy/copy
+				// GLuint t = vbos[i];
+				// vbos[i] = tempVbo;
+				// tempVbo = t;
+			}
+			glDeleteBuffers(1, &tempVbo);
+
+			spriteCapacity = spriteCount;
+		}
+
+		while (!spriteQueue.empty()) {
+			SpriteData data = spriteQueue.front();
+			spriteQueue.pop();
+
+			int dataOffset = 0;
+			for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
+				bindSpriteAttrib(static_cast<ComplexSprite::Attrib::E>(i), data.spriteId, data.data.data() + dataOffset);
+
+				dataOffset += ComplexSprite::Attrib::sizes[i];
+			}
+		}
+	}
+
+	void checkSpritQueue() {
+		boost::lock_guard<boost::mutex> lock(spriteMutex);
+
+		if (!spriteQueue.empty())	loadSprites();
+	}
+
+	void changeSprites() {
+		while (!changeQueue.empty()) {
+			ComplexSprite::Attrib change = std::move(changeQueue.front());
+			changeQueue.pop();
+
+			bindSpriteAttrib(change.type, change.spriteId, change.data.get());
+		}
+	}
+
+	void checkChangeQueue() {
+		boost::lock_guard<boost::mutex> lock(changeMutex);
+
+		if (!changeQueue.empty())	changeSprites();
+	}
+
+	void checkSprites() {
+		checkSpritQueue();
+
+		checkChangeQueue();
+	}
+
 }
 
-void checkChangeQueue() {
-	boost::lock_guard<boost::mutex> lock(changeMutex);
 
-	if (!changeQueue.empty())	changeSprites();
-}
-
-void simpleUtil::checkSprites() {
-	checkSpritQueue();
-
-	checkChangeQueue();
-}
-
-//hmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
-void simpleUtil::setResolution(unsigned w, unsigned h) {
-	resWidth = w;
-	resHeight = h;
-}
-
-SimpleSprite* ComplexTexture::loadSprite(float x, float y, float z, float w, float h, Color c,
+SimpleSprite* ComplexTexture::loadSprite(float x, float y, float z, float w, float h, SimpleColor c,
 															float texX, float texY, float texW, float texH) {
 	SpriteData data;//hmmmmmmmmmmmmmmmmmmm
+
+	unsigned resWidth = simpleGL::getWidth();
+	unsigned resHeight = simpleGL::getHeight();
+
 	data.data[0] = 2*x/resWidth;			data.data[1] = 2*y/resHeight;				data.data[2] = z*ZPOINT;
 	data.data[3] = 2*w*width/resWidth;	data.data[4] = 2*h*height/resHeight;
 	data.data[5] = c.r;						data.data[6] = c.g;							data.data[7] = c.b;			data.data[8] = c.a;
@@ -212,17 +221,25 @@ void ComplexSprite::changeAttrib(Attrib att) {
 
 void ComplexSprite::changePosition(float x, float y, float z) {
 	Attrib att(Attrib::POSITION, id);
+
+	unsigned resWidth = simpleGL::getWidth();
+	unsigned resHeight = simpleGL::getHeight();
+
 	att.data.get()[0] = 2*x/resWidth;	att.data.get()[1] = 2*y/resHeight;	att.data.get()[2] = z*ZPOINT;
 	changeAttrib(std::move(att));
 }
 
 void ComplexSprite::changeBounds(float width, float height) {
 	Attrib att(Attrib::BOUNDS, id);
+
+	unsigned resWidth = simpleGL::getWidth();
+	unsigned resHeight = simpleGL::getHeight();
+
 	att.data.get()[0] = 2*width*texture->getWidth()/resWidth;	att.data.get()[1] = 2*height*texture->getHeight()/resHeight;
 	changeAttrib(std::move(att));
 }
 
-void ComplexSprite::changeColor(Color c) {
+void ComplexSprite::changeColor(SimpleColor c) {
 	Attrib att(Attrib::COLOR, id);
 	att.data.get()[0] = c.r;	att.data.get()[1] = c.g;	att.data.get()[2] = c.b;	att.data.get()[3] = c.a;
 	changeAttrib(std::move(att));

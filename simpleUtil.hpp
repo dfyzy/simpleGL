@@ -14,7 +14,6 @@ namespace simpleUtil {
 	}
 
 	void initBuffers();
-	void setResolution(unsigned w, unsigned h);
 
 	void checkTextures();
 	void drawTextures();
