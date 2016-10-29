@@ -3,6 +3,8 @@
 
 #include "simpleSprite.hpp"
 
+const float ZPOINT = 0.0001f;
+
 class ComplexTexture;
 
 class ComplexSprite : public SimpleSprite {
@@ -27,10 +29,10 @@ private:
 public:
 	ComplexSprite(unsigned i, ComplexTexture* t) : SimpleSprite(i), texture(t) {}
 
-	void changePosition(float x, float y, float z);
+	void changePosition(SimplePosition sp);
 	void changeBounds(float width, float height);
 	void changeColor(SimpleColor c);
-	void changeTexData(float texX, float texY, float texW, float texH);
+	void changeTexData(float x, float y, float w, float h);
 
 	void deleteData();
 

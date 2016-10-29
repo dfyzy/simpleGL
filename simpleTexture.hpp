@@ -12,19 +12,19 @@ public:
 	unsigned getWidth() { return width; }
 	unsigned getHeight() { return height; }
 
-	virtual SimpleSprite* loadSprite(float x, float y, float z, float w, float h, SimpleColor c,
+	virtual SimpleSprite* loadSprite(SimplePosition sp, float w, float h, SimpleColor c,
 													float texX, float texY, float texW, float texH) =0;
 
-	SimpleSprite* loadSprite(float x, float y, float z, float w, float h, SimpleColor c) {
-		return loadSprite(x, y, z, w, h, c, 0, 0, width, height);
+	SimpleSprite* loadSprite(SimplePosition sp, float w, float h, SimpleColor c) {
+		return loadSprite(sp, w, h, c, 0, 0, width, height);
 	}
 
-	SimpleSprite* loadSprite(float x, float y, float z, float scale, SimpleColor c) {
-		return loadSprite(x, y, z, scale, scale, c);
+	SimpleSprite* loadSprite(SimplePosition sp, float scale, SimpleColor c) {
+		return loadSprite(sp, scale, scale, c);
 	}
 
-	SimpleSprite* loadSprite(float x, float y, float z, SimpleColor c) {
-		return loadSprite(x, y, z, 1, c);
+	SimpleSprite* loadSprite(SimplePosition sp, SimpleColor c) {
+		return loadSprite(sp, 1, c);
 	}
 
 	virtual void unload() =0;

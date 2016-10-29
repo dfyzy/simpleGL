@@ -28,16 +28,18 @@ int main() {
 
 	boost::thread thread = simpleGL::startDrawThread();
 
+	simpleGL::changeTextureFiltering(GL_LINEAR);
+
 	SimpleTexture* bodyFront = simpleGL::loadTexture("example\\body_front.png");
 	SimpleTexture* brim = simpleGL::loadTexture("example\\brim.png");
 	SimpleTexture* light = simpleGL::loadTexture("example\\light.png");
 	SimpleTexture* eye = simpleGL::loadTexture("example\\eye.png");
 
-	bodyFront->loadSprite(0, 0, 0, SimpleColor(1));
-	brimSprite = brim->loadSprite(0, 68.6, 0, SimpleColor(1));
-	light->loadSprite(0, 108.8, 1, SimpleColor(1));
-	eye->loadSprite(50.2, 32.1, -1, SimpleColor(1));
-	eye->loadSprite(-50.2, 32.1, -1, SimpleColor(1));
+	bodyFront->loadSprite(SimplePosition(), SimpleColor(1));
+	brimSprite = brim->loadSprite(SimplePosition(0, 68.6), SimpleColor(1));
+	light->loadSprite(SimplePosition(0, 108.8, 1), SimpleColor(1));
+	eye->loadSprite(SimplePosition(50.2, 32.1, -1), SimpleColor(1));
+	eye->loadSprite(SimplePosition(-50.2, 32.1, -1), SimpleColor(1));
 
 	while (!glfwWindowShouldClose(window)) {
 		auto lastTimePoint = boost::chrono::steady_clock::now();

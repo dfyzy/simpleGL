@@ -2,9 +2,8 @@
 #include <zlib.h>
 #include <boost/thread.hpp>
 
-#include "simpleGL.hpp"
-#include "complexTexture.hpp"
 #include "simpleUtil.hpp"
+#include "complexTexture.hpp"
 
 namespace simpleUtil {
 
@@ -158,6 +157,11 @@ SimpleTexture* simpleGL::loadTexture(std::string path) {
 }
 
 void simpleGL::changeTextureFiltering(GLenum tf) {
+	if ((tf != GL_LINEAR) && (tf != GL_NEAREST)) {
+		simpleUtil::print("Wrong filtering enum");
+		return;
+	}
+
 	boost::lock_guard<boost::mutex> lock(textureMutex);
 	if (tf == textureFilter)	return;
 

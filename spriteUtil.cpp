@@ -1,9 +1,8 @@
 #include <queue>
 #include <boost/thread.hpp>
 
-#include "complexTexture.hpp"
-#include "simpleGL.hpp"
 #include "simpleUtil.hpp"
+#include "complexTexture.hpp"
 
 const unsigned ComplexSprite::Attrib::sizes[4] = {3, 2, 4, 4};
 
@@ -13,8 +12,6 @@ struct SpriteData {
 };
 
 namespace simpleUtil {
-
-	const float ZPOINT = 0.0001f;
 
 	GLuint vbos[ComplexSprite::Attrib::COUNT];
 
@@ -86,6 +83,8 @@ namespace simpleUtil {
 
 	void loadSprites() {
 		if (spriteCapacity < spriteCount) {
+			print("Resizing data buffers");
+
 			GLuint tempVbo;
 			glGenBuffers(1, &tempVbo);
 
@@ -115,6 +114,8 @@ namespace simpleUtil {
 		}
 
 		while (!spriteQueue.empty()) {
+			print ("Adding sprite");
+
 			SpriteData data = spriteQueue.front();
 			spriteQueue.pop();
 
@@ -157,17 +158,14 @@ namespace simpleUtil {
 }
 
 
-SimpleSprite* ComplexTexture::loadSprite(float x, float y, float z, float w, float h, SimpleColor c,
+SimpleSprite* ComplexTexture::loadSprite(SimplePosition sp, float w, float h, SimpleColor c,
 															float texX, float texY, float texW, float texH) {
-	SpriteData data;//hmmmmmmmmmmmmmmmmmmm
+	SpriteData data;
 
-	unsigned resWidth = simpleGL::getWidth();
-	unsigned resHeight = simpleGL::getHeight();
-
-	data.data[0] = 2*x/resWidth;			data.data[1] = 2*y/resHeight;				data.data[2] = z*ZPOINT;
-	data.data[3] = 2*w*width/resWidth;	data.data[4] = 2*h*height/resHeight;
-	data.data[5] = c.r;						data.data[6] = c.g;							data.data[7] = c.b;			data.data[8] = c.a;
-	data.data[9] = texX+texW/2;			data.data[10] = texY+texH/2;				data.data[11] = texW;		data.data[12] = texH;
+	loadPosition(sp, data.data.data());//I know, right?
+	loadBounds(w, h, data.data.data(), 3);
+	loadColor(c, data.data.data(), 5);
+	loadTexData(texX, texY, texW, texH, data.data.data(), 9);
 
 	boost::lock_guard<boost::mutex> lock(spriteMutex);
 	unsigned id;
@@ -219,34 +217,30 @@ void ComplexSprite::changeAttrib(Attrib att) {
 	changeQueue.push(std::move(att));
 }
 
-void ComplexSprite::changePosition(float x, float y, float z) {
+void ComplexSprite::changePosition(SimplePosition sp) {
 	Attrib att(Attrib::POSITION, id);
+	texture->loadPosition(sp, att.data.get());
 
-	unsigned resWidth = simpleGL::getWidth();
-	unsigned resHeight = simpleGL::getHeight();
-
-	att.data.get()[0] = 2*x/resWidth;	att.data.get()[1] = 2*y/resHeight;	att.data.get()[2] = z*ZPOINT;
 	changeAttrib(std::move(att));
 }
 
 void ComplexSprite::changeBounds(float width, float height) {
 	Attrib att(Attrib::BOUNDS, id);
+	texture->loadBounds(width, height, att.data.get(), 0);
 
-	unsigned resWidth = simpleGL::getWidth();
-	unsigned resHeight = simpleGL::getHeight();
-
-	att.data.get()[0] = 2*width*texture->getWidth()/resWidth;	att.data.get()[1] = 2*height*texture->getHeight()/resHeight;
 	changeAttrib(std::move(att));
 }
 
 void ComplexSprite::changeColor(SimpleColor c) {
 	Attrib att(Attrib::COLOR, id);
-	att.data.get()[0] = c.r;	att.data.get()[1] = c.g;	att.data.get()[2] = c.b;	att.data.get()[3] = c.a;
+	texture->loadColor(c, att.data.get(), 0);
+
 	changeAttrib(std::move(att));
 }
 
-void ComplexSprite::changeTexData(float texX, float texY, float texW, float texH) {
+void ComplexSprite::changeTexData(float x, float y, float w, float h) {
 	Attrib att(Attrib::TEX_DATA, id);
-	att.data.get()[0] = texX+texW/2;	att.data.get()[1] = texY+texH/2;	att.data.get()[2] = texW;	att.data.get()[3] = texH;
+	texture->loadTexData(x, y, w, h, att.data.get(), 0);
+
 	changeAttrib(std::move(att));
 }
