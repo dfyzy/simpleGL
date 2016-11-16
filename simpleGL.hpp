@@ -14,6 +14,12 @@
 namespace simpleGL {
 
 	/*
+	 * initializes on startDrawThread(). for creating sprites without texture.
+	 * default width and height are 100.
+	 */
+	SimpleTexture* emptyTexture  = nullptr;
+
+	/*
 	 * Creates fullscreen window.
 	 *
 	 * 'title': title of the window.

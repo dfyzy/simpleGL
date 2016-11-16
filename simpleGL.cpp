@@ -188,7 +188,7 @@ namespace simpleGL {
 		} else	simpleUtil::print("GLEW initialized");
 
 		#ifdef _WIN32
-		// Turn on vertical screen sync under Windows.
+			// Turn on vertical screen sync if on Windows.
 			typedef BOOL (WINAPI *PFNWGLSWAPINTERVALEXTPROC)(int interval);
 			PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
 			wglSwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
@@ -214,6 +214,7 @@ namespace simpleGL {
 		glBindVertexArray(vao);
 
 		simpleUtil::initBuffers();
+		simpleUtil::initTextures();
 
 		glActiveTexture(GL_TEXTURE0);
 

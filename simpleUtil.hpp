@@ -14,6 +14,7 @@ namespace simpleUtil {
 	}
 
 	void initBuffers();
+	void initTextures();
 
 	void checkTextures();
 	void drawTextures();

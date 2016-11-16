@@ -7,6 +7,7 @@
 
 namespace simpleUtil {
 
+	ComplexTexture emptyTexture(100, 100, 0);
 	std::list<ComplexTexture> textures;
 
 	boost::mutex textureMutex;
@@ -22,6 +23,10 @@ namespace simpleUtil {
 
 	GLenum textureFilter = GL_NEAREST;
 	bool needFiltering = false;
+
+	void initTextures() {
+		simpleGL::emptyTexture = &emptyTexture;
+	}
 
 	inline void notify() {
 		returnReady = true;
@@ -136,6 +141,8 @@ namespace simpleUtil {
 	}
 
 	void drawTextures() {
+		emptyTexture.draw();
+
 		for (auto it = textures.begin(); it != textures.end(); it++)
 			it->draw();
 	}
