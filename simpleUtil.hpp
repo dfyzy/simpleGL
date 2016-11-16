@@ -5,6 +5,8 @@
 	#include <iostream>
 #endif
 
+#include "simpleTexture.hpp"
+
 namespace simpleUtil {
 
 	inline void print(const char* str) {
@@ -14,7 +16,7 @@ namespace simpleUtil {
 	}
 
 	void initBuffers();
-	void initTextures();
+	SimpleTexture* getEmptyTexture();
 
 	void checkTextures();
 	void drawTextures();

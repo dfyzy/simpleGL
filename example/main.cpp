@@ -41,6 +41,8 @@ int main() {
 	eye->loadSprite(SimplePosition(50.2, 32.1, -1), SimpleColor(1));
 	eye->loadSprite(SimplePosition(-50.2, 32.1, -1), SimpleColor(1));
 
+	simpleGL::getEmptyTexture()->loadSprite(SimplePosition(), 3, 3, 100, SimpleColor(1));
+
 	while (!glfwWindowShouldClose(window)) {
 		auto lastTimePoint = boost::chrono::steady_clock::now();
 

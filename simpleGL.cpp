@@ -214,7 +214,6 @@ namespace simpleGL {
 		glBindVertexArray(vao);
 
 		simpleUtil::initBuffers();
-		simpleUtil::initTextures();
 
 		glActiveTexture(GL_TEXTURE0);
 
@@ -248,6 +247,10 @@ namespace simpleGL {
 		}
 
 		glfwTerminate();//raii
+	}
+
+	SimpleTexture* getEmptyTexture() {
+		return simpleUtil::getEmptyTexture();
 	}
 
 	boost::thread startDrawThread() {

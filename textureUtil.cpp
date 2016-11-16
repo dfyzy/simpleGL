@@ -24,8 +24,8 @@ namespace simpleUtil {
 	GLenum textureFilter = GL_NEAREST;
 	bool needFiltering = false;
 
-	void initTextures() {
-		simpleGL::emptyTexture = &emptyTexture;
+	SimpleTexture* getEmptyTexture() {
+		return &emptyTexture;
 	}
 
 	inline void notify() {
@@ -141,7 +141,7 @@ namespace simpleUtil {
 	}
 
 	void drawTextures() {
-		emptyTexture.draw();
+		emptyTexture.draw();//emptyShader
 
 		for (auto it = textures.begin(); it != textures.end(); it++)
 			it->draw();

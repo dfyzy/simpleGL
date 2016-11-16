@@ -14,12 +14,6 @@
 namespace simpleGL {
 
 	/*
-	 * initializes on startDrawThread(). for creating sprites without texture.
-	 * default width and height are 100.
-	 */
-	SimpleTexture* emptyTexture  = nullptr;
-
-	/*
 	 * Creates fullscreen window.
 	 *
 	 * 'title': title of the window.
@@ -68,6 +62,11 @@ namespace simpleGL {
 	 * returns: handle to texture object.
 	 */
 	SimpleTexture* loadTexture(std::string path);
+
+	/*
+	 * Texture object without texture with width and height equal 100.
+	 */
+	SimpleTexture* getEmptyTexture();
 
 	/*
 	 * Changes texture filtering on all currently loaded textures and textures that will be loaded from this point.
