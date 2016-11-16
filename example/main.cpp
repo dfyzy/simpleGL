@@ -37,7 +37,7 @@ int main() {
 
 	bodyFront->loadSprite(SimplePosition(), SimpleColor(1));
 	brimSprite = brim->loadSprite(SimplePosition(0, 68.6), SimpleColor(1));
-	light->loadSprite(SimplePosition(0, 108.8, 1), SimpleColor(1));
+	light->loadSprite(SimplePosition(0, 108.8, -1), SimpleColor(1));
 	eye->loadSprite(SimplePosition(50.2, 32.1, -1), SimpleColor(1));
 	eye->loadSprite(SimplePosition(-50.2, 32.1, -1), SimpleColor(1));
 

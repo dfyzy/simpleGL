@@ -5,18 +5,22 @@
 
 class SimpleTexture {
 protected:
-	unsigned width, height;
-	SimpleTexture(unsigned w, unsigned h) : width(w), height(h) {}
+	unsigned pixelWidth, pixelHeight;
+	SimpleTexture(unsigned width, unsigned height) : pixelWidth(width), pixelHeight(height) {}
 
 public:
-	unsigned getWidth() { return width; }
-	unsigned getHeight() { return height; }
+	unsigned getWidth() { return pixelWidth; }
+	unsigned getHeight() { return pixelHeight; }
 
-	virtual SimpleSprite* loadSprite(SimplePosition sp, float w, float h, SimpleColor c,
+	virtual SimpleSprite* loadSprite(SimplePosition sp, float width, float height, float rotation, SimpleColor c,
 													float texX, float texY, float texW, float texH) =0;
 
-	SimpleSprite* loadSprite(SimplePosition sp, float w, float h, SimpleColor c) {
-		return loadSprite(sp, w, h, c, 0, 0, width, height);
+	SimpleSprite* loadSprite(SimplePosition sp, float width, float height, float rotation, SimpleColor c) {
+		return loadSprite(sp, width, height, rotation, c, 0, 0, pixelWidth, pixelHeight);
+	}
+
+	SimpleSprite* loadSprite(SimplePosition sp, float width, float height, SimpleColor c) {
+		return loadSprite(sp, width, height, 0, c);
 	}
 
 	SimpleSprite* loadSprite(SimplePosition sp, float scale, SimpleColor c) {

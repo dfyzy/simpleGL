@@ -11,10 +11,11 @@ private:
 protected:
 	unsigned id;
 
-	SimpleSprite(unsigned i) : id(i) {}
+	SimpleSprite() {}
 
 public:
 	unsigned getId() { return id; }
+	void setId(unsigned u) { id = u; }
 
 	void setEnabled(bool b);
 	bool isEnabled();
@@ -22,7 +23,7 @@ public:
 	virtual void changePosition(SimplePosition sp) =0;
 	virtual void changeBounds(float width, float height) =0;
 	virtual void changeColor(SimpleColor c) =0;
-	virtual void changeTexData(float x, float y, float w, float h) =0;
+	virtual void changeTexData(float x, float y, float width, float height) =0;
 
 	virtual void unload() =0;
 };

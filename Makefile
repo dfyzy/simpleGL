@@ -15,7 +15,7 @@ EXM = example/main.cpp
 static: $(OBJS)
 	ar rvs libsimpleGL.a $(OBJS)
 
-install:
+install: $(INCS)
 	cp libsimpleGL.a $(LIBPATH)
 	test -d "$(INCPATH)/simpleGL" || mkdir -p "$(INCPATH)/simpleGL" && cp $(INCS) "$(INCPATH)/simpleGL"
 

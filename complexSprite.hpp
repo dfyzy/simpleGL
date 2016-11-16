@@ -10,8 +10,8 @@ class ComplexTexture;
 class ComplexSprite : public SimpleSprite {
 public:
 	struct Attrib {
-		enum E { POSITION, BOUNDS, COLOR, TEX_DATA, COUNT } type;
-	 	static const unsigned sizes[4];
+		enum E { POSITION, BOUNDS, ROTATION, COLOR, TEX_DATA, COUNT } type;
+	 	static const unsigned sizes[5];
 
 		std::unique_ptr<float> data;
 		unsigned spriteId;
@@ -27,12 +27,48 @@ private:
 	void changeAttrib(Attrib att);
 
 public:
-	ComplexSprite(unsigned i, ComplexTexture* t) : SimpleSprite(i), texture(t) {}
+	ComplexSprite(ComplexTexture* t) : texture(t) {}
 
-	void changePosition(SimplePosition sp);
-	void changeBounds(float width, float height);
-	void changeColor(SimpleColor c);
-	void changeTexData(float x, float y, float w, float h);
+	void loadPosition(SimplePosition sp, float* array, int offset);
+	void loadBounds(float width, float height, float* array, int offset);
+	void loadRotation(float rotation, float* array, int offset);
+	void loadColor(SimpleColor c, float* array, int offset);
+	void loadTexData(float x, float y, float width, float height, float* array, int offset);
+
+	void changePosition(SimplePosition sp) {
+		Attrib att(Attrib::POSITION, id);
+		loadPosition(sp, att.data.get(), 0);
+
+		changeAttrib(std::move(att));
+	}
+
+	void changeBounds(float width, float height) {
+		Attrib att(Attrib::BOUNDS, id);
+		loadBounds(width, height, att.data.get(), 0);
+
+		changeAttrib(std::move(att));
+	}
+
+	void changeRotation(float rotation) {
+		Attrib att(Attrib::ROTATION, id);
+		loadRotation(rotation, att.data.get(), 0);
+
+		changeAttrib(std::move(att));
+	}
+
+	void changeColor(SimpleColor c) {
+		Attrib att(Attrib::COLOR, id);
+		loadColor(c, att.data.get(), 0);
+
+		changeAttrib(std::move(att));
+	}
+
+	void changeTexData(float x, float y, float width, float height) {
+		Attrib att(Attrib::TEX_DATA, id);
+		loadTexData(x, y, width, height, att.data.get(), 0);
+
+		changeAttrib(std::move(att));
+	}
 
 	void deleteData();
 

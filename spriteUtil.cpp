@@ -4,11 +4,40 @@
 #include "simpleUtil.hpp"
 #include "complexTexture.hpp"
 
-const unsigned ComplexSprite::Attrib::sizes[4] = {3, 2, 4, 4};
+const unsigned ComplexSprite::Attrib::sizes[5] = {3, 2, 1, 4, 4};
+
+void ComplexSprite::loadPosition(SimplePosition sp, float* array, int offset) {
+	array[0 + offset] = 2*sp.x/simpleGL::getWidth();
+	array[1 + offset] = 2*sp.y/simpleGL::getHeight();
+	array[2 + offset] = sp.z*ZPOINT;
+}
+
+void ComplexSprite::loadBounds(float width, float height, float* array, int offset) {
+	array[0 + offset] = 2*width*texture->getWidth()/simpleGL::getWidth();
+	array[1 + offset] = 2*height*texture->getHeight()/simpleGL::getHeight();
+}
+
+void ComplexSprite::loadRotation(float rotation, float* array, int offset) {
+	array[0 + offset] = rotation;
+}
+
+void ComplexSprite::loadColor(SimpleColor c, float* array, int offset) {
+	array[0 + offset] = c.r;
+	array[1 + offset] = c.g;
+	array[2 + offset] = c.b;
+	array[3 + offset] = c.a;
+}
+
+void ComplexSprite::loadTexData(float x, float y, float width, float height, float* array, int offset) {
+	array[0 + offset] = x + width/2;
+	array[1 + offset] = y + height/2;
+	array[2 + offset] = width;
+	array[3 + offset] = height;
+}
 
 struct SpriteData {
 	unsigned spriteId;
-	std::array<float, 3 + 2 + 4 + 4> data;
+	std::array<float, 3 + 2 + 1 + 4 + 4> data;
 };
 
 namespace simpleUtil {
@@ -158,14 +187,17 @@ namespace simpleUtil {
 }
 
 
-SimpleSprite* ComplexTexture::loadSprite(SimplePosition sp, float w, float h, SimpleColor c,
+SimpleSprite* ComplexTexture::loadSprite(SimplePosition sp, float width, float height, float rotation, SimpleColor c,
 															float texX, float texY, float texW, float texH) {
 	SpriteData data;
 
-	loadPosition(sp, data.data.data());//I know, right?
-	loadBounds(w, h, data.data.data(), 3);
-	loadColor(c, data.data.data(), 5);
-	loadTexData(texX, texY, texW, texH, data.data.data(), 9);
+	ComplexSprite sprite(this);
+	//not actualy loading anything into sprite object. just wanted for these functions to be in ComplexSprite class.
+	sprite.loadPosition(sp, data.data.data(), 0);//I know, right?
+	sprite.loadBounds(width, height, data.data.data(), 3);
+	sprite.loadRotation(rotation, data.data.data(), 5);
+	sprite.loadColor(c, data.data.data(), 6);
+	sprite.loadTexData(texX, texY, texW, texH, data.data.data(), 10);
 
 	boost::lock_guard<boost::mutex> lock(spriteMutex);
 	unsigned id;
@@ -177,7 +209,8 @@ SimpleSprite* ComplexTexture::loadSprite(SimplePosition sp, float w, float h, Si
 	data.spriteId = id;
 	spriteQueue.push(data);
 
-	sprites.push_back(ComplexSprite(id, this));
+	sprite.setId(id);
+	sprites.push_back(sprite);
 
 	return &(*--sprites.end());
 }
@@ -215,32 +248,4 @@ void ComplexSprite::changeAttrib(Attrib att) {
 	boost::lock_guard<boost::mutex> lock(changeMutex);
 
 	changeQueue.push(std::move(att));
-}
-
-void ComplexSprite::changePosition(SimplePosition sp) {
-	Attrib att(Attrib::POSITION, id);
-	texture->loadPosition(sp, att.data.get());
-
-	changeAttrib(std::move(att));
-}
-
-void ComplexSprite::changeBounds(float width, float height) {
-	Attrib att(Attrib::BOUNDS, id);
-	texture->loadBounds(width, height, att.data.get(), 0);
-
-	changeAttrib(std::move(att));
-}
-
-void ComplexSprite::changeColor(SimpleColor c) {
-	Attrib att(Attrib::COLOR, id);
-	texture->loadColor(c, att.data.get(), 0);
-
-	changeAttrib(std::move(att));
-}
-
-void ComplexSprite::changeTexData(float x, float y, float w, float h) {
-	Attrib att(Attrib::TEX_DATA, id);
-	texture->loadTexData(x, y, w, h, att.data.get(), 0);
-
-	changeAttrib(std::move(att));
 }
