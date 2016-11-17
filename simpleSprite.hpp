@@ -1,24 +1,49 @@
 #ifndef SIMPLE_SPRITE_H
 #define SIMPLE_SPRITE_H
 
-#include <memory>
+#include <boost/thread.hpp>
+
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+
 #include "simpleStructs.hpp"
 
 class SimpleSprite {
-private:
-	bool enabled = true;
-
 protected:
+	boost::mutex mutex;
+	GLuint vertexShader;
+	GLuint fragmentShader;
+
+	bool enabled = true;
 	unsigned id;
 
 	SimpleSprite() {}
+	SimpleSprite(unsigned i) : id(i) {}
 
 public:
 	unsigned getId() { return id; }
 	void setId(unsigned u) { id = u; }
 
-	void setEnabled(bool b);
-	bool isEnabled();
+	void setEnabled(bool b) {
+		boost::lock_guard<boost::mutex> lock(mutex);
+
+		enabled = b;
+	}
+
+	bool isEnabled() { return enabled; }
+
+	void changeVertexShader(GLuint sh) {
+		boost::lock_guard<boost::mutex> lock(mutex);
+		
+		vertexShader = sh;
+	}
+
+	void changeFragmentShader(GLuint sh) {
+		boost::lock_guard<boost::mutex> lock(mutex);
+
+		fragmentShader = sh;
+	}
 
 	virtual void changePosition(SimplePosition sp) =0;
 	virtual void changeBounds(float width, float height) =0;

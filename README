@@ -6,6 +6,7 @@ TODO:
 -Fonts
 -Better texture loading(clusters)
 -Buffer data proper resizing
+-Callbacks
 -Window resizability
 -Particles????(because really, we already draw instances, surely there is no need for further optimization)
 -Audio

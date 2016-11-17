@@ -6,7 +6,7 @@ LIBS = -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lboost_thread-mgw4
 			-lboost_system-mgw49-mt-s-1_62 -lboost_chrono-mgw49-mt-s-1_62 -lpng16 -lz -lm
 
 INCS = simpleGL.hpp simpleTexture.hpp simpleSprite.hpp simpleStructs.hpp
-OBJS = simpleGL.o spriteUtil.o textureUtil.o
+OBJS = simpleGL.o spriteUtil.o textureUtil.o shaderUtil.o
 EXM = example/main.cpp
 
 .cpp.o:

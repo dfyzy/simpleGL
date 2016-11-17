@@ -1,12 +1,17 @@
-#include <fstream>
-
 #include <windows.h>
 
 #include "simpleGL.hpp"
 #include "simpleUtil.hpp"
 
-namespace simpleGL {
+namespace simpleUtil {
+	boost::thread::id currentId;
 
+	bool isCurrentThread() {
+		return currentId == boost::this_thread::get_id();
+	}
+}
+
+namespace simpleGL {
 	GLFWwindow* window = nullptr;
 	unsigned windowWidth, windowHeight;
 
@@ -98,84 +103,9 @@ namespace simpleGL {
 		return windowHeight;
 	}
 
-	void printOutProgInfoLog(GLuint program) {
-		GLint length;
-		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
-
-		std::unique_ptr<GLchar> infoLog(new GLchar[length + 1]);
-		glGetProgramInfoLog(program, length, nullptr, infoLog.get());
-
-		simpleUtil::print(infoLog.get());
-	}
-
-	const int MAX_PATH_CHARS = 64;
-	GLuint loadShader(std::string filename, GLenum type) {
-		std::string path = "shaders\\" + filename;
-
-		std::ifstream file(path);
-
-		std::string shaderString;
-
-		std::string line;
-		while (getline(file, line)) {
-			shaderString += line;
-			shaderString.push_back('\n');
-		}
-		file.close();
-
-		const GLchar* shaderChars = shaderString.c_str();
-
-		GLuint shader = glCreateShader(type);
-		glShaderSource(shader, 1, &shaderChars, nullptr);
-		glCompileShader(shader);
-
-		GLint status;
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-		if (!status) {
-			GLint length;
-			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
-
-			std::unique_ptr<GLchar> infoLog(new GLchar[length + 1]);
-			glGetShaderInfoLog(shader, length, nullptr, infoLog.get());
-
-			simpleUtil::print(infoLog.get());
-		} else	simpleUtil::print("Compiled shader");
-
-		return shader;
-	}
-
-	void programStuff() {
-		GLuint program = glCreateProgram();
-
-		GLuint vertexShader = loadShader("simpleV.glsl", GL_VERTEX_SHADER);
-		glAttachShader(program, vertexShader);
-
-		GLuint fragmentShader = loadShader("simpleF.glsl", GL_FRAGMENT_SHADER);
-		glAttachShader(program, fragmentShader);
-
-		glLinkProgram(program);
-		GLint status;
-		glGetProgramiv(program, GL_LINK_STATUS, &status);
-		if (!status) {
-			printOutProgInfoLog(program);
-			glfwTerminate();
-			exit(EXIT_FAILURE);
-		} else	simpleUtil::print("Program linked");
-
-		glValidateProgram(program);
-		glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
-		if (!status) {
-			printOutProgInfoLog(program);
-			glfwTerminate();
-			exit(EXIT_FAILURE);
-		} else	simpleUtil::print("Program validated");
-
-		glUseProgram(program);
-
-		glUniform1f(glGetUniformLocation(program, "rAspect"), ((float) windowHeight) / windowWidth);
-	}
-
 	void draw() {
+		simpleUtil::currentId = boost::this_thread::get_id();
+
 		glfwMakeContextCurrent(window);
 
 		// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
@@ -208,7 +138,7 @@ namespace simpleGL {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		programStuff();
+		simpleUtil::initShaders(((float) windowWidth) / windowWidth);
 
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
@@ -234,6 +164,7 @@ namespace simpleGL {
 
 			simpleUtil::checkTextures();
 			simpleUtil::checkSprites();
+			simpleUtil::checkShaders();
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

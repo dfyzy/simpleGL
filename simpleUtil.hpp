@@ -15,14 +15,23 @@ namespace simpleUtil {
 		#endif
 	}
 
+	bool isCurrentThread();
+
+	void initShaders(float aspect);
 	void initBuffers();
+
 	SimpleTexture* getEmptyTexture();
 
+	void setDefaultShaders(SimpleSprite* sprite, bool empty);
+	void useShaders(GLuint vertex, GLuint fragment);
+
+
 	void checkTextures();
-	void drawTextures();
-
 	void checkSprites();
+	void checkShaders();
 
+	void drawTextures();
+	
 }
 
 #endif

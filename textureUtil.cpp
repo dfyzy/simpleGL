@@ -1,6 +1,5 @@
 #include <libpng/png.h>
 #include <zlib.h>
-#include <boost/thread.hpp>
 
 #include "simpleUtil.hpp"
 #include "complexTexture.hpp"
@@ -11,11 +10,11 @@ namespace simpleUtil {
 	std::list<ComplexTexture> textures;
 
 	boost::mutex textureMutex;
-	boost::condition_variable condVariable;
-	bool returnReady;
+	boost::condition_variable textureCondition;
+	bool textureReady;
 
 	std::string texturePath;
-	SimpleTexture* returnValue = nullptr;
+	SimpleTexture* returnTexture = nullptr;
 
 	boost::mutex untextureMutex;
 	ComplexTexture* unloadingTexture = nullptr;
@@ -28,9 +27,9 @@ namespace simpleUtil {
 		return &emptyTexture;
 	}
 
-	inline void notify() {
-		returnReady = true;
-		condVariable.notify_one();
+	inline void notifyTexture() {
+		textureReady = true;
+		textureCondition.notify_one();
 	}
 
 	void loadTexture() {
@@ -40,7 +39,7 @@ namespace simpleUtil {
 		if (!file) {
 			print("Error opening texture");
 			texturePath.clear();
-			notify();
+			notifyTexture();
 			return;
 		}
 
@@ -51,7 +50,7 @@ namespace simpleUtil {
 		if (png_sig_cmp(header, 0, 8)) {
 			print("Not a png");
 			fclose(file);
-			notify();
+			notifyTexture();
 			return;
 		}
 
@@ -59,7 +58,7 @@ namespace simpleUtil {
 		if (!png_ptr) {
 			print("Failed to create read struct");
 			fclose(file);
-			notify();
+			notifyTexture();
 			return;
 		}
 
@@ -68,7 +67,7 @@ namespace simpleUtil {
 			print("Failed to create info struct");
 			png_destroy_read_struct(&png_ptr, nullptr, nullptr);
 			fclose(file);
-			notify();
+			notifyTexture();
 			return;
 		}
 
@@ -76,7 +75,7 @@ namespace simpleUtil {
 			print("Libpng error");
 			png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 			fclose(file);
-			notify();
+			notifyTexture();
 			return;
 		}
 
@@ -92,9 +91,9 @@ namespace simpleUtil {
 		GLuint texture;
 		glGenTextures(1, &texture);
 
-		textures.push_back(ComplexTexture(width, height, texture));
-		returnValue = &(*--textures.end());
-		notify();
+		textures.emplace_back(width, height, texture);
+		returnTexture = &(*--textures.end());
+		notifyTexture();
 
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -134,14 +133,14 @@ namespace simpleUtil {
 		bool empty = texturePath.empty();
 		textureMutex.unlock();
 
-		//loadTexture happens only when main thread is waiting for notify so we don't need lock here
+		//loadTexture happens only when main thread is waiting for notifyTexture so we don't need lock here
 		if (!empty)	loadTexture();
 
 		checkFiltering();
 	}
 
 	void drawTextures() {
-		emptyTexture.draw();//emptyShader
+		emptyTexture.draw();
 
 		for (auto it = textures.begin(); it != textures.end(); it++)
 			it->draw();
@@ -153,19 +152,19 @@ using namespace simpleUtil;
 
 SimpleTexture* simpleGL::loadTexture(std::string path) {
 	boost::unique_lock<boost::mutex> lock(textureMutex);
-	returnReady = false;
+	textureReady = false;
 
 	texturePath = path;
 
-	do 	condVariable.wait(lock);
-	while	(!returnReady);
+	do 	textureCondition.wait(lock);
+	while	(!textureReady);
 
-	return returnValue;
+	return returnTexture;
 }
 
 void simpleGL::changeTextureFiltering(GLenum tf) {
 	if ((tf != GL_LINEAR) && (tf != GL_NEAREST)) {
-		simpleUtil::print("Wrong filtering enum");
+		simpleUtil::print("Wrong filtering type");
 		return;
 	}
 
@@ -189,7 +188,7 @@ void ComplexTexture::unloadTexture() {
 	for (auto it = sprites.begin(); it != sprites.end(); it++)
 		it->deleteData();
 
-	glDeleteTextures(1, &texture);//not sure if this can change value of texture. no reason why it should.
+	glDeleteTextures(1, &texture);//not sure if this can change value of texture handle. no reason why it should.
 
 	textures.remove(*this);
 

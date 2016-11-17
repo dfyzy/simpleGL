@@ -1,5 +1,4 @@
 #include <queue>
-#include <boost/thread.hpp>
 
 #include "simpleUtil.hpp"
 #include "complexTexture.hpp"
@@ -51,28 +50,8 @@ namespace simpleUtil {
 	boost::mutex changeMutex;
 	std::queue<ComplexSprite::Attrib> changeQueue;
 
-	boost::mutex enableMutex;
-
 	unsigned spriteCount = 0;
 	unsigned spriteCapacity = 0;
-
-}
-
-using namespace simpleUtil;
-
-void SimpleSprite::setEnabled(bool b) {
-	boost::lock_guard<boost::mutex> lock(enableMutex);
-
-	enabled = b;
-}
-
-bool SimpleSprite::isEnabled() {
-	boost::lock_guard<boost::mutex> lock(enableMutex);
-
-	return enabled;
-}
-
-namespace simpleUtil {
 
 	void initBuffers() {
 		GLuint instanceVbo;
@@ -157,7 +136,7 @@ namespace simpleUtil {
 		}
 	}
 
-	void checkSpritQueue() {
+	void checkSpriteQueue() {
 		boost::lock_guard<boost::mutex> lock(spriteMutex);
 
 		if (!spriteQueue.empty())	loadSprites();
@@ -179,13 +158,14 @@ namespace simpleUtil {
 	}
 
 	void checkSprites() {
-		checkSpritQueue();
+		checkSpriteQueue();
 
 		checkChangeQueue();
 	}
 
 }
 
+using namespace simpleUtil;
 
 SimpleSprite* ComplexTexture::loadSprite(SimplePosition sp, float width, float height, float rotation, SimpleColor c,
 															float texX, float texY, float texW, float texH) {
@@ -209,10 +189,12 @@ SimpleSprite* ComplexTexture::loadSprite(SimplePosition sp, float width, float h
 	data.spriteId = id;
 	spriteQueue.push(data);
 
-	sprite.setId(id);
-	sprites.push_back(sprite);
+	sprites.emplace_back(id, this);
 
-	return &(*--sprites.end());
+	SimpleSprite* value = &(*--sprites.end());
+	setDefaultShaders(value, texture == 0);
+
+	return value;
 }
 
 void ComplexSprite::deleteData() {
@@ -235,12 +217,17 @@ void ComplexTexture::draw() {
 
 	boost::lock_guard<boost::mutex> lock(spriteMutex);
 
-	for (ComplexSprite cs : sprites) {
-		unsigned id = cs.getId();
+	for (ComplexSprite& cs : sprites)
+		cs.draw();
+}
 
-		if (cs.isEnabled() && id < spriteCapacity)
-			glDrawArraysInstancedBaseInstance(GL_TRIANGLE_STRIP, 0, 4, 1, id);
+void ComplexSprite::draw() {
+	boost::lock_guard<boost::mutex> lock(mutex);
 
+	if (enabled && id < spriteCapacity) {
+		useShaders(vertexShader, fragmentShader);
+
+		glDrawArraysInstancedBaseInstance(GL_TRIANGLE_STRIP, 0, 4, 1, id);
 	}
 }
 

@@ -27,7 +27,8 @@ private:
 	void changeAttrib(Attrib att);
 
 public:
-	ComplexSprite(ComplexTexture* t) : texture(t) {}
+	ComplexSprite(ComplexTexture* t) : texture(t) {}//for empty sprite objects
+	ComplexSprite(unsigned id, ComplexTexture* t) : SimpleSprite(id), texture(t) {}
 
 	void loadPosition(SimplePosition sp, float* array, int offset);
 	void loadBounds(float width, float height, float* array, int offset);
@@ -69,6 +70,8 @@ public:
 
 		changeAttrib(std::move(att));
 	}
+
+	void draw();
 
 	void deleteData();
 

@@ -3,12 +3,6 @@
 
 #include <string>
 
-#include <boost/thread.hpp>
-
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
 #include "simpleTexture.hpp"
 
 namespace simpleGL {
@@ -75,6 +69,16 @@ namespace simpleGL {
 	 * 'tf': can only be GL_LINEAR or GL_NEAREST.
 	 */
 	void changeTextureFiltering(GLenum tf);
+
+	/*
+	 * Loads, compiles, links and validates shader program of type ptype.
+	 *
+	 * 'path': path to shader file.
+	 * 'ptype': type of shader program. Must be only GL_VERTEX_SHADER or GL_FRAGMENT_SHADER.
+	 *
+	 * returns: OpenGL handle of created program.
+	 */
+	GLuint loadShader(std::string path, GLenum ptype);
 
 }
 
