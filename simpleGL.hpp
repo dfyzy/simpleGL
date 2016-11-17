@@ -76,7 +76,7 @@ namespace simpleGL {
 	 * 'path': path to shader file.
 	 * 'ptype': type of shader program. Must be only GL_VERTEX_SHADER or GL_FRAGMENT_SHADER.
 	 *
-	 * returns: OpenGL handle of created program.
+	 * returns: OpenGL handle of created program. If 0 shader did not load.
 	 */
 	GLuint loadShader(std::string path, GLenum ptype);
 

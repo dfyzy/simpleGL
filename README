@@ -8,7 +8,6 @@ TODO:
 -Buffer data proper resizing
 -Callbacks
 -Window resizability
--Particles????(because really, we already draw instances, surely there is no need for further optimization)
+-Particles(if there is a need for further optimization)
 -Audio
--Custom shaders
 -Networking

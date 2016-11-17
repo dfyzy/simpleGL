@@ -56,8 +56,7 @@ namespace simpleUtil {
 			glGetProgramInfoLog(program, length, nullptr, infoLog.get());
 
 			simpleUtil::print(infoLog.get());
-			notifyShader();
-			return;
+			program = 0;
 		} else	simpleUtil::print("Program validated");
 
 		returnProgram = program;
