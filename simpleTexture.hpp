@@ -9,9 +9,17 @@ protected:
 	SimpleTexture(unsigned width, unsigned height) : pixelWidth(width), pixelHeight(height) {}
 
 public:
+	/*
+	 *	Gets pixel width and height of this texture.
+	 */
 	unsigned getWidth() { return pixelWidth; }
 	unsigned getHeight() { return pixelHeight; }
 
+	/*
+	 * Creates sprite object and loads attribute data into data buffers.
+	 *
+	 * returns: sprite handle.
+	 */
 	virtual SimpleSprite* loadSprite(SimplePosition sp, float width, float height, float rotation, SimpleColor c,
 													float texX, float texY, float texW, float texH) =0;
 
@@ -31,6 +39,9 @@ public:
 		return loadSprite(sp, 1, c);
 	}
 
+	/*
+	 * Unloads this texture and all the sprites created by this texture object. Deletes this object.
+	 */
 	virtual void unload() =0;
 
 };

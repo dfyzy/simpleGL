@@ -180,10 +180,6 @@ namespace simpleGL {
 		glfwTerminate();//raii
 	}
 
-	SimpleTexture* getEmptyTexture() {
-		return simpleUtil::getEmptyTexture();
-	}
-
 	boost::thread startDrawThread() {
 		return boost::thread(draw);
 	}

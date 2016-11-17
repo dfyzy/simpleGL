@@ -23,10 +23,6 @@ namespace simpleUtil {
 	GLenum textureFilter = GL_NEAREST;
 	bool needFiltering = false;
 
-	SimpleTexture* getEmptyTexture() {
-		return &emptyTexture;
-	}
-
 	inline void notifyTexture() {
 		textureReady = true;
 		textureCondition.notify_one();
@@ -150,29 +146,35 @@ namespace simpleUtil {
 
 using namespace simpleUtil;
 
-SimpleTexture* simpleGL::loadTexture(std::string path) {
-	boost::unique_lock<boost::mutex> lock(textureMutex);
-	textureReady = false;
-
-	texturePath = path;
-
-	do 	textureCondition.wait(lock);
-	while	(!textureReady);
-
-	return returnTexture;
-}
-
-void simpleGL::changeTextureFiltering(GLenum tf) {
-	if ((tf != GL_LINEAR) && (tf != GL_NEAREST)) {
-		simpleUtil::print("Wrong filtering type");
-		return;
+namespace simpleGL {
+	SimpleTexture* getEmptyTexture() {
+		return &emptyTexture;
 	}
 
-	boost::lock_guard<boost::mutex> lock(textureMutex);
-	if (tf == textureFilter)	return;
+	SimpleTexture* loadTexture(std::string path) {
+		boost::unique_lock<boost::mutex> lock(textureMutex);
+		textureReady = false;
 
-	textureFilter = tf;
-	needFiltering = true;
+		texturePath = path;
+
+		do 	textureCondition.wait(lock);
+		while	(!textureReady);
+
+		return returnTexture;
+	}
+
+	void changeTextureFiltering(GLenum tf) {
+		if ((tf != GL_LINEAR) && (tf != GL_NEAREST)) {
+			simpleUtil::print("Wrong filtering type");
+			return;
+		}
+
+		boost::lock_guard<boost::mutex> lock(textureMutex);
+		if (tf == textureFilter)	return;
+
+		textureFilter = tf;
+		needFiltering = true;
+	}
 }
 
 void ComplexTexture::changeFiltering() {
