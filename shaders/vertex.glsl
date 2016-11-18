@@ -1,10 +1,17 @@
+//For each quad this shader will be called 4 times. For this 4 times the only thing that will change is inPoint.
 #version 430 core
 
+//this will be (-0.5, 0.5), (-0.5, -0.5), (0.5, 0.5), (0.5, -0.5) for each corner of the quad
 layout(location=0)	in vec2 inPoint;
+//position of a centre of the quad
 layout(location=1)	in vec3 inPosition;
+//width and height of the quad
 layout(location=2)	in vec2 inBounds;
+//rotation of the quad
 layout(location=3)	in float inAngle;
+//color of the quad
 layout(location=4)	in vec4 inColor;
+//vector with first two members x and y of a quad inside a texture that we will be sampling. the other two is width and height.
 layout(location=5)	in vec4 inTexData;
 
 out vec4 vColor;

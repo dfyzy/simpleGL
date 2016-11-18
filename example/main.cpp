@@ -26,7 +26,7 @@ int main() {
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetCursorPosCallback(window, cursorPosCallback);
 
-	boost::thread thread = simpleGL::startDrawThread();
+	boost::thread thread = simpleGL::startDrawThread(SimpleColor(0));
 
 	simpleGL::changeTextureFiltering(GL_LINEAR);
 
@@ -49,6 +49,7 @@ int main() {
 	while (!glfwWindowShouldClose(window)) {
 		auto lastTimePoint = boost::chrono::steady_clock::now();
 
+		//you must call this function regularly on the main thread
 		glfwPollEvents();
 
 		auto thisTimePoint = boost::chrono::steady_clock::now();

@@ -8,6 +8,8 @@ TODO:
 -Buffer data proper resizing
 -Callbacks
 -Window resizability
+-Stencil masks?
 -Particles(if there is a need for further optimization)
+-Embded shaders
 -Audio
 -Networking

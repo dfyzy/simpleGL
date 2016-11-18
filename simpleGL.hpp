@@ -46,7 +46,7 @@ namespace simpleGL {
 	 *
 	 * returns: thread handle of the draw thread. Join the thread while closing the window to terminate GLFW properly.
 	 */
-	boost::thread startDrawThread();
+	boost::thread startDrawThread(SimpleColor background);
 
 	/*
 	 * Loads texture from file into opengl texture object. Only works with png images(for now?).

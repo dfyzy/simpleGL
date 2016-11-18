@@ -157,8 +157,11 @@ namespace simpleGL {
 
 		texturePath = path;
 
-		do 	textureCondition.wait(lock);
-		while	(!textureReady);
+		if (!isCurrentThread())
+			do 	textureCondition.wait(lock);
+			while	(!textureReady);
+		else
+			simpleUtil::loadTexture();
 
 		return returnTexture;
 	}

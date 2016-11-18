@@ -14,6 +14,7 @@ namespace simpleUtil {
 namespace simpleGL {
 	GLFWwindow* window = nullptr;
 	unsigned windowWidth, windowHeight;
+	SimpleColor backgroundColor;
 
 	GLuint vao;
 
@@ -130,7 +131,7 @@ namespace simpleGL {
 
 		glViewport(0, 0, windowWidth, windowHeight);
 
-		glClearColor(0.8f, 0.8f, 0.8f, 1);
+		glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
@@ -180,7 +181,8 @@ namespace simpleGL {
 		glfwTerminate();//raii
 	}
 
-	boost::thread startDrawThread() {
+	boost::thread startDrawThread(SimpleColor background) {
+		backgroundColor = background;
 		return boost::thread(draw);
 	}
 

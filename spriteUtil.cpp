@@ -51,7 +51,7 @@ namespace simpleUtil {
 	std::queue<ComplexSprite::Attrib> changeQueue;
 
 	unsigned spriteCount = 0;
-	unsigned spriteCapacity = 0;
+	unsigned spriteCapacity = 5;
 
 	void initBuffers() {
 		GLuint instanceVbo;
@@ -70,16 +70,16 @@ namespace simpleUtil {
 		for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
 			glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
 
+			//alocating data for spriteCapacity number of sprites for a start.
+			glBufferData(GL_ARRAY_BUFFER, spriteCapacity * ComplexSprite::Attrib::sizes[i] * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+
+			//binding buffers to layout locations in vertex shader.
 			glVertexAttribPointer(i + 1, ComplexSprite::Attrib::sizes[i], GL_FLOAT, GL_FALSE, 0, nullptr);
 			glEnableVertexAttribArray(i + 1);
+			//This will set the output of this buffers to vertex shader to change only for each instance of a quad.
 			glVertexAttribDivisor(i + 1, 1);
 		}
 
-		spriteCapacity = 5;
-		for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
-			glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
-			glBufferData(GL_ARRAY_BUFFER, spriteCapacity * ComplexSprite::Attrib::sizes[i] * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-		}
 	}
 
 	inline void bindSpriteAttrib(ComplexSprite::Attrib::E type, unsigned offset, float* data) {
@@ -99,6 +99,7 @@ namespace simpleUtil {
 			for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
 				int size = ComplexSprite::Attrib::sizes[i] * sizeof(float);
 
+				//loading current data into temp buffer, resizing this buffer and loading data back from temp buffer.
 				glBindBuffer(GL_COPY_WRITE_BUFFER, tempVbo);
 				glBufferData(GL_COPY_WRITE_BUFFER, spriteCapacity * size, nullptr, GL_DYNAMIC_DRAW);
 
@@ -173,7 +174,7 @@ SimpleSprite* ComplexTexture::loadSprite(SimplePosition sp, float width, float h
 
 	ComplexSprite sprite(this);
 	//not actualy loading anything into sprite object. just wanted for these functions to be in ComplexSprite class.
-	sprite.loadPosition(sp, data.data.data(), 0);//I know, right?
+	sprite.loadPosition(sp, data.data.data(), 0);
 	sprite.loadBounds(width, height, data.data.data(), 3);
 	sprite.loadRotation(rotation, data.data.data(), 5);
 	sprite.loadColor(c, data.data.data(), 6);
