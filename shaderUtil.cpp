@@ -7,6 +7,7 @@ namespace simpleUtil {
 	GLuint pipeline;
 
 	GLuint vertexShader;
+	GLuint geometryShader;
 	GLuint texFragmentShader;
 	GLuint emptyFragmentShader;
 
@@ -69,8 +70,7 @@ namespace simpleUtil {
 
 		vertexShader = simpleGL::loadShader("shaders/vertex.glsl", GL_VERTEX_SHADER);
 
-		glUseProgramStages(pipeline, GL_VERTEX_SHADER_BIT, vertexShader);
-		glUniform1f(glGetUniformLocation(vertexShader, "rAspect"), aspect);//this
+		geometryShader = simpleGL::loadShader("shaders/geometry.glsl", GL_GEOMETRY_SHADER);
 
 		texFragmentShader = simpleGL::loadShader("shaders/texFragment.glsl", GL_FRAGMENT_SHADER);
 		emptyFragmentShader = simpleGL::loadShader("shaders/emptyFragment.glsl", GL_FRAGMENT_SHADER);
@@ -79,14 +79,16 @@ namespace simpleUtil {
 	void setDefaultShaders(SimpleSprite* sprite, bool empty) {
 
 		sprite->changeVertexShader(vertexShader);
+		sprite->changeGeometryShader(geometryShader);
 		if (empty)	sprite->changeFragmentShader(emptyFragmentShader);
 		else			sprite->changeFragmentShader(texFragmentShader);
 
 	}
 
-	void useShaders(GLuint vertex, GLuint fragment) {
+	void useShaders(GLuint vertex, GLuint geometry, GLuint fragment) {
 
 		glUseProgramStages(pipeline, GL_VERTEX_SHADER_BIT, vertex);
+		glUseProgramStages(pipeline, GL_GEOMETRY_SHADER_BIT, geometry);
 		glUseProgramStages(pipeline, GL_FRAGMENT_SHADER_BIT, fragment);
 
 	}
@@ -104,7 +106,7 @@ namespace simpleUtil {
 using namespace simpleUtil;
 
 GLuint simpleGL::loadShader(std::string path, GLenum ptype) {
-	if (ptype != GL_VERTEX_SHADER && ptype != GL_FRAGMENT_SHADER) {
+	if (ptype != GL_VERTEX_SHADER && ptype != GL_GEOMETRY_SHADER && ptype != GL_FRAGMENT_SHADER) {
 		print("Wrong shader type");
 		return 0;
 	}

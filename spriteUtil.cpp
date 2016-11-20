@@ -6,14 +6,14 @@
 const unsigned ComplexSprite::Attrib::sizes[5] = {3, 2, 1, 4, 4};
 
 void ComplexSprite::loadPosition(SimplePosition sp, float* array, int offset) {
-	array[0 + offset] = 2*sp.x/simpleGL::getWidth();
-	array[1 + offset] = 2*sp.y/simpleGL::getHeight();
+	array[0 + offset] = 2*sp.x/simpleGL::getWindowWidth();
+	array[1 + offset] = 2*sp.y/simpleGL::getWindowHeight();
 	array[2 + offset] = sp.z*ZPOINT;
 }
 
 void ComplexSprite::loadBounds(float width, float height, float* array, int offset) {
-	array[0 + offset] = 2*width*texture->getWidth()/simpleGL::getWidth();
-	array[1 + offset] = 2*height*texture->getHeight()/simpleGL::getHeight();
+	array[0 + offset] = 2*width*texture->getWidth()/simpleGL::getWindowWidth();
+	array[1 + offset] = 2*height*texture->getHeight()/simpleGL::getWindowHeight();
 }
 
 void ComplexSprite::loadRotation(float rotation, float* array, int offset) {
@@ -28,8 +28,8 @@ void ComplexSprite::loadColor(SimpleColor c, float* array, int offset) {
 }
 
 void ComplexSprite::loadTexData(float x, float y, float width, float height, float* array, int offset) {
-	array[0 + offset] = x + width/2;
-	array[1 + offset] = y + height/2;
+	array[0 + offset] = x + width*0.5f;
+	array[1 + offset] = y + height*0.5f;
 	array[2 + offset] = width;
 	array[3 + offset] = height;
 }
@@ -54,17 +54,6 @@ namespace simpleUtil {
 	unsigned spriteCapacity = 5;
 
 	void initBuffers() {
-		GLuint instanceVbo;
-		glGenBuffers(1, &instanceVbo);
-		glBindBuffer(GL_ARRAY_BUFFER, instanceVbo);
-
-		float instanceData [] {-0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f};//the quad I'm going to draw instances of
-
-		glBufferData(GL_ARRAY_BUFFER, sizeof(instanceData), instanceData, GL_STATIC_DRAW);
-
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-		glEnableVertexAttribArray(0);
-
 		glGenBuffers(ComplexSprite::Attrib::COUNT, vbos);
 
 		for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
@@ -74,10 +63,8 @@ namespace simpleUtil {
 			glBufferData(GL_ARRAY_BUFFER, spriteCapacity * ComplexSprite::Attrib::sizes[i] * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 
 			//binding buffers to layout locations in vertex shader.
-			glVertexAttribPointer(i + 1, ComplexSprite::Attrib::sizes[i], GL_FLOAT, GL_FALSE, 0, nullptr);
-			glEnableVertexAttribArray(i + 1);
-			//This will set the output of this buffers to vertex shader to change only for each instance of a quad.
-			glVertexAttribDivisor(i + 1, 1);
+			glVertexAttribPointer(i, ComplexSprite::Attrib::sizes[i], GL_FLOAT, GL_FALSE, 0, nullptr);
+			glEnableVertexAttribArray(i);
 		}
 
 	}
@@ -226,9 +213,9 @@ void ComplexSprite::draw() {
 	boost::lock_guard<boost::mutex> lock(mutex);
 
 	if (enabled && id < spriteCapacity) {
-		useShaders(vertexShader, fragmentShader);
+		useShaders(vertexShader, geometryShader, fragmentShader);
 
-		glDrawArraysInstancedBaseInstance(GL_TRIANGLE_STRIP, 0, 4, 1, id);
+		glDrawArrays(GL_POINTS, id, 1);
 	}
 }
 

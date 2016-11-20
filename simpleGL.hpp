@@ -33,12 +33,12 @@ namespace simpleGL {
 	/*
 	 * Returns width of the created window.
 	 */
-	unsigned getWidth();
+	unsigned getWindowWidth();
 
 	/*
 	 * Returns height of the created window.
 	 */
-	unsigned getHeight();
+	unsigned getWindowHeight();
 
 	/*
 	 * Starts thread on which the opengl context will be initializated.

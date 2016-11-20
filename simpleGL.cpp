@@ -96,11 +96,11 @@ namespace simpleGL {
 		return window;
 	}
 
-	unsigned getWidth() {
+	unsigned getWindowWidth() {
 		return windowWidth;
 	}
 
-	unsigned getHeight() {
+	unsigned getWindowHeight() {
 		return windowHeight;
 	}
 

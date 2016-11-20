@@ -26,7 +26,7 @@ int main() {
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetCursorPosCallback(window, cursorPosCallback);
 
-	boost::thread thread = simpleGL::startDrawThread(SimpleColor(0));
+	boost::thread thread = simpleGL::startDrawThread(SimpleColor(0.5f));
 
 	simpleGL::changeTextureFiltering(GL_LINEAR);
 

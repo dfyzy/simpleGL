@@ -13,6 +13,7 @@ class SimpleSprite {
 protected:
 	boost::mutex mutex;
 	GLuint vertexShader;
+	GLuint geometryShader;
 	GLuint fragmentShader;
 
 	bool enabled = true;
@@ -43,6 +44,11 @@ public:
 		boost::lock_guard<boost::mutex> lock(mutex);
 
 		vertexShader = sh;
+	}
+	void changeGeometryShader(GLuint sh) {
+		boost::lock_guard<boost::mutex> lock(mutex);
+
+		geometryShader = sh;
 	}
 	void changeFragmentShader(GLuint sh) {
 		boost::lock_guard<boost::mutex> lock(mutex);

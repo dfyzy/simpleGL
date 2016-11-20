@@ -26,7 +26,7 @@ namespace simpleUtil {
 	//setting default shaders for given sprite.
 	void setDefaultShaders(SimpleSprite* sprite, bool empty);
 	//calling glUseProgramStages for each stage.
-	void useShaders(GLuint vertex, GLuint fragment);
+	void useShaders(GLuint vertex, GLuint geometry, GLuint fragment);
 
 	//checks for updates
 	void checkTextures();
