@@ -72,6 +72,9 @@ namespace simpleUtil {
 
 		geometryShader = simpleGL::loadShader("shaders/geometry.glsl", GL_GEOMETRY_SHADER);
 
+		glProgramUniform1f(geometryShader, glGetUniformLocation(geometryShader, "rAspect"),
+								((float) simpleGL::getWindowHeight()) / simpleGL::getWindowWidth());
+
 		texFragmentShader = simpleGL::loadShader("shaders/texFragment.glsl", GL_FRAGMENT_SHADER);
 		emptyFragmentShader = simpleGL::loadShader("shaders/emptyFragment.glsl", GL_FRAGMENT_SHADER);
 	}

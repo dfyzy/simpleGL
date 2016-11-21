@@ -19,7 +19,7 @@ void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
 
 int main() {
 
-	width = 500;
+	width = 800;
 	height = 500;
 	GLFWwindow* window = simpleGL::createWindowedWindow("Title", width, height, false, true);
 

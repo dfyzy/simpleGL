@@ -6,13 +6,13 @@
 const unsigned ComplexSprite::Attrib::sizes[5] = {3, 2, 1, 4, 4};
 
 void ComplexSprite::loadPosition(SimplePosition sp, float* array, int offset) {
-	array[0 + offset] = 2*sp.x/simpleGL::getWindowWidth();
+	array[0 + offset] = 2*sp.x/simpleGL::getWindowHeight();
 	array[1 + offset] = 2*sp.y/simpleGL::getWindowHeight();
 	array[2 + offset] = sp.z*ZPOINT;
 }
 
 void ComplexSprite::loadBounds(float width, float height, float* array, int offset) {
-	array[0 + offset] = 2*width*texture->getWidth()/simpleGL::getWindowWidth();
+	array[0 + offset] = 2*width*texture->getWidth()/simpleGL::getWindowHeight();
 	array[1 + offset] = 2*height*texture->getHeight()/simpleGL::getWindowHeight();
 }
 

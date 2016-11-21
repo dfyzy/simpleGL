@@ -21,6 +21,8 @@ out gl_PerVertex {
 out vec4 geomColor;
 out vec2 geomTexPosition;
 
+uniform float rAspect = 1;
+
 const vec2 quad[4] = vec2[](vec2(-0.5, 0.5), vec2(-0.5, -0.5), vec2(0.5, 0.5), vec2(0.5, -0.5));
 
 void main() {
@@ -32,7 +34,7 @@ void main() {
 		geomColor = inData[0].vColor;
 		geomTexPosition = quad[i] * inData[0].vTexData.zw + inData[0].vTexData.xy;//hmmmm
 
-		gl_Position = vec4(mat*vec3(quad[i] * inData[0].vBounds, 0) + gl_in[0].gl_Position.xyz, 1);
+		gl_Position = vec4(vec3(rAspect, 1, 1) * (mat*vec3(quad[i] * inData[0].vBounds, 0) + gl_in[0].gl_Position.xyz), 1);
 		EmitVertex();
 	}
 
