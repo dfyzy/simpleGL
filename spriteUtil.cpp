@@ -51,7 +51,7 @@ namespace simpleUtil {
 	std::queue<ComplexSprite::Attrib> changeQueue;
 
 	unsigned spriteCount = 0;
-	unsigned spriteCapacity = 5;
+	unsigned spriteCapacity = 4;
 
 	void initBuffers() {
 		glGenBuffers(ComplexSprite::Attrib::COUNT, vbos);
@@ -77,60 +77,61 @@ namespace simpleUtil {
 	}
 
 	void loadSprites() {
-		if (spriteCapacity < spriteCount) {
-			print("Resizing data buffers");
-
-			GLuint tempVbo;
-			glGenBuffers(1, &tempVbo);
-
-			for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
-				int size = ComplexSprite::Attrib::sizes[i] * sizeof(float);
-
-				//loading current data into temp buffer, resizing this buffer and loading data back from temp buffer.
-				glBindBuffer(GL_COPY_WRITE_BUFFER, tempVbo);
-				glBufferData(GL_COPY_WRITE_BUFFER, spriteCapacity * size, nullptr, GL_DYNAMIC_DRAW);
-
-				glBindBuffer(GL_COPY_READ_BUFFER, vbos[i]);
-				glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, spriteCapacity * size);
-
-				glBindBuffer(GL_COPY_WRITE_BUFFER, vbos[i]);
-				glBufferData(GL_COPY_WRITE_BUFFER, spriteCount * size, nullptr, GL_DYNAMIC_DRAW);
-
-				glBindBuffer(GL_COPY_READ_BUFFER, tempVbo);
-				glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, spriteCapacity * size);
-
-				// TODO: check if one copy/attribpointer is faster than copy/copy
-				// GLuint t = vbos[i];
-				// vbos[i] = tempVbo;
-				// tempVbo = t;
-			}
-			glDeleteBuffers(1, &tempVbo);
-
-			spriteCapacity = spriteCount;
-		}
-
-		while (!spriteQueue.empty()) {
-			print ("Adding sprite");
-
-			SpriteData data = spriteQueue.front();
-			spriteQueue.pop();
-
-			int dataOffset = 0;
-			for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
-				bindSpriteAttrib(static_cast<ComplexSprite::Attrib::E>(i), data.spriteId, data.data.data() + dataOffset);
-
-				dataOffset += ComplexSprite::Attrib::sizes[i];
-			}
-		}
-	}
-
-	void checkSpriteQueue() {
 		boost::lock_guard<boost::mutex> lock(spriteMutex);
 
-		if (!spriteQueue.empty())	loadSprites();
+		if (!spriteQueue.empty()) {
+			if (spriteCapacity < spriteCount) {
+				print("Resizing data buffers");
+
+				GLuint tempVbo;
+				glGenBuffers(1, &tempVbo);
+
+				for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
+					int size = ComplexSprite::Attrib::sizes[i] * sizeof(float);
+					int oldSize = spriteCapacity * size;
+
+					//loading current data into temp buffer, resizing this buffer and loading data back from temp buffer.
+					glBindBuffer(GL_COPY_WRITE_BUFFER, tempVbo);
+					glBufferData(GL_COPY_WRITE_BUFFER, oldSize, nullptr, GL_DYNAMIC_DRAW);
+
+					glBindBuffer(GL_COPY_READ_BUFFER, vbos[i]);
+					glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, oldSize);
+
+					glBindBuffer(GL_COPY_WRITE_BUFFER, vbos[i]);
+					glBufferData(GL_COPY_WRITE_BUFFER, 2 * spriteCount * size, nullptr, GL_DYNAMIC_DRAW);
+
+					glBindBuffer(GL_COPY_READ_BUFFER, tempVbo);
+					glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, oldSize);
+
+					// TODO: check if one copy/attribpointer is faster than copy/copy
+					// GLuint t = vbos[i];
+					// vbos[i] = tempVbo;
+					// tempVbo = t;
+				}
+				glDeleteBuffers(1, &tempVbo);
+
+				spriteCapacity = 2*spriteCount;
+			}
+
+			while (!spriteQueue.empty()) {
+				print ("Adding sprite");
+
+				SpriteData data = spriteQueue.front();
+				spriteQueue.pop();
+
+				int dataOffset = 0;
+				for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
+					bindSpriteAttrib(static_cast<ComplexSprite::Attrib::E>(i), data.spriteId, data.data.data() + dataOffset);
+
+					dataOffset += ComplexSprite::Attrib::sizes[i];
+				}
+			}
+		}
 	}
 
 	void changeSprites() {
+		boost::lock_guard<boost::mutex> lock(changeMutex);
+
 		while (!changeQueue.empty()) {
 			ComplexSprite::Attrib change = std::move(changeQueue.front());
 			changeQueue.pop();
@@ -139,16 +140,10 @@ namespace simpleUtil {
 		}
 	}
 
-	void checkChangeQueue() {
-		boost::lock_guard<boost::mutex> lock(changeMutex);
-
-		if (!changeQueue.empty())	changeSprites();
-	}
-
 	void checkSprites() {
-		checkSpriteQueue();
+		loadSprites();
 
-		checkChangeQueue();
+		changeSprites();
 	}
 
 }
@@ -220,7 +215,8 @@ void ComplexSprite::draw() {
 }
 
 void ComplexSprite::changeAttrib(Attrib att) {
-	boost::lock_guard<boost::mutex> lock(changeMutex);
+	att.spriteId = id;
 
+	boost::lock_guard<boost::mutex> lock(changeMutex);
 	changeQueue.push(std::move(att));
 }

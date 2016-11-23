@@ -3,10 +3,7 @@
 
 #include <boost/thread.hpp>
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-
+#include "simpleShader.hpp"
 #include "simpleStructs.hpp"
 
 class SimpleSprite {
@@ -38,22 +35,17 @@ public:
 	bool isEnabled() { return enabled; }
 
 	/*
-	 * Changes shader programs for sprite. When drawing this sprite opengl will use these shaders.
+	 * Changes shader program for this sprite. When drawing this sprite opengl will use these shaders.
 	 */
-	void changeVertexShader(GLuint sh) {
+	void changeShader(SimpleShader ssh) {
 		boost::lock_guard<boost::mutex> lock(mutex);
 
-		vertexShader = sh;
-	}
-	void changeGeometryShader(GLuint sh) {
-		boost::lock_guard<boost::mutex> lock(mutex);
-
-		geometryShader = sh;
-	}
-	void changeFragmentShader(GLuint sh) {
-		boost::lock_guard<boost::mutex> lock(mutex);
-
-		fragmentShader = sh;
+		if (ssh.getType() == GL_VERTEX_SHADER)
+			vertexShader = ssh.getShader();
+		else if (ssh.getType() == GL_GEOMETRY_SHADER)
+			geometryShader = ssh.getShader();
+		else if (ssh.getType() == GL_FRAGMENT_SHADER)
+			fragmentShader = ssh.getShader();
 	}
 
 	/*

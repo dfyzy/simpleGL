@@ -1,15 +1,28 @@
 #include <fstream>
+#include <queue>
 
 #include "simpleGL.hpp"
 #include "simpleUtil.hpp"
+#include "simpleShader.hpp"
+
+template<typename T>
+struct Uniform {
+	GLuint shader;
+	std::string location;
+
+	std::vector<T> data;
+
+	Uniform(GLuint sh, const char* loc, std::initializer_list<T> d) : shader(sh), location(loc), data(d) {}
+};
 
 namespace simpleUtil {
+
 	GLuint pipeline;
 
-	GLuint vertexShader;
-	GLuint geometryShader;
-	GLuint texFragmentShader;
-	GLuint emptyFragmentShader;
+	SimpleShader vertexShader;
+	SimpleShader geometryShader;
+	SimpleShader texFragmentShader;
+	SimpleShader emptyFragmentShader;
 
 	boost::mutex shaderMutex;
 	boost::condition_variable shaderCondition;
@@ -18,6 +31,11 @@ namespace simpleUtil {
 	std::string shaderPath;
 	GLenum shaderType;
 	GLuint returnProgram = 0;
+
+	boost::mutex uniformMutex;
+	std::queue<Uniform<GLfloat>> uniformfQueue;
+	std::queue<Uniform<GLint>> uniformiQueue;
+	std::queue<Uniform<GLuint>> uniformuiQueue;
 
 	inline void notifyShader() {
 		shaderReady = true;
@@ -72,7 +90,7 @@ namespace simpleUtil {
 
 		geometryShader = simpleGL::loadShader("shaders/geometry.glsl", GL_GEOMETRY_SHADER);
 
-		glProgramUniform1f(geometryShader, glGetUniformLocation(geometryShader, "rAspect"),
+		glProgramUniform1f(geometryShader.getShader(), glGetUniformLocation(geometryShader.getShader(), "rAspect"),
 								((float) simpleGL::getWindowHeight()) / simpleGL::getWindowWidth());
 
 		texFragmentShader = simpleGL::loadShader("shaders/texFragment.glsl", GL_FRAGMENT_SHADER);
@@ -81,10 +99,10 @@ namespace simpleUtil {
 
 	void setDefaultShaders(SimpleSprite* sprite, bool empty) {
 
-		sprite->changeVertexShader(vertexShader);
-		sprite->changeGeometryShader(geometryShader);
-		if (empty)	sprite->changeFragmentShader(emptyFragmentShader);
-		else			sprite->changeFragmentShader(texFragmentShader);
+		sprite->changeShader(vertexShader);
+		sprite->changeShader(geometryShader);
+		if (empty)	sprite->changeShader(emptyFragmentShader);
+		else			sprite->changeShader(texFragmentShader);
 
 	}
 
@@ -96,22 +114,73 @@ namespace simpleUtil {
 
 	}
 
+	void checkUniforms() {
+		boost::lock_guard<boost::mutex> lock(uniformMutex);
+
+		while (!uniformfQueue.empty()) {
+			Uniform<GLfloat> uni = uniformfQueue.front();
+			uniformfQueue.pop();
+
+			GLint location = glGetUniformLocation(uni.shader, uni.location.c_str());
+
+			switch (uni.data.size()) {
+				case 1:	glProgramUniform1f(uni.shader, location, uni.data[0]); break;
+				case 2:	glProgramUniform2f(uni.shader, location, uni.data[0], uni.data[1]); break;
+				case 3:	glProgramUniform3f(uni.shader, location, uni.data[0], uni.data[1], uni.data[2]); break;
+				case 4:	glProgramUniform4f(uni.shader, location, uni.data[0], uni.data[1], uni.data[2], uni.data[3]); break;
+				default:	print("Uniform: Not a valid number of arguments."); break;
+			}
+		}
+
+		while (!uniformiQueue.empty()) {
+			Uniform<GLint> uni = uniformiQueue.front();
+			uniformiQueue.pop();
+
+			GLint location = glGetUniformLocation(uni.shader, uni.location.c_str());
+
+			switch (uni.data.size()) {
+				case 1:	glProgramUniform1i(uni.shader, location, uni.data[0]); break;
+				case 2:	glProgramUniform2i(uni.shader, location, uni.data[0], uni.data[1]); break;
+				case 3:	glProgramUniform3i(uni.shader, location, uni.data[0], uni.data[1], uni.data[2]); break;
+				case 4:	glProgramUniform4i(uni.shader, location, uni.data[0], uni.data[1], uni.data[2], uni.data[3]); break;
+				default:	print("Uniform: Not a valid number of arguments."); break;
+			}
+		}
+
+		while (!uniformfQueue.empty()) {
+			Uniform<GLuint> uni = uniformuiQueue.front();
+			uniformuiQueue.pop();
+
+			GLint location = glGetUniformLocation(uni.shader, uni.location.c_str());
+
+			switch (uni.data.size()) {
+				case 1:	glProgramUniform1ui(uni.shader, location, uni.data[0]); break;
+				case 2:	glProgramUniform2ui(uni.shader, location, uni.data[0], uni.data[1]); break;
+				case 3:	glProgramUniform3ui(uni.shader, location, uni.data[0], uni.data[1], uni.data[2]); break;
+				case 4:	glProgramUniform4ui(uni.shader, location, uni.data[0], uni.data[1], uni.data[2], uni.data[3]); break;
+				default:	print("Uniform: Not a valid number of arguments."); break;
+			}
+		}
+	}
+
 	void checkShaders() {
 		shaderMutex.lock();
 		bool empty = shaderPath.empty();
 		shaderMutex.unlock();
 
 		if (!empty)	loadShader();
+
+		checkUniforms();
 	}
 
 }
 
 using namespace simpleUtil;
 
-GLuint simpleGL::loadShader(std::string path, GLenum ptype) {
+SimpleShader simpleGL::loadShader(std::string path, GLenum ptype) {
 	if (ptype != GL_VERTEX_SHADER && ptype != GL_GEOMETRY_SHADER && ptype != GL_FRAGMENT_SHADER) {
 		print("Wrong shader type");
-		return 0;
+		return SimpleShader();
 	}
 
 	boost::unique_lock<boost::mutex> lock(shaderMutex);
@@ -126,5 +195,23 @@ GLuint simpleGL::loadShader(std::string path, GLenum ptype) {
 	else
 		simpleUtil::loadShader();
 
-	return returnProgram;
+	return SimpleShader(returnProgram, ptype);
+}
+
+void SimpleShader::setUniformf(const char* location, std::initializer_list<GLfloat> list) {
+	boost::lock_guard<boost::mutex> lock(uniformMutex);
+
+	uniformfQueue.emplace(shader, location, list);
+}
+
+void SimpleShader::setUniformi(const char* location, std::initializer_list<GLint> list) {
+	boost::lock_guard<boost::mutex> lock(uniformMutex);
+
+	uniformiQueue.emplace(shader, location, list);
+}
+
+void SimpleShader::setUniformui(const char* location, std::initializer_list<GLuint> list) {
+	boost::lock_guard<boost::mutex> lock(uniformMutex);
+
+	uniformuiQueue.emplace(shader, location, list);
 }

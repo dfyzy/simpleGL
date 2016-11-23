@@ -16,7 +16,7 @@ public:
 		std::unique_ptr<float> data;
 		unsigned spriteId;
 
-		Attrib(E t, unsigned i) : type(t), spriteId(i) {
+		Attrib(E t) : type(t) {
 			data = std::unique_ptr<float>(new float[sizes[t]]);
 		}
 	};
@@ -37,35 +37,35 @@ public:
 	void loadTexData(float x, float y, float width, float height, float* array, int offset);
 
 	void changePosition(SimplePosition sp) {
-		Attrib att(Attrib::POSITION, id);
+		Attrib att(Attrib::POSITION);
 		loadPosition(sp, att.data.get(), 0);
 
 		changeAttrib(std::move(att));
 	}
 
 	void changeBounds(float width, float height) {
-		Attrib att(Attrib::BOUNDS, id);
+		Attrib att(Attrib::BOUNDS);
 		loadBounds(width, height, att.data.get(), 0);
 
 		changeAttrib(std::move(att));
 	}
 
 	void changeRotation(float rotation) {
-		Attrib att(Attrib::ROTATION, id);
+		Attrib att(Attrib::ROTATION);
 		loadRotation(rotation, att.data.get(), 0);
 
 		changeAttrib(std::move(att));
 	}
 
 	void changeColor(SimpleColor c) {
-		Attrib att(Attrib::COLOR, id);
+		Attrib att(Attrib::COLOR);
 		loadColor(c, att.data.get(), 0);
 
 		changeAttrib(std::move(att));
 	}
 
 	void changeTexData(float x, float y, float width, float height) {
-		Attrib att(Attrib::TEX_DATA, id);
+		Attrib att(Attrib::TEX_DATA);
 		loadTexData(x, y, width, height, att.data.get(), 0);
 
 		changeAttrib(std::move(att));

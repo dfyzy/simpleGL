@@ -43,8 +43,9 @@ int main() {
 
 	simpleGL::getEmptyTexture()->loadSprite(SimplePosition(0, 0, 5), 3, 3, 0.25f*3.1415927f, SimpleColor(1));
 
-	GLuint customShader = simpleGL::loadShader("example/custom.glsl", GL_FRAGMENT_SHADER);
-	lightSp->changeFragmentShader(customShader);
+	SimpleShader customShader = simpleGL::loadShader("example/custom.glsl", GL_FRAGMENT_SHADER);
+	lightSp->changeShader(customShader);
+	customShader.setUniformf("color", {1, 0, 0, 1});
 
 	while (!glfwWindowShouldClose(window)) {
 		auto lastTimePoint = boost::chrono::steady_clock::now();
