@@ -104,6 +104,10 @@ namespace simpleGL {
 		return windowHeight;
 	}
 
+	float toScreenCoord(float f)  {
+		return 2.0f*f/windowHeight;
+	}
+
 	void draw() {
 		simpleUtil::currentId = boost::this_thread::get_id();
 

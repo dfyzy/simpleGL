@@ -41,6 +41,11 @@ namespace simpleGL {
 	unsigned getWindowHeight();
 
 	/*
+	 * Transforms float to screen coord.
+	 */
+	float toScreenCoord(float f);
+
+	/*
 	 * Starts thread on which the opengl context will be initializated.
 	 * Should call this function before doing anything opengl related.
 	 *
