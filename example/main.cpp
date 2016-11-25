@@ -14,7 +14,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 }
 
 void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
-	brimSprite->changeColor(SimpleColor(xpos/width, 1 - ypos/height, 0));
+	brimSprite->setColor(SimpleColor(xpos/width, 1 - ypos/height, 0));
 }
 
 int main() {
@@ -28,7 +28,7 @@ int main() {
 
 	boost::thread thread = simpleGL::startDrawThread(SimpleColor(0.5f));
 
-	simpleGL::changeTextureFiltering(GL_LINEAR);
+	simpleGL::setTextureFiltering(GL_LINEAR);
 
 	SimpleTexture* bodyFront = simpleGL::loadTexture("example\\body_front.png");
 	SimpleTexture* brim = simpleGL::loadTexture("example\\brim.png");
@@ -44,7 +44,7 @@ int main() {
 	simpleGL::loadSprite(simpleGL::getEmptyTexture(), SimplePosition(0, 0, 5), 3, 3, 0.25f*3.1415927f, SimpleColor(1));
 
 	SimpleShader customShader = simpleGL::loadShader("example/custom.glsl", GL_FRAGMENT_SHADER);
-	lightSp->changeShader(customShader);
+	lightSp->setShader(customShader);
 	customShader.setUniformf("color", {1, 0, 0, 1});
 
 	while (!glfwWindowShouldClose(window)) {

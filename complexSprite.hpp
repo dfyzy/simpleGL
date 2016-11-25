@@ -25,7 +25,7 @@ private:
 	void resort();
 	void unload();
 
-	void changeAttrib(Attrib att);
+	void setAttrib(Attrib att);
 
 public:
 	ComplexSprite(unsigned id, SimpleTexture* t, int pz) : SimpleSprite(id, t), z(pz) {}
@@ -39,42 +39,42 @@ public:
 	static void loadColor(SimpleColor c, float* array, int offset);
 	static void loadTexData(float x, float y, float width, float height, float* array, int offset);
 
-	void changePosition(SimplePosition sp) {
+	void setPosition(SimplePosition sp) {
 		z = sp.z;
 		resort();
 
 		Attrib att(Attrib::POSITION);
 		loadPosition(sp, att.data.get(), 0);
 
-		changeAttrib(std::move(att));
+		setAttrib(std::move(att));
 	}
 
-	void changeBounds(float width, float height) {
+	void setBounds(float width, float height) {
 		Attrib att(Attrib::BOUNDS);
 		loadBounds(width, height, texture, att.data.get(), 0);
 
-		changeAttrib(std::move(att));
+		setAttrib(std::move(att));
 	}
 
-	void changeRotation(float rotation) {
+	void setRotation(float rotation) {
 		Attrib att(Attrib::ROTATION);
 		loadRotation(rotation, att.data.get(), 0);
 
-		changeAttrib(std::move(att));
+		setAttrib(std::move(att));
 	}
 
-	void changeColor(SimpleColor c) {
+	void setColor(SimpleColor c) {
 		Attrib att(Attrib::COLOR);
 		loadColor(c, att.data.get(), 0);
 
-		changeAttrib(std::move(att));
+		setAttrib(std::move(att));
 	}
 
-	void changeTexData(float x, float y, float width, float height) {
+	void setTexData(float x, float y, float width, float height) {
 		Attrib att(Attrib::TEX_DATA);
 		loadTexData(x, y, width, height, att.data.get(), 0);
 
-		changeAttrib(std::move(att));
+		setAttrib(std::move(att));
 	}
 
 	void draw();

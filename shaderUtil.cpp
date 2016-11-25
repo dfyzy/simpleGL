@@ -42,6 +42,7 @@ namespace simpleUtil {
 		shaderCondition.notify_one();
 	}
 
+	//ISSUE: random data at the start of string
 	const char* loadSource(std::string path) {
 		std::ifstream file(path);
 
@@ -99,10 +100,10 @@ namespace simpleUtil {
 
 	void setDefaultShaders(SimpleSprite* sprite, bool empty) {
 
-		sprite->changeShader(vertexShader);
-		sprite->changeShader(geometryShader);
-		if (empty)	sprite->changeShader(emptyFragmentShader);
-		else			sprite->changeShader(texFragmentShader);
+		sprite->setShader(vertexShader);
+		sprite->setShader(geometryShader);
+		if (empty)	sprite->setShader(emptyFragmentShader);
+		else			sprite->setShader(texFragmentShader);
 
 	}
 

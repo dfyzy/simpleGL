@@ -97,7 +97,7 @@ namespace simpleGL {
 	 *
 	 * 'tf': can only be GL_LINEAR or GL_NEAREST.
 	 */
-	void changeTextureFiltering(GLenum tf);
+	void setTextureFiltering(GLenum tf);
 
 	/*
 	 * Loads, compiles, links and validates shader program of type ptype.

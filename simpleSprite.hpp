@@ -51,7 +51,7 @@ public:
 
 	SimpleTexture* getTexture() const { return texture; }
 
-	void changeTexture(SimpleTexture* tex) {
+	void setTexture(SimpleTexture* tex) {
 		boost::lock_guard<boost::mutex> lock(mutex);
 
 		texture = tex;
@@ -61,7 +61,7 @@ public:
 	/*
 	 * Changes shader program for this sprite. When drawing this sprite opengl will use these shaders.
 	 */
-	void changeShader(SimpleShader ssh) {
+	void setShader(SimpleShader ssh) {
 		boost::lock_guard<boost::mutex> lock(mutex);
 
 		if (ssh.getType() == GL_VERTEX_SHADER)
@@ -97,11 +97,11 @@ public:
 	/*
 	 * Changes attributes for this sprite.
 	 */
-	virtual void changePosition(SimplePosition sp) =0;
-	virtual void changeBounds(float width, float height) =0;
-	virtual void changeColor(SimpleColor c) =0;
-	virtual void changeTexData(float x, float y, float width, float height) =0;
-	
+	virtual void setPosition(SimplePosition sp) =0;
+	virtual void setBounds(float width, float height) =0;
+	virtual void setColor(SimpleColor c) =0;
+	virtual void setTexData(float x, float y, float width, float height) =0;
+
 };
 inline SimpleSprite::~SimpleSprite() {}
 

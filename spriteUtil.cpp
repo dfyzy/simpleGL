@@ -255,7 +255,7 @@ void ComplexSprite::draw() {
 	}
 }
 
-void ComplexSprite::changeAttrib(Attrib att) {
+void ComplexSprite::setAttrib(Attrib att) {
 	att.spriteId = id;
 
 	boost::lock_guard<boost::mutex> lock(changeMutex);

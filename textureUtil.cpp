@@ -129,7 +129,7 @@ namespace simpleUtil {
 		if (unloadingTexture)	unloadTexture();
 	}
 
-	void changeFiltering(GLuint texture) {
+	void setFiltering(GLuint texture) {
 		glBindTexture(GL_TEXTURE_RECTANGLE, texture);
 
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, textureFilter);
@@ -141,7 +141,7 @@ namespace simpleUtil {
 
 		if (needFiltering) {
 			for (SimpleTexture* st : textures)
-				changeFiltering(st->getTexture());
+				setFiltering(st->getTexture());
 
 			needFiltering = false;
 		}
@@ -184,7 +184,7 @@ namespace simpleGL {
 		return returnTexture;
 	}
 
-	void changeTextureFiltering(GLenum tf) {
+	void setTextureFiltering(GLenum tf) {
 		if ((tf != GL_LINEAR) && (tf != GL_NEAREST)) {
 			simpleUtil::print("Wrong filtering type");
 			return;
@@ -199,7 +199,7 @@ namespace simpleGL {
 }
 
 SimpleTexture::SimpleTexture(unsigned width, unsigned height, GLuint id) : pixelWidth(width), pixelHeight(height), texture(id) {
-	changeFiltering(id);
+	setFiltering(id);
 }
 
 SimpleTexture::~SimpleTexture() {
