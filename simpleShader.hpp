@@ -1,9 +1,7 @@
 #ifndef SIMPLE_SHADER_H
 #define SIMPLE_SHADER_H
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include "glfw.hpp"
 
 #include <initializer_list>
 

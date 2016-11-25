@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "simpleTexture.hpp"
+#include "simpleSprite.hpp"
 
 namespace simpleGL {
 
@@ -66,6 +66,30 @@ namespace simpleGL {
 	 * Texture object without texture with width and height equal 100.
 	 */
 	SimpleTexture* getEmptyTexture();
+
+	/*
+	 * Creates sprite object and loads attribute data into data buffers.
+	 *
+	 * returns: sprite handle.
+	 */
+	SimpleSprite* loadSprite(SimpleTexture* tex, SimplePosition sp, float width, float height, float rotation, SimpleColor c,
+													float texX, float texY, float texW, float texH);
+
+	inline SimpleSprite* loadSprite(SimpleTexture* tex, SimplePosition sp, float width, float height, float rotation, SimpleColor c) {
+		return loadSprite(tex, sp, width, height, rotation, c, 0, 0, tex->getWidth(), tex->getHeight());
+	}
+
+	inline SimpleSprite* loadSprite(SimpleTexture* tex, SimplePosition sp, float width, float height, SimpleColor c) {
+		return loadSprite(tex, sp, width, height, 0, c);
+	}
+
+	inline SimpleSprite* loadSprite(SimpleTexture* tex, SimplePosition sp, float scale, SimpleColor c) {
+		return loadSprite(tex, sp, scale, scale, c);
+	}
+
+	inline SimpleSprite* loadSprite(SimpleTexture* tex, SimplePosition sp, SimpleColor c) {
+		return loadSprite(tex, sp, 1, c);
+	}
 
 	/*
 	 * Changes texture filtering on all currently loaded textures and textures that will be loaded from this point.

@@ -2,12 +2,12 @@
 #include <zlib.h>
 
 #include "simpleUtil.hpp"
-#include "complexTexture.hpp"
+#include "simpleTexture.hpp"
 
 namespace simpleUtil {
 
-	ComplexTexture emptyTexture(100, 100, 0);
-	std::list<ComplexTexture> textures;
+	SimpleTexture* emptyTexture = new SimpleTexture(100, 100, 0);//hmmm
+	std::list<SimpleTexture*> textures;
 
 	boost::mutex textureMutex;
 	boost::condition_variable textureCondition;
@@ -17,8 +17,9 @@ namespace simpleUtil {
 	SimpleTexture* returnTexture = nullptr;
 
 	boost::mutex untextureMutex;
-	ComplexTexture* unloadingTexture = nullptr;
-	bool needUnload = false;
+	SimpleTexture* unloadingTexture = nullptr;
+	boost::condition_variable unloadCondition;
+	bool unloaded;
 
 	GLenum textureFilter = GL_NEAREST;
 	bool needFiltering = false;
@@ -87,8 +88,8 @@ namespace simpleUtil {
 		GLuint texture;
 		glGenTextures(1, &texture);
 
-		textures.emplace_back(width, height, texture);
-		returnTexture = &(*--textures.end());
+		returnTexture = new SimpleTexture(width, height, texture);
+		textures.push_back(returnTexture);
 		notifyTexture();
 
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -108,18 +109,42 @@ namespace simpleUtil {
 		fclose(file);
 	}
 
+	void unloadTexture() {
+		print("Unloading texture");
+
+		GLuint texture = unloadingTexture->getTexture();
+		glDeleteTextures(1, &texture);//not sure if this can change value of texture handle. no reason why it should.
+
+		textures.remove(unloadingTexture);
+
+		unloadingTexture = nullptr;
+
+		unloaded = true;
+		unloadCondition.notify_one();
+	}
+
 	void checkUnloading() {
 		boost::lock_guard<boost::mutex> lock(untextureMutex);
 
-		if (needUnload)	unloadingTexture->unloadTexture();
+		if (unloadingTexture)	unloadTexture();
+	}
+
+	void changeFiltering(GLuint texture) {
+		glBindTexture(GL_TEXTURE_RECTANGLE, texture);
+
+		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, textureFilter);
+		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, textureFilter);
 	}
 
 	void checkFiltering() {
 		boost::lock_guard<boost::mutex> lock(textureMutex);
 
-		if (needFiltering)
-			for (auto it = textures.begin(); it != textures.end(); it++)
-				it->changeFiltering();
+		if (needFiltering) {
+			for (SimpleTexture* st : textures)
+				changeFiltering(st->getTexture());
+
+			needFiltering = false;
+		}
 	}
 
 	void checkTextures() {
@@ -135,20 +160,13 @@ namespace simpleUtil {
 		checkFiltering();
 	}
 
-	void drawTextures() {
-		emptyTexture.draw();
-
-		for (auto it = textures.begin(); it != textures.end(); it++)
-			it->draw();
-	}
-
 }
 
 using namespace simpleUtil;
 
 namespace simpleGL {
 	SimpleTexture* getEmptyTexture() {
-		return &emptyTexture;
+		return emptyTexture;
 	}
 
 	SimpleTexture* loadTexture(std::string path) {
@@ -180,29 +198,24 @@ namespace simpleGL {
 	}
 }
 
-void ComplexTexture::changeFiltering() {
-	glBindTexture(GL_TEXTURE_RECTANGLE, texture);
-
-	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, textureFilter);
-	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, textureFilter);
-
-	needFiltering = false;
+SimpleTexture::SimpleTexture(unsigned width, unsigned height, GLuint id) : pixelWidth(width), pixelHeight(height), texture(id) {
+	changeFiltering(id);
 }
 
-void ComplexTexture::unloadTexture() {
-	for (auto it = sprites.begin(); it != sprites.end(); it++)
-		it->deleteData();
-
-	glDeleteTextures(1, &texture);//not sure if this can change value of texture handle. no reason why it should.
-
-	textures.remove(*this);
-
-	needUnload = false;
+SimpleTexture::~SimpleTexture() {
+	print("Texture destructor");
+	unload();
 }
 
-void ComplexTexture::unload() {
-	boost::lock_guard<boost::mutex> lock(untextureMutex);
+void SimpleTexture::unload() {
+	boost::unique_lock<boost::mutex> lock(untextureMutex);
 
 	unloadingTexture = this;
-	needUnload = true;
+	unloaded = false;
+
+	if (!isCurrentThread())
+		do 	unloadCondition.wait(lock);
+		while	(!unloaded);
+	else
+		simpleUtil::unloadTexture();
 }

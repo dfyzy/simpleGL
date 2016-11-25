@@ -140,6 +140,8 @@ namespace simpleGL {
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 
+		glEnable(GL_STENCIL_TEST);
+
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -151,7 +153,7 @@ namespace simpleGL {
 		simpleUtil::initBuffers();
 
 		glActiveTexture(GL_TEXTURE0);
-
+		
 		#if defined FPS_COUNTER && defined DEBUG
 			double lastFPSTime = glfwGetTime();
 			int frames = 0;
@@ -171,11 +173,11 @@ namespace simpleGL {
 			simpleUtil::checkSprites();
 			simpleUtil::checkShaders();
 
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 			glBindVertexArray(vao);
 
-			simpleUtil::drawTextures();
+			simpleUtil::drawSprites();
 
 			glBindVertexArray(0);
 

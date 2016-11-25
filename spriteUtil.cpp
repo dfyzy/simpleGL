@@ -1,7 +1,9 @@
 #include <queue>
+#include <set>
 
+#include "simpleGL.hpp"
 #include "simpleUtil.hpp"
-#include "complexTexture.hpp"
+#include "complexSprite.hpp"
 
 const unsigned ComplexSprite::Attrib::sizes[5] = {3, 2, 1, 4, 4};
 
@@ -11,9 +13,9 @@ void ComplexSprite::loadPosition(SimplePosition sp, float* array, int offset) {
 	array[2 + offset] = sp.z*ZPOINT;
 }
 
-void ComplexSprite::loadBounds(float width, float height, float* array, int offset) {
-	array[0 + offset] = simpleGL::toScreenCoord(width*texture->getWidth());
-	array[1 + offset] = simpleGL::toScreenCoord(height*texture->getHeight());
+void ComplexSprite::loadBounds(float width, float height, SimpleTexture* tex, float* array, int offset) {
+	array[0 + offset] = simpleGL::toScreenCoord(width*tex->getWidth());
+	array[1 + offset] = simpleGL::toScreenCoord(height*tex->getHeight());
 }
 
 void ComplexSprite::loadRotation(float rotation, float* array, int offset) {
@@ -39,11 +41,28 @@ struct SpriteData {
 	std::array<float, 3 + 2 + 1 + 4 + 4> data;
 };
 
+//less
+struct SpriteComparer {
+	bool operator()(const ComplexSprite* lhs, const ComplexSprite* rhs) {
+		if (lhs->getZ() == rhs->getZ()) {
+			if (lhs->getTexture()->getTexture() == rhs->getTexture()->getTexture())
+				return lhs != rhs;
+			else
+				return lhs->getTexture()->getTexture() < rhs->getTexture()->getTexture();
+		} else
+			return lhs->getZ() > rhs->getZ();
+	}
+};
+
 namespace simpleUtil {
 
 	GLuint vbos[ComplexSprite::Attrib::COUNT];
 
+	//SimpleTexture* boundTexture;
+
 	boost::mutex spriteMutex;
+	std::set<ComplexSprite*, SpriteComparer> sprites;
+
 	std::queue<SpriteData> spriteQueue;
 	std::queue<unsigned> deletedQueue;
 
@@ -114,7 +133,7 @@ namespace simpleUtil {
 			}
 
 			while (!spriteQueue.empty()) {
-				print ("Adding sprite");
+				print("Adding sprite");
 
 				SpriteData data = spriteQueue.front();
 				spriteQueue.pop();
@@ -141,26 +160,34 @@ namespace simpleUtil {
 	}
 
 	void checkSprites() {
-		loadSprites();
 
+		loadSprites();
 		changeSprites();
+
+	}
+
+	float f = true;
+	void drawSprites() {
+		for (ComplexSprite* cs : sprites)
+			cs->draw();
+
+		if (!sprites.empty())	f = false;
 	}
 
 }
 
 using namespace simpleUtil;
 
-SimpleSprite* ComplexTexture::loadSprite(SimplePosition sp, float width, float height, float rotation, SimpleColor c,
+SimpleSprite* simpleGL::loadSprite(SimpleTexture* tex, SimplePosition sp, float width, float height, float rotation, SimpleColor c,
 															float texX, float texY, float texW, float texH) {
 	SpriteData data;
 
-	ComplexSprite sprite(this);
 	//not actualy loading anything into sprite object. just wanted for these functions to be in ComplexSprite class.
-	sprite.loadPosition(sp, data.data.data(), 0);
-	sprite.loadBounds(width, height, data.data.data(), 3);
-	sprite.loadRotation(rotation, data.data.data(), 5);
-	sprite.loadColor(c, data.data.data(), 6);
-	sprite.loadTexData(texX, texY, texW, texH, data.data.data(), 10);
+	ComplexSprite::loadPosition(sp, data.data.data(), 0);
+	ComplexSprite::loadBounds(width, height, tex, data.data.data(), 3);
+	ComplexSprite::loadRotation(rotation, data.data.data(), 5);
+	ComplexSprite::loadColor(c, data.data.data(), 6);
+	ComplexSprite::loadTexData(texX, texY, texW, texH, data.data.data(), 10);
 
 	boost::lock_guard<boost::mutex> lock(spriteMutex);
 	unsigned id;
@@ -172,43 +199,57 @@ SimpleSprite* ComplexTexture::loadSprite(SimplePosition sp, float width, float h
 	data.spriteId = id;
 	spriteQueue.push(data);
 
-	sprites.emplace_back(id, this);
+	ComplexSprite* sprite = new ComplexSprite(id, tex, sp.z);
 
-	SimpleSprite* value = &(*--sprites.end());
-	setDefaultShaders(value, texture == 0);
+	sprites.insert(sprite);
 
-	return value;
+	setDefaultShaders(sprite, tex->getTexture() == 0);
+
+	return sprite;
 }
 
-void ComplexSprite::deleteData() {
+ComplexSprite::~ComplexSprite() {
+	simpleUtil::print("Sprite destructor");
+	unload();
+}
+
+//TODO: before allocation
+void ComplexSprite::unload() {
+	print("Unloading sprite");
+
+	boost::lock_guard<boost::mutex> lock(spriteMutex);
+
 	if (id < spriteCount - 1)
 		deletedQueue.push(id);
 	else
 		spriteCount--;
+
+	sprites.erase(this);
 }
 
-void ComplexSprite::unload() {
-	boost::lock_guard<boost::mutex> lock(spriteMutex);
-
-	deleteData();
-
-	texture->removeSprite(this);
-}
-
-void ComplexTexture::draw() {
-	glBindTexture(GL_TEXTURE_RECTANGLE, texture);
-
-	boost::lock_guard<boost::mutex> lock(spriteMutex);
-
-	for (ComplexSprite& cs : sprites)
-		cs.draw();
+void ComplexSprite::resort() {
+	sprites.erase(this);
+	sprites.insert(this);
 }
 
 void ComplexSprite::draw() {
+	GLuint tex = texture->getTexture();
+	GLint current = 0;
+	glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE, &current);
+
+	if (f) std::cout << "ping ";
+	if (tex != (GLuint) current) {
+		if (f) std::cout << "pong" << std::endl;
+		glBindTexture(GL_TEXTURE_RECTANGLE, tex);
+	}
+
 	boost::lock_guard<boost::mutex> lock(mutex);
 
 	if (enabled && id < spriteCapacity) {
 		useShaders(vertexShader, geometryShader, fragmentShader);
+
+		glStencilFunc(stencilFunc, stencilRef, stencilMask);
+		glStencilOp(stencilFail, depthFail, depthPass);
 
 		glDrawArrays(GL_POINTS, id, 1);
 	}

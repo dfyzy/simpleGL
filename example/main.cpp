@@ -35,13 +35,13 @@ int main() {
 	SimpleTexture* light = simpleGL::loadTexture("example\\light.png");
 	SimpleTexture* eye = simpleGL::loadTexture("example\\eye.png");
 
-	bodyFront->loadSprite(SimplePosition(), SimpleColor(1));
-	brimSprite = brim->loadSprite(SimplePosition(0, 68.6), SimpleColor(1));
-	SimpleSprite* lightSp = light->loadSprite(SimplePosition(0, 108.8, 1), SimpleColor(1));
-	eye->loadSprite(SimplePosition(50.2, 32.1, -1), SimpleColor(1));
-	eye->loadSprite(SimplePosition(-50.2, 32.1, -1), SimpleColor(1));
+	simpleGL::loadSprite(bodyFront, SimplePosition(), SimpleColor(1));
+	brimSprite = simpleGL::loadSprite(brim, SimplePosition(0, 68.6), SimpleColor(1));
+	SimpleSprite* lightSp = simpleGL::loadSprite(light, SimplePosition(0, 108.8, 1), SimpleColor(1));
+	simpleGL::loadSprite(eye, SimplePosition(50.2, 32.1, -1), SimpleColor(1));
+	simpleGL::loadSprite(eye, SimplePosition(-50.2, 32.1, -1), SimpleColor(1));
 
-	simpleGL::getEmptyTexture()->loadSprite(SimplePosition(0, 0, 5), 3, 3, 0.25f*3.1415927f, SimpleColor(1));
+	simpleGL::loadSprite(simpleGL::getEmptyTexture(), SimplePosition(0, 0, 5), 3, 3, 0.25f*3.1415927f, SimpleColor(1));
 
 	SimpleShader customShader = simpleGL::loadShader("example/custom.glsl", GL_FRAGMENT_SHADER);
 	lightSp->changeShader(customShader);

@@ -5,7 +5,7 @@
 	#include <iostream>
 #endif
 
-#include "simpleTexture.hpp"
+#include "simpleSprite.hpp"
 
 namespace simpleUtil {
 
@@ -34,7 +34,7 @@ namespace simpleUtil {
 	void checkShaders();
 
 	//draw sprites for each texture
-	void drawTextures();
+	void drawSprites();
 
 }
 

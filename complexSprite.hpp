@@ -5,8 +5,6 @@
 
 const float ZPOINT = 0.0001f;
 
-class ComplexTexture;
-
 class ComplexSprite : public SimpleSprite {
 public:
 	struct Attrib {
@@ -22,21 +20,29 @@ public:
 	};
 
 private:
-	ComplexTexture* texture;
+	int z;
+
+	void resort();
+	void unload();
 
 	void changeAttrib(Attrib att);
 
 public:
-	ComplexSprite(ComplexTexture* t) : texture(t) {}//for empty sprite objects
-	ComplexSprite(unsigned id, ComplexTexture* t) : SimpleSprite(id), texture(t) {}
+	ComplexSprite(unsigned id, SimpleTexture* t, int pz) : SimpleSprite(id, t), z(pz) {}
+	~ComplexSprite();
 
-	void loadPosition(SimplePosition sp, float* array, int offset);
-	void loadBounds(float width, float height, float* array, int offset);
-	void loadRotation(float rotation, float* array, int offset);
-	void loadColor(SimpleColor c, float* array, int offset);
-	void loadTexData(float x, float y, float width, float height, float* array, int offset);
+	int getZ() const { return z; }
+
+	static void loadPosition(SimplePosition sp, float* array, int offset);
+	static void loadBounds(float width, float height, SimpleTexture* tex, float* array, int offset);
+	static void loadRotation(float rotation, float* array, int offset);
+	static void loadColor(SimpleColor c, float* array, int offset);
+	static void loadTexData(float x, float y, float width, float height, float* array, int offset);
 
 	void changePosition(SimplePosition sp) {
+		z = sp.z;
+		resort();
+
 		Attrib att(Attrib::POSITION);
 		loadPosition(sp, att.data.get(), 0);
 
@@ -45,7 +51,7 @@ public:
 
 	void changeBounds(float width, float height) {
 		Attrib att(Attrib::BOUNDS);
-		loadBounds(width, height, att.data.get(), 0);
+		loadBounds(width, height, texture, att.data.get(), 0);
 
 		changeAttrib(std::move(att));
 	}
@@ -72,10 +78,6 @@ public:
 	}
 
 	void draw();
-
-	void deleteData();
-
-	void unload();
 
 	bool operator==(const ComplexSprite& other) const {
 		return id == other.id;
