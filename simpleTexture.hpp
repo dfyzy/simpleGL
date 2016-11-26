@@ -8,6 +8,8 @@ protected:
 	unsigned pixelWidth, pixelHeight;
 	GLuint texture;
 
+	void unload();
+
 public:
 	SimpleTexture(unsigned width, unsigned height, GLuint id);
 	~SimpleTexture();
@@ -15,15 +17,10 @@ public:
 	/*
 	 *	Gets pixel width and height of this texture.
 	 */
-	unsigned getWidth() { return pixelWidth; }
-	unsigned getHeight() { return pixelHeight; }
+	unsigned getWidth() const { return pixelWidth; }
+	unsigned getHeight() const { return pixelHeight; }
 
-	GLuint getTexture() { return texture; }
-
-	/*
-	 * Unloads this texture and all the sprites created by this texture object. Deletes this object.
-	 */
-	void unload();
+	GLuint getTexture() const { return texture; }
 
 	bool operator==(const SimpleTexture& other) const {
 		return texture == other.texture;

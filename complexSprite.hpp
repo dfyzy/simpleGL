@@ -33,49 +33,11 @@ public:
 
 	int getZ() const { return z; }
 
-	static void loadPosition(SimplePosition sp, float* array, int offset);
-	static void loadBounds(float width, float height, SimpleTexture* tex, float* array, int offset);
-	static void loadRotation(float rotation, float* array, int offset);
-	static void loadColor(SimpleColor c, float* array, int offset);
-	static void loadTexData(float x, float y, float width, float height, float* array, int offset);
-
-	void setPosition(SimplePosition sp) {
-		z = sp.z;
-		resort();
-
-		Attrib att(Attrib::POSITION);
-		loadPosition(sp, att.data.get(), 0);
-
-		setAttrib(std::move(att));
-	}
-
-	void setBounds(float width, float height) {
-		Attrib att(Attrib::BOUNDS);
-		loadBounds(width, height, texture, att.data.get(), 0);
-
-		setAttrib(std::move(att));
-	}
-
-	void setRotation(float rotation) {
-		Attrib att(Attrib::ROTATION);
-		loadRotation(rotation, att.data.get(), 0);
-
-		setAttrib(std::move(att));
-	}
-
-	void setColor(SimpleColor c) {
-		Attrib att(Attrib::COLOR);
-		loadColor(c, att.data.get(), 0);
-
-		setAttrib(std::move(att));
-	}
-
-	void setTexData(float x, float y, float width, float height) {
-		Attrib att(Attrib::TEX_DATA);
-		loadTexData(x, y, width, height, att.data.get(), 0);
-
-		setAttrib(std::move(att));
-	}
+	void setPosition(SimplePosition sp);
+	void setBounds(float width, float height);
+	void setRotation(float rotation);
+	void setColor(SimpleColor c);
+	void setTexData(float x, float y, float width, float height);
 
 	void draw();
 

@@ -42,47 +42,6 @@ namespace simpleUtil {
 		shaderCondition.notify_one();
 	}
 
-	//ISSUE: random data at the start of string
-	const char* loadSource(std::string path) {
-		std::ifstream file(path);
-
-		std::string shaderString;
-
-		std::string line;
-		while (getline(file, line)) {
-			shaderString += line;
-			shaderString.push_back('\n');
-		}
-		file.close();
-
-		return shaderString.c_str();
-	}
-
-	void loadShader() {
-		const char* source = loadSource(shaderPath);
-		shaderPath.clear();
-
-		GLuint program = glCreateShaderProgramv(shaderType, 1, &source);
-
-		glValidateProgram(program);
-
-		GLint status;
-		glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
-		if (!status) {
-			GLint length;
-			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
-
-			std::unique_ptr<GLchar> infoLog(new GLchar[length + 1]);
-			glGetProgramInfoLog(program, length, nullptr, infoLog.get());
-
-			simpleUtil::print(infoLog.get());
-			program = 0;
-		} else	simpleUtil::print("Program validated");
-
-		returnProgram = program;
-		notifyShader();
-	}
-
 	void initShaders(float aspect) {
 		glGenProgramPipelines(1, &pipeline);
 		glBindProgramPipeline(pipeline);
@@ -105,6 +64,48 @@ namespace simpleUtil {
 		if (empty)	sprite->setShader(emptyFragmentShader);
 		else			sprite->setShader(texFragmentShader);
 
+	}
+
+	std::string loadSource(std::string path) {
+		std::ifstream file(path);
+
+		std::string shaderString;
+
+		std::string line;
+		while (getline(file, line)) {
+			shaderString += line;
+			shaderString.push_back('\n');
+		}
+		file.close();
+
+		return shaderString;
+	}
+
+	void loadShader() {
+		print("Loading shader");
+
+		const char* source = loadSource(shaderPath).c_str();
+
+		GLuint program = glCreateShaderProgramv(shaderType, 1, &source);
+		shaderPath.clear();
+
+		glValidateProgram(program);
+
+		GLint status;
+		glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
+		if (!status) {
+			GLint length;
+			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
+
+			std::unique_ptr<GLchar> infoLog(new GLchar[length + 1]);
+			glGetProgramInfoLog(program, length, nullptr, infoLog.get());
+
+			simpleUtil::print(infoLog.get());
+			program = 0;
+		} else	print("Program validated");
+
+		returnProgram = program;
+		notifyShader();
 	}
 
 	void useShaders(GLuint vertex, GLuint geometry, GLuint fragment) {
@@ -165,11 +166,10 @@ namespace simpleUtil {
 	}
 
 	void checkShaders() {
-		shaderMutex.lock();
-		bool empty = shaderPath.empty();
-		shaderMutex.unlock();
-
-		if (!empty)	loadShader();
+		{
+			boost::lock_guard<boost::mutex> lock(shaderMutex);
+			if (!shaderPath.empty()) loadShader();
+		}
 
 		checkUniforms();
 	}

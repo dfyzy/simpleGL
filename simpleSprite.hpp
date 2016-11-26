@@ -9,7 +9,7 @@
 
 class SimpleSprite {
 protected:
-	boost::mutex mutex;
+	mutable boost::mutex mutex;
 
 	bool enabled = true;
 	unsigned id;
@@ -36,12 +36,15 @@ public:
 	virtual ~SimpleSprite() =0;
 
 	unsigned getId() const { return id; }
-	void setId(unsigned u) { id = u; }
 
 	/*
 	 * If enabled is false the sprite won't draw.
 	 */
-	bool isEnabled() const { return enabled; }
+	bool isEnabled() const {
+		boost::lock_guard<boost::mutex> lock(mutex);
+
+		return enabled;
+	 }
 
 	void setEnabled(bool b) {
 		boost::lock_guard<boost::mutex> lock(mutex);
@@ -49,7 +52,11 @@ public:
 		enabled = b;
 	}
 
-	SimpleTexture* getTexture() const { return texture; }
+	SimpleTexture* getTexture() const {
+		boost::lock_guard<boost::mutex> lock(mutex);
+
+		return texture;
+	}
 
 	void setTexture(SimpleTexture* tex) {
 		boost::lock_guard<boost::mutex> lock(mutex);

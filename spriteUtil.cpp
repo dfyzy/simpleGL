@@ -7,35 +7,6 @@
 
 const unsigned ComplexSprite::Attrib::sizes[5] = {3, 2, 1, 4, 4};
 
-void ComplexSprite::loadPosition(SimplePosition sp, float* array, int offset) {
-	array[0 + offset] = simpleGL::toScreenCoord(sp.x);
-	array[1 + offset] = simpleGL::toScreenCoord(sp.y);
-	array[2 + offset] = sp.z*ZPOINT;
-}
-
-void ComplexSprite::loadBounds(float width, float height, SimpleTexture* tex, float* array, int offset) {
-	array[0 + offset] = simpleGL::toScreenCoord(width*tex->getWidth());
-	array[1 + offset] = simpleGL::toScreenCoord(height*tex->getHeight());
-}
-
-void ComplexSprite::loadRotation(float rotation, float* array, int offset) {
-	array[0 + offset] = rotation;
-}
-
-void ComplexSprite::loadColor(SimpleColor c, float* array, int offset) {
-	array[0 + offset] = c.r;
-	array[1 + offset] = c.g;
-	array[2 + offset] = c.b;
-	array[3 + offset] = c.a;
-}
-
-void ComplexSprite::loadTexData(float x, float y, float width, float height, float* array, int offset) {
-	array[0 + offset] = x + width*0.5f;
-	array[1 + offset] = y + height*0.5f;
-	array[2 + offset] = width;
-	array[3 + offset] = height;
-}
-
 struct SpriteData {
 	unsigned spriteId;
 	std::array<float, 3 + 2 + 1 + 4 + 4> data;
@@ -58,8 +29,6 @@ namespace simpleUtil {
 
 	GLuint vbos[ComplexSprite::Attrib::COUNT];
 
-	//SimpleTexture* boundTexture;
-
 	boost::mutex spriteMutex;
 	std::set<ComplexSprite*, SpriteComparer> sprites;
 
@@ -71,6 +40,35 @@ namespace simpleUtil {
 
 	unsigned spriteCount = 0;
 	unsigned spriteCapacity = 4;
+
+	void loadPosition(SimplePosition sp, float* array, int offset) {
+		array[0 + offset] = simpleGL::toScreenCoord(sp.x);
+		array[1 + offset] = simpleGL::toScreenCoord(sp.y);
+		array[2 + offset] = sp.z*ZPOINT;
+	}
+
+	void loadBounds(float width, float height, SimpleTexture* tex, float* array, int offset) {
+		array[0 + offset] = simpleGL::toScreenCoord(width*tex->getWidth());
+		array[1 + offset] = simpleGL::toScreenCoord(height*tex->getHeight());
+	}
+
+	void loadRotation(float rotation, float* array, int offset) {
+		array[0 + offset] = rotation;
+	}
+
+	void loadColor(SimpleColor c, float* array, int offset) {
+		array[0 + offset] = c.r;
+		array[1 + offset] = c.g;
+		array[2 + offset] = c.b;
+		array[3 + offset] = c.a;
+	}
+
+	void loadTexData(float x, float y, float width, float height, float* array, int offset) {
+		array[0 + offset] = x + width*0.5f;
+		array[1 + offset] = y + height*0.5f;
+		array[2 + offset] = width;
+		array[3 + offset] = height;
+	}
 
 	void initBuffers() {
 		glGenBuffers(ComplexSprite::Attrib::COUNT, vbos);
@@ -166,12 +164,9 @@ namespace simpleUtil {
 
 	}
 
-	float f = true;
 	void drawSprites() {
 		for (ComplexSprite* cs : sprites)
 			cs->draw();
-
-		if (!sprites.empty())	f = false;
 	}
 
 }
@@ -183,11 +178,11 @@ SimpleSprite* simpleGL::loadSprite(SimpleTexture* tex, SimplePosition sp, float 
 	SpriteData data;
 
 	//not actualy loading anything into sprite object. just wanted for these functions to be in ComplexSprite class.
-	ComplexSprite::loadPosition(sp, data.data.data(), 0);
-	ComplexSprite::loadBounds(width, height, tex, data.data.data(), 3);
-	ComplexSprite::loadRotation(rotation, data.data.data(), 5);
-	ComplexSprite::loadColor(c, data.data.data(), 6);
-	ComplexSprite::loadTexData(texX, texY, texW, texH, data.data.data(), 10);
+	loadPosition(sp, data.data.data(), 0);
+	loadBounds(width, height, tex, data.data.data(), 3);
+	loadRotation(rotation, data.data.data(), 5);
+	loadColor(c, data.data.data(), 6);
+	loadTexData(texX, texY, texW, texH, data.data.data(), 10);
 
 	boost::lock_guard<boost::mutex> lock(spriteMutex);
 	unsigned id;
@@ -233,17 +228,14 @@ void ComplexSprite::resort() {
 }
 
 void ComplexSprite::draw() {
+	boost::lock_guard<boost::mutex> lock(mutex);
+
 	GLuint tex = texture->getTexture();
 	GLint current = 0;
 	glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE, &current);
 
-	if (f) std::cout << "ping ";
-	if (tex != (GLuint) current) {
-		if (f) std::cout << "pong" << std::endl;
+	if (tex != (GLuint) current)
 		glBindTexture(GL_TEXTURE_RECTANGLE, tex);
-	}
-
-	boost::lock_guard<boost::mutex> lock(mutex);
 
 	if (enabled && id < spriteCapacity) {
 		useShaders(vertexShader, geometryShader, fragmentShader);
@@ -260,4 +252,42 @@ void ComplexSprite::setAttrib(Attrib att) {
 
 	boost::lock_guard<boost::mutex> lock(changeMutex);
 	changeQueue.push(std::move(att));
+}
+
+void ComplexSprite::setPosition(SimplePosition sp) {
+	z = sp.z;
+	resort();
+
+	Attrib att(Attrib::POSITION);
+	loadPosition(sp, att.data.get(), 0);
+
+	setAttrib(std::move(att));
+}
+
+void ComplexSprite::setBounds(float width, float height) {
+	Attrib att(Attrib::BOUNDS);
+	loadBounds(width, height, texture, att.data.get(), 0);
+
+	setAttrib(std::move(att));
+}
+
+void ComplexSprite::setRotation(float rotation) {
+	Attrib att(Attrib::ROTATION);
+	loadRotation(rotation, att.data.get(), 0);
+
+	setAttrib(std::move(att));
+}
+
+void ComplexSprite::setColor(SimpleColor c) {
+	Attrib att(Attrib::COLOR);
+	loadColor(c, att.data.get(), 0);
+
+	setAttrib(std::move(att));
+}
+
+void ComplexSprite::setTexData(float x, float y, float width, float height) {
+	Attrib att(Attrib::TEX_DATA);
+	loadTexData(x, y, width, height, att.data.get(), 0);
+
+	setAttrib(std::move(att));
 }

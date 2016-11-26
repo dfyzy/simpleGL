@@ -153,7 +153,7 @@ namespace simpleGL {
 		simpleUtil::initBuffers();
 
 		glActiveTexture(GL_TEXTURE0);
-		
+
 		#if defined FPS_COUNTER && defined DEBUG
 			double lastFPSTime = glfwGetTime();
 			int frames = 0;
