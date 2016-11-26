@@ -199,19 +199,19 @@ SimpleShader simpleGL::loadShader(std::string path, GLenum ptype) {
 	return SimpleShader(returnProgram, ptype);
 }
 
-void SimpleShader::setUniformf(const char* location, std::initializer_list<GLfloat> list) {
+void SimpleShader::setUniformf(const char* location, std::initializer_list<GLfloat> list) const {
 	boost::lock_guard<boost::mutex> lock(uniformMutex);
 
 	uniformfQueue.emplace(shader, location, list);
 }
 
-void SimpleShader::setUniformi(const char* location, std::initializer_list<GLint> list) {
+void SimpleShader::setUniformi(const char* location, std::initializer_list<GLint> list) const {
 	boost::lock_guard<boost::mutex> lock(uniformMutex);
 
 	uniformiQueue.emplace(shader, location, list);
 }
 
-void SimpleShader::setUniformui(const char* location, std::initializer_list<GLuint> list) {
+void SimpleShader::setUniformui(const char* location, std::initializer_list<GLuint> list) const {
 	boost::lock_guard<boost::mutex> lock(uniformMutex);
 
 	uniformuiQueue.emplace(shader, location, list);

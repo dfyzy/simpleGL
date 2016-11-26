@@ -32,6 +32,7 @@ namespace simpleUtil {
 	boost::mutex spriteMutex;
 	std::set<ComplexSprite*, SpriteComparer> sprites;
 
+	boost::mutex allocationMutex;
 	std::queue<SpriteData> spriteQueue;
 	std::queue<unsigned> deletedQueue;
 
@@ -94,7 +95,7 @@ namespace simpleUtil {
 	}
 
 	void loadSprites() {
-		boost::lock_guard<boost::mutex> lock(spriteMutex);
+		boost::lock_guard<boost::mutex> lock(allocationMutex);
 
 		if (!spriteQueue.empty()) {
 			if (spriteCapacity < spriteCount) {
@@ -165,8 +166,11 @@ namespace simpleUtil {
 	}
 
 	void drawSprites() {
+		boost::lock_guard<boost::mutex> lock(spriteMutex);
+
 		for (ComplexSprite* cs : sprites)
 			cs->draw();
+
 	}
 
 }
@@ -184,21 +188,23 @@ SimpleSprite* simpleGL::loadSprite(SimpleTexture* tex, SimplePosition sp, float 
 	loadColor(c, data.data.data(), 6);
 	loadTexData(texX, texY, texW, texH, data.data.data(), 10);
 
-	boost::lock_guard<boost::mutex> lock(spriteMutex);
 	unsigned id;
-	if (!deletedQueue.empty()) {
-		id = deletedQueue.front();
-		deletedQueue.pop();
-	}else	id = spriteCount++;
+	{
+		boost::lock_guard<boost::mutex> lock(allocationMutex);
+		if (!deletedQueue.empty()) {
+			id = deletedQueue.front();
+			deletedQueue.pop();
+		}else	id = spriteCount++;
 
-	data.spriteId = id;
-	spriteQueue.push(data);
+		data.spriteId = id;
+		spriteQueue.push(data);
+	}
 
 	ComplexSprite* sprite = new ComplexSprite(id, tex, sp.z);
-
-	sprites.insert(sprite);
-
 	setDefaultShaders(sprite, tex->getTexture() == 0);
+
+	boost::lock_guard<boost::mutex> lock(spriteMutex);
+	sprites.insert(sprite);
 
 	return sprite;
 }
@@ -212,22 +218,26 @@ ComplexSprite::~ComplexSprite() {
 void ComplexSprite::unload() {
 	print("Unloading sprite");
 
+	{
+		boost::lock_guard<boost::mutex> lock(allocationMutex);
+		if (id < spriteCount - 1)
+			deletedQueue.push(id);
+		else
+			spriteCount--;
+	}
+
 	boost::lock_guard<boost::mutex> lock(spriteMutex);
-
-	if (id < spriteCount - 1)
-		deletedQueue.push(id);
-	else
-		spriteCount--;
-
 	sprites.erase(this);
 }
 
 void ComplexSprite::resort() {
+	boost::lock_guard<boost::mutex> lock(spriteMutex);
+
 	sprites.erase(this);
 	sprites.insert(this);
 }
 
-void ComplexSprite::draw() {
+void ComplexSprite::draw() const {
 	boost::lock_guard<boost::mutex> lock(mutex);
 
 	GLuint tex = texture->getTexture();
@@ -235,7 +245,7 @@ void ComplexSprite::draw() {
 	glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE, &current);
 
 	if (tex != (GLuint) current)
-		glBindTexture(GL_TEXTURE_RECTANGLE, tex);
+		glBindTexture(GL_TEXTURE_RECTANGLE, texture->getTexture());
 
 	if (enabled && id < spriteCapacity) {
 		useShaders(vertexShader, geometryShader, fragmentShader);
@@ -247,7 +257,7 @@ void ComplexSprite::draw() {
 	}
 }
 
-void ComplexSprite::setAttrib(Attrib att) {
+void ComplexSprite::setAttrib(Attrib att) const {
 	att.spriteId = id;
 
 	boost::lock_guard<boost::mutex> lock(changeMutex);

@@ -25,7 +25,7 @@ private:
 	void resort();
 	void unload();
 
-	void setAttrib(Attrib att);
+	void setAttrib(Attrib att) const;
 
 public:
 	ComplexSprite(unsigned id, SimpleTexture* t, int pz) : SimpleSprite(id, t), z(pz) {}
@@ -39,7 +39,7 @@ public:
 	void setColor(SimpleColor c);
 	void setTexData(float x, float y, float width, float height);
 
-	void draw();
+	void draw() const;
 
 	bool operator==(const ComplexSprite& other) const {
 		return id == other.id;

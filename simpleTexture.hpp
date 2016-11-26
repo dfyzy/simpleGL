@@ -4,7 +4,7 @@
 #include "glfw.hpp"
 
 class SimpleTexture {
-protected:
+private:
 	unsigned pixelWidth, pixelHeight;
 	GLuint texture;
 

@@ -17,9 +17,9 @@ public:
 	GLuint getShader() const { return shader; }
 	GLenum getType() const { return type; }
 
-	void setUniformf(const char* location, std::initializer_list<GLfloat> list);
-	void setUniformi(const char* location, std::initializer_list<GLint> list);
-	void setUniformui(const char* location, std::initializer_list<GLuint> list);
+	void setUniformf(const char* location, std::initializer_list<GLfloat> list) const;
+	void setUniformi(const char* location, std::initializer_list<GLint> list) const;
+	void setUniformui(const char* location, std::initializer_list<GLuint> list) const;
 
 	//TODO: matrix
 
