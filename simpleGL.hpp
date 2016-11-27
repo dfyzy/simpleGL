@@ -41,9 +41,9 @@ namespace simpleGL {
 	unsigned getWindowHeight();
 
 	/*
-	 * Transforms float to screen coord.
+	 * Transforms vector to screen coord.
 	 */
-	float toScreenCoord(float f);
+	SimpleVector toScreenCoord(SimpleVector sv);
 
 	/*
 	 * Starts thread on which the opengl context will be initializated.
@@ -72,23 +72,19 @@ namespace simpleGL {
 	 *
 	 * returns: sprite handle.
 	 */
-	SimpleSprite* loadSprite(SimpleTexture* tex, SimplePosition sp, float width, float height, float rotation, SimpleColor c,
+	SimpleSprite* loadSprite(SimpleTexture* tex, SimpleVector position, int z, SimpleVector bounds, float rotation, SimpleColor c,
 													float texX, float texY, float texW, float texH);
 
-	inline SimpleSprite* loadSprite(SimpleTexture* tex, SimplePosition sp, float width, float height, float rotation, SimpleColor c) {
-		return loadSprite(tex, sp, width, height, rotation, c, 0, 0, tex->getWidth(), tex->getHeight());
+	inline SimpleSprite* loadSprite(SimpleTexture* tex, SimpleVector position, int z, SimpleVector bounds, float rotation, SimpleColor c) {
+		return loadSprite(tex, position, z, bounds, rotation, c, 0, 0, tex->getWidth(), tex->getHeight());
 	}
 
-	inline SimpleSprite* loadSprite(SimpleTexture* tex, SimplePosition sp, float width, float height, SimpleColor c) {
-		return loadSprite(tex, sp, width, height, 0, c);
+	inline SimpleSprite* loadSprite(SimpleTexture* tex, SimpleVector position, int z, SimpleVector bounds, SimpleColor c) {
+		return loadSprite(tex, position, z, bounds, 0, c);
 	}
 
-	inline SimpleSprite* loadSprite(SimpleTexture* tex, SimplePosition sp, float scale, SimpleColor c) {
-		return loadSprite(tex, sp, scale, scale, c);
-	}
-
-	inline SimpleSprite* loadSprite(SimpleTexture* tex, SimplePosition sp, SimpleColor c) {
-		return loadSprite(tex, sp, 1, c);
+	inline SimpleSprite* loadSprite(SimpleTexture* tex, SimpleVector position, int z, SimpleColor c) {
+		return loadSprite(tex, position, z, SimpleVector(1), c);
 	}
 
 	/*

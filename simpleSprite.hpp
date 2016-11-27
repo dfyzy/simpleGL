@@ -14,6 +14,8 @@ protected:
 	bool enabled = true;
 	unsigned id;
 
+	int z;
+
 	SimpleTexture* texture;
 
 	GLuint vertexShader;
@@ -28,7 +30,7 @@ protected:
 	GLenum depthFail = GL_KEEP;
 	GLenum depthPass = GL_KEEP;
 
-	SimpleSprite(unsigned i, SimpleTexture* tex) : id(i), texture(tex) {}
+	SimpleSprite(unsigned i, int pz, SimpleTexture* tex) : id(i), z(pz), texture(tex) {}
 
 	virtual void resort() =0;
 
@@ -50,6 +52,19 @@ public:
 		boost::lock_guard<boost::mutex> lock(mutex);
 
 		enabled = b;
+	}
+
+	int getZ() const {
+		boost::lock_guard<boost::mutex> lock(mutex);
+
+		return z;
+	}
+
+	void setZ(int pz) {
+		boost::lock_guard<boost::mutex> lock(mutex);
+
+		z = pz;
+		resort();
 	}
 
 	SimpleTexture* getTexture() const {
@@ -104,8 +119,9 @@ public:
 	/*
 	 * Changes attributes for this sprite.
 	 */
-	virtual void setPosition(SimplePosition sp) =0;
-	virtual void setBounds(float width, float height) =0;
+	virtual void setPosition(SimpleVector position) =0;
+	virtual void setBounds(SimpleVector bounds) =0;
+	virtual void setRotation(float rotation) =0;
 	virtual void setColor(SimpleColor c) =0;
 	virtual void setTexData(float x, float y, float width, float height) =0;
 

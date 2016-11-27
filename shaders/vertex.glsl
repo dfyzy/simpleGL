@@ -1,6 +1,6 @@
 #version 430 core
 
-layout(location=0)	in vec3 inPosition;
+layout(location=0)	in vec2 inPosition;
 layout(location=1)	in vec2 inBounds;
 layout(location=2)	in float inAngle;
 layout(location=3)	in vec4 inColor;
@@ -22,5 +22,5 @@ void main() {
 	vAngle = inAngle;
 	vColor = inColor;
 	vTexData = inTexData;
-	gl_Position = vec4(inPosition, 1);
+	gl_Position = vec4(inPosition, 0, 1);
 }

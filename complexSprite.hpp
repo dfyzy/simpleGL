@@ -20,21 +20,17 @@ public:
 	};
 
 private:
-	int z;
-
 	void resort();
 	void unload();
 
 	void setAttrib(Attrib att) const;
 
 public:
-	ComplexSprite(unsigned id, SimpleTexture* t, int pz) : SimpleSprite(id, t), z(pz) {}
+	ComplexSprite(unsigned id, int pz, SimpleTexture* t) : SimpleSprite(id, pz, t) {}
 	~ComplexSprite();
 
-	int getZ() const { return z; }
-
-	void setPosition(SimplePosition sp);
-	void setBounds(float width, float height);
+	void setPosition(SimpleVector position);
+	void setBounds(SimpleVector bounds);
 	void setRotation(float rotation);
 	void setColor(SimpleColor c);
 	void setTexData(float x, float y, float width, float height);

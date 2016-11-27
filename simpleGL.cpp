@@ -104,8 +104,8 @@ namespace simpleGL {
 		return windowHeight;
 	}
 
-	float toScreenCoord(float f)  {
-		return 2.0f*f/windowHeight;
+	SimpleVector toScreenCoord(SimpleVector f)  {
+		return f*(2.0f/windowHeight);
 	}
 
 	void draw() {
@@ -136,9 +136,6 @@ namespace simpleGL {
 		glViewport(0, 0, windowWidth, windowHeight);
 
 		glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
-
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
 
 		glEnable(GL_STENCIL_TEST);
 
@@ -173,7 +170,7 @@ namespace simpleGL {
 			simpleUtil::checkSprites();
 			simpleUtil::checkShaders();
 
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 			glBindVertexArray(vao);
 
