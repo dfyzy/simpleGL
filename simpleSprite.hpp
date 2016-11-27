@@ -3,7 +3,8 @@
 
 #include <boost/thread.hpp>
 
-#include "simpleStructs.hpp"
+#include "simpleColor.hpp"
+#include "SimpleVector.hpp"
 #include "simpleShader.hpp"
 #include "simpleTexture.hpp"
 

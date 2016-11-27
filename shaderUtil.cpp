@@ -3,7 +3,6 @@
 
 #include "simpleGL.hpp"
 #include "simpleUtil.hpp"
-#include "simpleShader.hpp"
 
 template<typename T>
 struct Uniform {

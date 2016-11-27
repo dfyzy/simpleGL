@@ -1,5 +1,7 @@
-#ifndef SIMPLE_STRUCTS_H
-#define SIMPLE_STRUCTS_H
+#ifndef SIMPLE_VECTOR_H
+#define SIMPLE_VECTOR_H
+
+#include <cmath>
 
 struct SimpleVector {
 	float x, y;
@@ -7,6 +9,10 @@ struct SimpleVector {
 	SimpleVector(float px, float py) : x(px), y(py) {}
 	SimpleVector(float scale) : SimpleVector(scale, scale) {}
 	SimpleVector() : SimpleVector(0, 0) {}
+
+	float length() const {
+		return std::sqrt(std::pow(x, 2) + std::pow(y, 2));
+	}
 
 	const SimpleVector operator+(const SimpleVector& sp) const {
 
@@ -43,36 +49,6 @@ struct SimpleVector {
 
 		return operator*(1/f);
 	}
-};
-
-struct SimpleColor {
-	float r, g, b, a;
-
-	SimpleColor(float pr, float pg, float pb, float pa) : r(pr), g(pg), b(pb), a(pa) {}
-	SimpleColor(float pr, float pg, float pb) : SimpleColor(pr, pg, pb, 1) {}
-	SimpleColor(float shade) : SimpleColor(shade, shade, shade) {}
-	SimpleColor() : SimpleColor(0, 0, 0, 0) {}
-
-	const SimpleColor operator+(const SimpleColor& c) const {
-
-		return SimpleColor(r + c.r, g + c.g, b + c.b, a);
-	}
-
-	const SimpleColor operator-(const SimpleColor& c) const {
-
-		return SimpleColor(r - c.r, g - c.g, b - c.b, a);
-	}
-
-	const SimpleColor operator*(const float& f) const {
-
-		return SimpleColor(r*f, g*f, b*f, a);
-	}
-
-	const SimpleColor operator/(const float& f) const {
-
-		return operator*(1/f);
-	}
-
 };
 
 #endif

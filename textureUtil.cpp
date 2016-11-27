@@ -2,7 +2,6 @@
 #include <zlib.h>
 
 #include "simpleUtil.hpp"
-#include "simpleTexture.hpp"
 
 namespace simpleUtil {
 

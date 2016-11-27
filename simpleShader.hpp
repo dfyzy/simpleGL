@@ -1,9 +1,9 @@
 #ifndef SIMPLE_SHADER_H
 #define SIMPLE_SHADER_H
 
-#include "glfw.hpp"
-
 #include <initializer_list>
+
+#include "glfw.hpp"
 
 class SimpleShader {
 private:
