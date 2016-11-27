@@ -11,52 +11,41 @@ namespace simpleUtil {
 
 	boost::mutex textureMutex;
 	boost::condition_variable textureCondition;
-	bool textureReady;
+	bool textureReady = true;
 
 	std::string texturePath;
-	SimpleTexture* returnTexture = nullptr;
+	SimpleTexture* returnTexture;
 
 	boost::mutex untextureMutex;
-	SimpleTexture* unloadingTexture = nullptr;
+	SimpleTexture* unloadingTexture;
 	boost::condition_variable unloadCondition;
-	bool unloaded;
+	bool unloaded = true;
 
 	GLenum textureFilter = GL_NEAREST;
 	bool needFiltering = false;
 
-	inline void notifyTexture() {
-		textureReady = true;
-		textureCondition.notify_one();
-	}
-
-	void loadTexture() {
+	SimpleTexture* loadTexture(bool toThread, std::string path) {
 		print("Loading texture");
 
-		FILE *file = fopen(texturePath.c_str(), "rb");
+		FILE *file = fopen(path.c_str(), "rb");
 		if (!file) {
 			print("Error opening texture");
-			texturePath.clear();
-			notifyTexture();
-			return;
+			return nullptr;
 		}
-
-		texturePath.clear();
 
 		png_byte header[8];
 		fread(header, 1, 8, file);
 		if (png_sig_cmp(header, 0, 8)) {
 			print("Not a png");
 			fclose(file);
-			notifyTexture();
-			return;
+			return nullptr;
 		}
 
 		png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 		if (!png_ptr) {
 			print("Failed to create read struct");
 			fclose(file);
-			notifyTexture();
-			return;
+			return nullptr;
 		}
 
 		png_infop info_ptr = png_create_info_struct(png_ptr);
@@ -64,16 +53,14 @@ namespace simpleUtil {
 			print("Failed to create info struct");
 			png_destroy_read_struct(&png_ptr, nullptr, nullptr);
 			fclose(file);
-			notifyTexture();
-			return;
+			return nullptr;
 		}
 
 		if (setjmp(png_jmpbuf(png_ptr))) {
 			print("Libpng error");
 			png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 			fclose(file);
-			notifyTexture();
-			return;
+			return nullptr;
 		}
 
 		png_init_io(png_ptr, file);
@@ -88,9 +75,15 @@ namespace simpleUtil {
 		GLuint texture;
 		glGenTextures(1, &texture);
 
-		returnTexture = new SimpleTexture(width, height, texture);
-		textures.push_back(returnTexture);
-		notifyTexture();
+		SimpleTexture* simpleTex = new SimpleTexture(width, height, texture);
+		textures.push_back(simpleTex);
+
+		if (toThread) {
+			returnTexture = simpleTex;
+			texturePath.clear();
+			textureReady = true;
+			textureCondition.notify_one();
+		}
 
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -107,17 +100,21 @@ namespace simpleUtil {
 		png_read_end(png_ptr, nullptr);
 		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 		fclose(file);
+
+		return simpleTex;
 	}
 
-	void unloadTexture() {
+	void unloadTexture(SimpleTexture* texture) {
 		print("Unloading texture");
 
-		GLuint texture = unloadingTexture->getTexture();
-		glDeleteTextures(1, &texture);//not sure if this can change value of texture handle. no reason why it should.
+		textures.remove(texture);
 
-		textures.remove(unloadingTexture);
+		GLuint texId = texture->getTexture();
+		glDeleteTextures(1, &texId);
+	}
 
-		unloadingTexture = nullptr;
+	void unloadTextureToThread() {
+		unloadTexture(unloadingTexture);
 
 		unloaded = true;
 		unloadCondition.notify_one();
@@ -126,7 +123,7 @@ namespace simpleUtil {
 	void checkUnloading() {
 		boost::lock_guard<boost::mutex> lock(untextureMutex);
 
-		if (unloadingTexture)	unloadTexture();
+		if (!unloaded)	unloadTextureToThread();
 	}
 
 	void setFiltering(GLuint texture) {
@@ -151,11 +148,11 @@ namespace simpleUtil {
 		checkUnloading();
 
 		textureMutex.lock();
-		bool empty = texturePath.empty();
+		bool loadNeeded = !textureReady;
 		textureMutex.unlock();
 
 		//loadTexture happens only when main thread is waiting for notifyTexture so we don't need lock here
-		if (!empty)	loadTexture();
+		if (loadNeeded)	loadTexture(true, texturePath);
 
 		checkFiltering();
 	}
@@ -170,16 +167,15 @@ namespace simpleGL {
 	}
 
 	SimpleTexture* loadTexture(std::string path) {
+		if (isCurrentThread())	return simpleUtil::loadTexture(false, path);
+
 		boost::unique_lock<boost::mutex> lock(textureMutex);
-		textureReady = false;
 
 		texturePath = path;
+		textureReady = false;
 
-		if (!isCurrentThread())
-			do 	textureCondition.wait(lock);
-			while	(!textureReady);
-		else
-			simpleUtil::loadTexture();
+		do 	textureCondition.wait(lock);
+		while	(!textureReady);
 
 		return returnTexture;
 	}
@@ -208,14 +204,16 @@ SimpleTexture::~SimpleTexture() {
 }
 
 void SimpleTexture::unload() {
+	if (isCurrentThread()) {
+		simpleUtil::unloadTexture(this);
+		return;
+	}
+
 	boost::unique_lock<boost::mutex> lock(untextureMutex);
 
 	unloadingTexture = this;
 	unloaded = false;
 
-	if (!isCurrentThread())
-		do 	unloadCondition.wait(lock);
-		while	(!unloaded);
-	else
-		simpleUtil::unloadTexture();
+	do 	unloadCondition.wait(lock);
+	while	(!unloaded);
 }

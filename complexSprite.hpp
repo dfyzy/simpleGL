@@ -3,8 +3,6 @@
 
 #include "simpleSprite.hpp"
 
-const float ZPOINT = 0.0001f;
-
 class ComplexSprite : public SimpleSprite {
 public:
 	struct Attrib {

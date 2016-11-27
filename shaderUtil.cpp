@@ -26,21 +26,16 @@ namespace simpleUtil {
 
 	boost::mutex shaderMutex;
 	boost::condition_variable shaderCondition;
-	bool shaderReady;
+	bool shaderReady = true;
 
 	std::string shaderPath;
 	GLenum shaderType;
-	GLuint returnProgram = 0;
+	SimpleShader returnShader;
 
 	boost::mutex uniformMutex;
 	std::queue<Uniform<GLfloat>> uniformfQueue;
 	std::queue<Uniform<GLint>> uniformiQueue;
 	std::queue<Uniform<GLuint>> uniformuiQueue;
-
-	inline void notifyShader() {
-		shaderReady = true;
-		shaderCondition.notify_one();
-	}
 
 	void initShaders(float aspect) {
 		glGenProgramPipelines(1, &pipeline);
@@ -55,6 +50,8 @@ namespace simpleUtil {
 
 		texFragmentShader = simpleGL::loadShader("shaders/texFragment.glsl", GL_FRAGMENT_SHADER);
 		emptyFragmentShader = simpleGL::loadShader("shaders/emptyFragment.glsl", GL_FRAGMENT_SHADER);
+
+		print("Shaders initialized");
 	}
 
 	void setDefaultShaders(SimpleSprite* sprite, bool empty) {
@@ -81,13 +78,12 @@ namespace simpleUtil {
 		return shaderString;
 	}
 
-	void loadShader() {
+	SimpleShader loadShader(std::string path, GLenum type) {
 		print("Loading shader");
 
-		const char* source = loadSource(shaderPath).c_str();
+		const char* source = loadSource(path).c_str();
 
-		GLuint program = glCreateShaderProgramv(shaderType, 1, &source);
-		shaderPath.clear();
+		GLuint program = glCreateShaderProgramv(type, 1, &source);
 
 		glValidateProgram(program);
 
@@ -104,8 +100,15 @@ namespace simpleUtil {
 			program = 0;
 		} else	print("Program validated");
 
-		returnProgram = program;
-		notifyShader();
+		return SimpleShader(program, type);
+	}
+
+	void loadShaderToThread() {
+		returnShader = loadShader(shaderPath, shaderType);
+
+		shaderPath.clear();
+		shaderReady = true;
+		shaderCondition.notify_one();
 	}
 
 	void useShaders(GLuint vertex, GLuint geometry, GLuint fragment) {
@@ -168,7 +171,7 @@ namespace simpleUtil {
 	void checkShaders() {
 		{
 			boost::lock_guard<boost::mutex> lock(shaderMutex);
-			if (!shaderPath.empty()) loadShader();
+			if (!shaderReady) loadShaderToThread();
 		}
 
 		checkUniforms();
@@ -184,19 +187,18 @@ SimpleShader simpleGL::loadShader(std::string path, GLenum ptype) {
 		return SimpleShader();
 	}
 
+	if (isCurrentThread())	return simpleUtil::loadShader(path, ptype);
+
 	boost::unique_lock<boost::mutex> lock(shaderMutex);
-	shaderReady = false;
 
 	shaderPath = path;
 	shaderType = ptype;
 
-	if (!isCurrentThread())
-		do 	shaderCondition.wait(lock);
-		while	(!shaderReady);
-	else
-		simpleUtil::loadShader();
+	shaderReady = false;
+	do 	shaderCondition.wait(lock);
+	while	(!shaderReady);
 
-	return SimpleShader(returnProgram, ptype);
+	return returnShader;
 }
 
 void SimpleShader::setUniformf(const char* location, std::initializer_list<GLfloat> list) const {

@@ -5,8 +5,8 @@
 
 class SimpleTexture {
 private:
-	unsigned pixelWidth, pixelHeight;
-	GLuint texture;
+	const unsigned pixelWidth, pixelHeight;
+	const GLuint texture;
 
 	void unload();
 

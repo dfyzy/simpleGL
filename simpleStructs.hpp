@@ -18,6 +18,12 @@ struct SimpleVector {
 		return SimpleVector(x - sp.x, y - sp.y);
 	}
 
+	SimpleVector& operator+=(const SimpleVector& sp) {
+		x += sp.x;
+		y += sp.y;
+		return *this;
+	}
+
 	const SimpleVector operator*(const SimpleVector& sp) const {
 
 		return SimpleVector(x * sp.x, y * sp.y);

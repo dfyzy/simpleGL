@@ -88,7 +88,7 @@ namespace simpleUtil {
 			glVertexAttribPointer(i, ComplexSprite::Attrib::sizes[i], GL_FLOAT, GL_FALSE, 0, nullptr);
 			glEnableVertexAttribArray(i);
 		}
-
+		print("Buffers initialized");
 	}
 
 	inline void bindSpriteAttrib(ComplexSprite::Attrib::E type, unsigned offset, float* data) {
