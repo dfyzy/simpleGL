@@ -17,7 +17,7 @@ struct SpriteComparer {
 	bool operator()(const ComplexSprite* lhs, const ComplexSprite* rhs) {
 		if (lhs->getZ() == rhs->getZ()) {
 			if (lhs->getTexture()->getTexture() == rhs->getTexture()->getTexture())
-				return lhs != rhs;
+				return lhs->getId() < rhs->getId();
 			else
 				return lhs->getTexture()->getTexture() < rhs->getTexture()->getTexture();
 		} else
@@ -235,10 +235,27 @@ void ComplexSprite::unload() {
 	sprites.erase(this);
 }
 
-void ComplexSprite::resort() {
+void ComplexSprite::setZ(int pz) {
 	boost::lock_guard<boost::mutex> lock(spriteMutex);
 
 	sprites.erase(this);
+
+	mutex.lock();
+	z = pz;
+	mutex.unlock();
+
+	sprites.insert(this);
+}
+
+void ComplexSprite::setTexture(SimpleTexture* tex) {
+	boost::lock_guard<boost::mutex> lock(spriteMutex);
+
+	sprites.erase(this);
+
+	mutex.lock();
+	texture = tex;
+	mutex.unlock();
+
 	sprites.insert(this);
 }
 
@@ -250,7 +267,7 @@ void ComplexSprite::draw() const {
 	glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE, &current);
 
 	if (tex != (GLuint) current)
-		glBindTexture(GL_TEXTURE_RECTANGLE, texture->getTexture());
+		glBindTexture(GL_TEXTURE_RECTANGLE, tex);
 
 	if (enabled && id < spriteCapacity) {
 		useShaders(vertexShader, geometryShader, fragmentShader);

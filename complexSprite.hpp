@@ -18,7 +18,6 @@ public:
 	};
 
 private:
-	void resort();
 	void unload();
 
 	void setAttrib(Attrib att) const;
@@ -27,6 +26,9 @@ public:
 	ComplexSprite(unsigned id, int pz, SimpleTexture* t) : SimpleSprite(id, pz, t) {}
 	~ComplexSprite();
 
+	void setZ(int pz);
+	void setTexture(SimpleTexture* tex);
+
 	void setPosition(SimpleVector position);
 	void setBounds(SimpleVector bounds);
 	void setRotation(float rotation);
@@ -34,11 +36,7 @@ public:
 	void setTexData(float x, float y, float width, float height);
 
 	void draw() const;
-
-	bool operator==(const ComplexSprite& other) const {
-		return id == other.id;
-	}
-
+	
 };
 
 #endif

@@ -33,8 +33,6 @@ protected:
 
 	SimpleSprite(unsigned i, int pz, SimpleTexture* tex) : id(i), z(pz), texture(tex) {}
 
-	virtual void resort() =0;
-
 public:
 	virtual ~SimpleSprite() =0;
 
@@ -61,12 +59,7 @@ public:
 		return z;
 	}
 
-	void setZ(int pz) {
-		boost::lock_guard<boost::mutex> lock(mutex);
-
-		z = pz;
-		resort();
-	}
+	virtual void setZ(int pz) =0;
 
 	SimpleTexture* getTexture() const {
 		boost::lock_guard<boost::mutex> lock(mutex);
@@ -74,12 +67,7 @@ public:
 		return texture;
 	}
 
-	void setTexture(SimpleTexture* tex) {
-		boost::lock_guard<boost::mutex> lock(mutex);
-
-		texture = tex;
-		resort();
-	}
+	virtual void setTexture(SimpleTexture* tex) =0;
 
 	/*
 	 * Changes shader program for this sprite. When drawing this sprite opengl will use these shaders.
