@@ -240,9 +240,7 @@ void ComplexSprite::setZ(int pz) {
 
 	sprites.erase(this);
 
-	mutex.lock();
 	z = pz;
-	mutex.unlock();
 
 	sprites.insert(this);
 }
@@ -252,17 +250,13 @@ void ComplexSprite::setTexture(SimpleTexture* tex) {
 
 	sprites.erase(this);
 
-	mutex.lock();
 	texture = tex;
-	mutex.unlock();
 
 	sprites.insert(this);
 }
 
 void ComplexSprite::draw() const {
-	boost::lock_guard<boost::mutex> lock(mutex);
-
-	GLuint tex = texture->getTexture();
+	GLuint tex = texture.load()->getTexture();
 	GLint current = 0;
 	glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE, &current);
 
