@@ -64,7 +64,6 @@ namespace simpleUtil {
 		float aspect = ((float) simpleGL::getWindowHeight()) / simpleGL::getWindowWidth();
 		glBufferData(GL_UNIFORM_BUFFER, sizeof(float), &aspect, GL_STATIC_DRAW);
 
-		glUniformBlockBinding(geometryShader.getShader(), glGetUniformBlockIndex(geometryShader.getShader(), "DynamicData"), 1);
 		GLuint dynamic;
 		glGenBuffers(1, &dynamic);
 		glBindBuffer(GL_UNIFORM_BUFFER, dynamic);
@@ -123,6 +122,10 @@ namespace simpleUtil {
 			simpleUtil::print(infoLog.get());
 			program = 0;
 		} else	print("Program validated");
+
+		if (type == GL_GEOMETRY_SHADER) {
+			glUniformBlockBinding(program, glGetUniformBlockIndex(program, "DynamicData"), 1);
+		}
 
 		return SimpleShader(program, type);
 	}
