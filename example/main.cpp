@@ -6,11 +6,11 @@ typedef boost::chrono::duration<double, boost::ratio<1, 30>> duration;
 SimpleSprite* brimSprite;
 
 int width, height;
+float rotation = 0;
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
 	if ((action == GLFW_PRESS) && (key == GLFW_KEY_ESCAPE))
 			glfwSetWindowShouldClose(window, GL_TRUE);
-
 }
 
 void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
@@ -52,6 +52,11 @@ int main() {
 
 		//you must call this function regularly on the main thread
 		glfwPollEvents();
+
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+			rotation += 0.03f;
+			simpleGL::setCameraRotation(rotation);
+		}
 
 		auto thisTimePoint = boost::chrono::steady_clock::now();
 		boost::this_thread::sleep_for(duration(1) - (thisTimePoint - lastTimePoint));

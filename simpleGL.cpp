@@ -104,7 +104,7 @@ namespace simpleGL {
 		return windowHeight;
 	}
 
-	SimpleVector toScreenCoord(SimpleVector f)  {
+	SimpleVector toScreenCoords(SimpleVector f)  {
 		return f*(2.0f/windowHeight);
 	}
 
@@ -142,7 +142,7 @@ namespace simpleGL {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		simpleUtil::initShaders(((float) windowWidth) / windowWidth);
+		simpleUtil::initShaders();
 
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);

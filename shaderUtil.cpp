@@ -31,12 +31,24 @@ namespace simpleUtil {
 	GLenum shaderType;
 	SimpleShader returnShader;
 
+	boost::mutex cameraPosMutex;
+	SimpleVector cameraPosition;
+	bool cameraPosChange = false;
+
+	boost::mutex cameraRotMutex;
+	float cameraRotation;
+	bool cameraRotChange = false;
+
 	boost::mutex uniformMutex;
 	std::queue<Uniform<GLfloat>> uniformfQueue;
 	std::queue<Uniform<GLint>> uniformiQueue;
 	std::queue<Uniform<GLuint>> uniformuiQueue;
 
-	void initShaders(float aspect) {
+	inline void setCameraRotation() {
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+	}
+
+	void initShaders() {
 		glGenProgramPipelines(1, &pipeline);
 		glBindProgramPipeline(pipeline);
 
@@ -44,8 +56,21 @@ namespace simpleUtil {
 
 		geometryShader = simpleGL::loadShader("shaders/geometry.glsl", GL_GEOMETRY_SHADER);
 
-		glProgramUniform1f(geometryShader.getShader(), glGetUniformLocation(geometryShader.getShader(), "rAspect"),
-								((float) simpleGL::getWindowHeight()) / simpleGL::getWindowWidth());
+		GLuint stat;
+		glGenBuffers(1, &stat);
+		glBindBuffer(GL_UNIFORM_BUFFER, stat);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 0, stat);
+
+		float aspect = ((float) simpleGL::getWindowHeight()) / simpleGL::getWindowWidth();
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(float), &aspect, GL_STATIC_DRAW);
+
+		glUniformBlockBinding(geometryShader.getShader(), glGetUniformBlockIndex(geometryShader.getShader(), "DynamicData"), 1);
+		GLuint dynamic;
+		glGenBuffers(1, &dynamic);
+		glBindBuffer(GL_UNIFORM_BUFFER, dynamic);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 1, dynamic);
+
+		glBufferData(GL_UNIFORM_BUFFER, 3*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 
 		texFragmentShader = simpleGL::loadShader("shaders/texFragment.glsl", GL_FRAGMENT_SHADER);
 		emptyFragmentShader = simpleGL::loadShader("shaders/emptyFragment.glsl", GL_FRAGMENT_SHADER);
@@ -167,6 +192,34 @@ namespace simpleUtil {
 		}
 	}
 
+	inline void bindUniformData(unsigned offset, unsigned size, float* data) {
+
+		glBufferSubData(GL_UNIFORM_BUFFER, offset * sizeof(float), size * sizeof(float), data);
+	}
+
+	void checkCamera() {
+		{
+			boost::lock_guard<boost::mutex> lock(cameraPosMutex);
+			if (cameraPosChange) {
+				float data[2];
+				SimpleVector sc = simpleGL::toScreenCoords(cameraPosition);
+				data[0] = sc.x;
+				data[1] = sc.y;
+
+				bindUniformData(0, 2, data);
+				cameraPosChange = false;
+			}
+		}
+
+		{
+			boost::lock_guard<boost::mutex> lock(cameraRotMutex);
+			if (cameraRotChange) {
+				bindUniformData(2, 1, &cameraRotation);
+				cameraRotChange = false;
+			}
+		}
+	}
+
 	void checkShaders() {
 		{
 			boost::lock_guard<boost::mutex> lock(shaderMutex);
@@ -174,11 +227,24 @@ namespace simpleUtil {
 		}
 
 		checkUniforms();
+		checkCamera();
 	}
 
 }
 
 using namespace simpleUtil;
+
+void simpleGL::setCameraPosition(SimpleVector position) {
+	boost::lock_guard<boost::mutex> lock(cameraPosMutex);
+	cameraPosition = position;
+	cameraPosChange = true;
+}
+
+void simpleGL::setCameraRotation(float rotation) {
+	boost::lock_guard<boost::mutex> lock(cameraRotMutex);
+	cameraRotation = rotation;
+	cameraRotChange = true;
+}
 
 SimpleShader simpleGL::loadShader(std::string path, GLenum ptype) {
 	if (ptype != GL_VERTEX_SHADER && ptype != GL_GEOMETRY_SHADER && ptype != GL_FRAGMENT_SHADER) {

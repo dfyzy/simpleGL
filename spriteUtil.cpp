@@ -36,39 +36,39 @@ namespace simpleUtil {
 	std::queue<SpriteData> spriteQueue;
 	std::queue<unsigned> deletedQueue;
 
-	boost::mutex changeMutex;
-	std::queue<ComplexSprite::Attrib> changeQueue;
+	boost::mutex attribMutex;
+	std::queue<ComplexSprite::Attrib> attribQueue;
 
 	unsigned spriteCount = 0;
 	unsigned spriteCapacity = 4;
 
-	void loadVector(SimpleVector sv, float* array, int* offset) {
+	inline void loadVector(SimpleVector sv, float* array, int* offset) {
 		array[(*offset)++] = sv.x;
 		array[(*offset)++] = sv.y;
 	}
 
-	void loadPosition(SimpleVector position, float* array, int* offset) {
+	inline void loadPosition(SimpleVector position, float* array, int* offset) {
 
-		loadVector(simpleGL::toScreenCoord(position), array, offset);
+		loadVector(simpleGL::toScreenCoords(position), array, offset);
 	}
 
-	void loadBounds(SimpleVector bounds, SimpleTexture* tex, float* array, int* offset) {
+	inline void loadBounds(SimpleVector bounds, SimpleTexture* tex, float* array, int* offset) {
 
-		loadVector(simpleGL::toScreenCoord(bounds*SimpleVector(tex->getWidth(), tex->getHeight())), array, offset);
+		loadVector(simpleGL::toScreenCoords(bounds*SimpleVector(tex->getWidth(), tex->getHeight())), array, offset);
 	}
 
-	void loadRotation(float rotation, float* array, int* offset) {
+	inline void loadRotation(float rotation, float* array, int* offset) {
 		array[(*offset)++] = rotation;
 	}
 
-	void loadColor(SimpleColor c, float* array, int* offset) {
+	inline void loadColor(SimpleColor c, float* array, int* offset) {
 		array[(*offset)++] = c.r;
 		array[(*offset)++] = c.g;
 		array[(*offset)++] = c.b;
 		array[(*offset)++] = c.a;
 	}
 
-	void loadTexData(float x, float y, float width, float height, float* array, int* offset) {
+	inline void loadTexData(float x, float y, float width, float height, float* array, int* offset) {
 		array[(*offset)++] = x + width*0.5f;
 		array[(*offset)++] = y + height*0.5f;
 		array[(*offset)++] = width;
@@ -152,11 +152,11 @@ namespace simpleUtil {
 	}
 
 	void changeSprites() {
-		boost::lock_guard<boost::mutex> lock(changeMutex);
+		boost::lock_guard<boost::mutex> lock(attribMutex);
 
-		while (!changeQueue.empty()) {
-			ComplexSprite::Attrib change = std::move(changeQueue.front());
-			changeQueue.pop();
+		while (!attribQueue.empty()) {
+			ComplexSprite::Attrib change = std::move(attribQueue.front());
+			attribQueue.pop();
 
 			bindSpriteAttrib(change.type, change.spriteId, change.data.get());
 		}
@@ -279,49 +279,49 @@ void ComplexSprite::draw() const {
 	}
 }
 
-void ComplexSprite::setAttrib(Attrib att) const {
-	att.spriteId = id;
+void ComplexSprite::setAttrib(Attrib attrib) const {
+	attrib.spriteId = id;
 
-	boost::lock_guard<boost::mutex> lock(changeMutex);
-	changeQueue.push(std::move(att));
+	boost::lock_guard<boost::mutex> lock(attribMutex);
+	attribQueue.push(std::move(attrib));
 }
 
 void ComplexSprite::setPosition(SimpleVector position) {
-	Attrib att(Attrib::POSITION);
+	ComplexSprite::Attrib attrib(ComplexSprite::Attrib::POSITION);
 	int offset = 0;
-	loadPosition(position, att.data.get(), &offset);
+	loadPosition(position, attrib.data.get(), &offset);
 
-	setAttrib(std::move(att));
+	setAttrib(std::move(attrib));
 }
 
 void ComplexSprite::setBounds(SimpleVector bounds) {
-	Attrib att(Attrib::BOUNDS);
+	Attrib attrib(Attrib::BOUNDS);
 	int offset = 0;
-	loadBounds(bounds, texture, att.data.get(), &offset);
+	loadBounds(bounds, texture, attrib.data.get(), &offset);
 
-	setAttrib(std::move(att));
+	setAttrib(std::move(attrib));
 }
 
 void ComplexSprite::setRotation(float rotation) {
-	Attrib att(Attrib::ROTATION);
+	ComplexSprite::Attrib attrib(ComplexSprite::Attrib::ROTATION);
 	int offset = 0;
-	loadRotation(rotation, att.data.get(), &offset);
+	loadRotation(rotation, attrib.data.get(), &offset);
 
-	setAttrib(std::move(att));
+	setAttrib(std::move(attrib));
 }
 
 void ComplexSprite::setColor(SimpleColor c) {
-	Attrib att(Attrib::COLOR);
+	Attrib attrib(Attrib::COLOR);
 	int offset = 0;
-	loadColor(c, att.data.get(), &offset);
+	loadColor(c, attrib.data.get(), &offset);
 
-	setAttrib(std::move(att));
+	setAttrib(std::move(attrib));
 }
 
 void ComplexSprite::setTexData(float x, float y, float width, float height) {
-	Attrib att(Attrib::TEX_DATA);
+	Attrib attrib(Attrib::TEX_DATA);
 	int offset = 0;
-	loadTexData(x, y, width, height, att.data.get(), &offset);
+	loadTexData(x, y, width, height, attrib.data.get(), &offset);
 
-	setAttrib(std::move(att));
+	setAttrib(std::move(attrib));
 }

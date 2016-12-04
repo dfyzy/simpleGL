@@ -43,7 +43,7 @@ namespace simpleGL {
 	/*
 	 * Transforms vector to screen coord.
 	 */
-	SimpleVector toScreenCoord(SimpleVector sv);
+	SimpleVector toScreenCoords(SimpleVector sv);
 
 	/*
 	 * Starts thread on which the opengl context will be initializated.
@@ -86,6 +86,10 @@ namespace simpleGL {
 	inline SimpleSprite* loadSprite(SimpleTexture* tex, SimpleVector position, int z, SimpleColor c) {
 		return loadSprite(tex, position, z, SimpleVector(1), c);
 	}
+
+	void setCameraPosition(SimpleVector position);
+
+	void setCameraRotation(float rotation);
 
 	/*
 	 * Changes texture filtering on all currently loaded textures and textures that will be loaded from this point.

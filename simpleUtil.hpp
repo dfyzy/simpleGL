@@ -19,7 +19,7 @@ namespace simpleUtil {
 	bool isCurrentThread();
 
 	//creating program pipeline and default shader programs.
-	void initShaders(float aspect);
+	void initShaders();
 	//creating buffers for each sprite attribute. binding them to layout positions in shaders.
 	void initBuffers();
 
