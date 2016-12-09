@@ -23,12 +23,18 @@ namespace simpleUtil {
 	GLenum textureFilter = GL_NEAREST;
 	bool needFiltering = false;
 
+	inline void notifyTexture() {
+		textureReady = true;
+		textureCondition.notify_one();
+	}
+
 	SimpleTexture* loadTexture(bool toThread, std::string path) {
 		print("Loading texture");
 
 		FILE *file = fopen(path.c_str(), "rb");
 		if (!file) {
 			print("Error opening texture");
+			if (toThread)	notifyTexture();
 			return nullptr;
 		}
 
@@ -37,6 +43,7 @@ namespace simpleUtil {
 		if (png_sig_cmp(header, 0, 8)) {
 			print("Not a png");
 			fclose(file);
+			if (toThread)	notifyTexture();
 			return nullptr;
 		}
 
@@ -44,6 +51,7 @@ namespace simpleUtil {
 		if (!png_ptr) {
 			print("Failed to create read struct");
 			fclose(file);
+			if (toThread)	notifyTexture();
 			return nullptr;
 		}
 
@@ -52,6 +60,7 @@ namespace simpleUtil {
 			print("Failed to create info struct");
 			png_destroy_read_struct(&png_ptr, nullptr, nullptr);
 			fclose(file);
+			if (toThread)	notifyTexture();
 			return nullptr;
 		}
 
@@ -59,6 +68,7 @@ namespace simpleUtil {
 			print("Libpng error");
 			png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 			fclose(file);
+			if (toThread)	notifyTexture();
 			return nullptr;
 		}
 
@@ -80,8 +90,7 @@ namespace simpleUtil {
 		if (toThread) {
 			returnTexture = simpleTex;
 			texturePath.clear();
-			textureReady = true;
-			textureCondition.notify_one();
+			notifyTexture();
 		}
 
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

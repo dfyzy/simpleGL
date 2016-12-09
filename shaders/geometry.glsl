@@ -49,7 +49,7 @@ void main() {
 		geomColor = inData[0].vColor;
 		geomTexPosition = quad[i] * inData[0].vTexData.zw + inData[0].vTexData.xy;//hmmmm
 
-		gl_Position = vec4(rotC * (rotV*vec3(quad[i] * inData[0].vBounds, 0) + gl_in[0].gl_Position.xyz) - vec3(dynData.cameraPosition, 0), 1);
+		gl_Position = vec4(rotC*(rotV*vec3(quad[i] * inData[0].vBounds, 0) + vec3(gl_in[0].gl_Position.xy - dynData.cameraPosition, 0)), 1);
 		gl_Position.x *= stData.rAspect;
 		EmitVertex();
 	}

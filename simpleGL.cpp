@@ -151,12 +151,12 @@ namespace simpleGL {
 
 		glActiveTexture(GL_TEXTURE0);
 
-		#if defined FPS_COUNTER && defined DEBUG
+		#ifdef DEBUG
 			double lastFPSTime = glfwGetTime();
 			int frames = 0;
 		#endif
 		while (!glfwWindowShouldClose(window)) {
-			#if defined FPS_COUNTER && defined DEBUG
+			#ifdef DEBUG
 				double currentTime = glfwGetTime();
 				frames++;
 				if (currentTime - lastFPSTime >= 1.0) {

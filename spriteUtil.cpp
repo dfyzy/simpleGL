@@ -12,25 +12,14 @@ struct SpriteData {
 	std::array<float, 2 + 2 + 1 + 4 + 4> data;
 };
 
-//less
-struct SpriteComparer {
-	bool operator()(const ComplexSprite* lhs, const ComplexSprite* rhs) {
-		if (lhs->getZ() == rhs->getZ()) {
-			if (lhs->getTexture()->getTexture() == rhs->getTexture()->getTexture())
-				return lhs->getId() < rhs->getId();
-			else
-				return lhs->getTexture()->getTexture() < rhs->getTexture()->getTexture();
-		} else
-			return lhs->getZ() > rhs->getZ();
-	}
-};
-
 namespace simpleUtil {
 
 	GLuint vbos[ComplexSprite::Attrib::COUNT];
 
+	GLuint currentTexture = 0;
+
 	boost::mutex spriteMutex;
-	std::set<ComplexSprite*, SpriteComparer> sprites;
+	std::set<ComplexSprite*, ComplexSprite::Comparer> sprites;
 
 	boost::mutex allocationMutex;
 	std::queue<SpriteData> spriteQueue;
@@ -240,7 +229,9 @@ void ComplexSprite::setZ(int pz) {
 
 	sprites.erase(this);
 
+	mutex.lock();
 	z = pz;
+	mutex.unlock();
 
 	sprites.insert(this);
 }
@@ -250,18 +241,21 @@ void ComplexSprite::setTexture(SimpleTexture* tex) {
 
 	sprites.erase(this);
 
+	mutex.lock();
 	texture = tex;
+	mutex.unlock();
 
 	sprites.insert(this);
 }
 
 void ComplexSprite::draw() const {
-	GLuint tex = texture.load()->getTexture();
-	GLint current = 0;
-	glGetIntegerv(GL_TEXTURE_BINDING_RECTANGLE, &current);
+	boost::lock_guard<boost::mutex> lock(mutex);
 
-	if (tex != (GLuint) current)
+	GLuint tex = texture->getTexture();
+	if (tex != currentTexture) {
 		glBindTexture(GL_TEXTURE_RECTANGLE, tex);
+		currentTexture = tex;
+	}
 
 	if (enabled && id < spriteCapacity) {
 		useShaders(vertexShader, geometryShader, fragmentShader);
