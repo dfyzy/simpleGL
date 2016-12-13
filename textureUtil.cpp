@@ -208,10 +208,6 @@ SimpleTexture::SimpleTexture(unsigned width, unsigned height, GLuint id) : pixel
 
 SimpleTexture::~SimpleTexture() {
 	print("Texture destructor");
-	unload();
-}
-
-void SimpleTexture::unload() {
 	if (isCurrentThread()) {
 		simpleUtil::unloadTexture(this);
 		return;

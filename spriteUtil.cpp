@@ -3,9 +3,21 @@
 
 #include "simpleGL.hpp"
 #include "simpleUtil.hpp"
-#include "complexSprite.hpp"
+#include "SimpleSprite.hpp"
 
-const unsigned ComplexSprite::Attrib::sizes[5] = {2, 2, 1, 4, 4};
+struct Attrib {
+	enum E { POSITION, BOUNDS, ROTATION, COLOR, TEX_DATA, COUNT } type;
+	static const unsigned sizes[5];
+
+	std::unique_ptr<float> data;
+	unsigned spriteId;
+
+	Attrib(E t) : type(t) {
+		data = std::unique_ptr<float>(new float[sizes[t]]);
+	}
+};
+
+const unsigned Attrib::sizes[5] = {2, 2, 1, 4, 4};
 
 struct SpriteData {
 	unsigned spriteId;
@@ -14,19 +26,19 @@ struct SpriteData {
 
 namespace simpleUtil {
 
-	GLuint vbos[ComplexSprite::Attrib::COUNT];
+	GLuint vbos[Attrib::COUNT];
 
 	GLuint currentTexture = 0;
 
 	boost::mutex spriteMutex;
-	std::set<ComplexSprite*, ComplexSprite::Comparer> sprites;
+	std::set<SimpleSprite*, SimpleSprite::Comparer> sprites;
 
 	boost::mutex allocationMutex;
 	std::queue<SpriteData> spriteQueue;
 	std::queue<unsigned> deletedQueue;
 
 	boost::mutex attribMutex;
-	std::queue<ComplexSprite::Attrib> attribQueue;
+	std::queue<Attrib> attribQueue;
 
 	unsigned spriteCount = 0;
 	unsigned spriteCapacity = 4;
@@ -64,26 +76,33 @@ namespace simpleUtil {
 		array[(*offset)++] = height;
 	}
 
-	void initBuffers() {
-		glGenBuffers(ComplexSprite::Attrib::COUNT, vbos);
+	void setAttrib(Attrib attrib, int id) {
+		attrib.spriteId = id;
 
-		for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
+		boost::lock_guard<boost::mutex> lock(attribMutex);
+		attribQueue.push(std::move(attrib));
+	}
+
+	void initBuffers() {
+		glGenBuffers(Attrib::COUNT, vbos);
+
+		for (int i = 0; i < Attrib::COUNT; i++) {
 			glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
 
 			//alocating data for spriteCapacity number of sprites for a start.
-			glBufferData(GL_ARRAY_BUFFER, spriteCapacity * ComplexSprite::Attrib::sizes[i] * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, spriteCapacity * Attrib::sizes[i] * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 
 			//binding buffers to layout locations in vertex shader.
-			glVertexAttribPointer(i, ComplexSprite::Attrib::sizes[i], GL_FLOAT, GL_FALSE, 0, nullptr);
+			glVertexAttribPointer(i, Attrib::sizes[i], GL_FLOAT, GL_FALSE, 0, nullptr);
 			glEnableVertexAttribArray(i);
 		}
 		print("Buffers initialized");
 	}
 
-	inline void bindSpriteAttrib(ComplexSprite::Attrib::E type, unsigned offset, float* data) {
+	inline void bindSpriteAttrib(Attrib::E type, unsigned offset, float* data) {
 		glBindBuffer(GL_ARRAY_BUFFER, vbos[type]);
 
-		int size = ComplexSprite::Attrib::sizes[type] * sizeof(float);
+		int size = Attrib::sizes[type] * sizeof(float);
 		glBufferSubData(GL_ARRAY_BUFFER, offset * size, size, data);
 	}
 
@@ -97,8 +116,8 @@ namespace simpleUtil {
 				GLuint tempVbo;
 				glGenBuffers(1, &tempVbo);
 
-				for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
-					int size = ComplexSprite::Attrib::sizes[i] * sizeof(float);
+				for (int i = 0; i < Attrib::COUNT; i++) {
+					int size = Attrib::sizes[i] * sizeof(float);
 					int oldSize = spriteCapacity * size;
 
 					//loading current data into temp buffer, resizing this buffer and loading data back from temp buffer.
@@ -131,10 +150,10 @@ namespace simpleUtil {
 				spriteQueue.pop();
 
 				int dataOffset = 0;
-				for (int i = 0; i < ComplexSprite::Attrib::COUNT; i++) {
-					bindSpriteAttrib(static_cast<ComplexSprite::Attrib::E>(i), data.spriteId, data.data.data() + dataOffset);
+				for (int i = 0; i < Attrib::COUNT; i++) {
+					bindSpriteAttrib(static_cast<Attrib::E>(i), data.spriteId, data.data.data() + dataOffset);
 
-					dataOffset += ComplexSprite::Attrib::sizes[i];
+					dataOffset += Attrib::sizes[i];
 				}
 			}
 		}
@@ -144,7 +163,7 @@ namespace simpleUtil {
 		boost::lock_guard<boost::mutex> lock(attribMutex);
 
 		while (!attribQueue.empty()) {
-			ComplexSprite::Attrib change = std::move(attribQueue.front());
+			Attrib change = std::move(attribQueue.front());
 			attribQueue.pop();
 
 			bindSpriteAttrib(change.type, change.spriteId, change.data.get());
@@ -161,7 +180,7 @@ namespace simpleUtil {
 	void drawSprites() {
 		boost::lock_guard<boost::mutex> lock(spriteMutex);
 
-		for (ComplexSprite* cs : sprites)
+		for (SimpleSprite* cs : sprites)
 			cs->draw();
 
 	}
@@ -174,7 +193,7 @@ SimpleSprite* simpleGL::loadSprite(SimpleTexture* tex, SimpleVector position, in
 															float texX, float texY, float texW, float texH) {
 	SpriteData data;
 
-	//not actualy loading anything into sprite object. just wanted for these functions to be in ComplexSprite class.
+	//not actualy loading anything into sprite object. just wanted for these functions to be in SimpleSprite class.
 	int offset = 0;
 	loadPosition(position, data.data.data(), &offset);
 	loadBounds(bounds, tex, data.data.data(), &offset);
@@ -194,7 +213,7 @@ SimpleSprite* simpleGL::loadSprite(SimpleTexture* tex, SimpleVector position, in
 		spriteQueue.push(data);
 	}
 
-	ComplexSprite* sprite = new ComplexSprite(id, z, tex);
+	SimpleSprite* sprite = new SimpleSprite(id, z, tex);
 	setDefaultShaders(sprite, tex->getTexture() == 0);
 
 	boost::lock_guard<boost::mutex> lock(spriteMutex);
@@ -203,13 +222,8 @@ SimpleSprite* simpleGL::loadSprite(SimpleTexture* tex, SimpleVector position, in
 	return sprite;
 }
 
-ComplexSprite::~ComplexSprite() {
-	simpleUtil::print("Sprite destructor");
-	unload();
-}
-
 //TODO: before allocation
-void ComplexSprite::unload() {
+SimpleSprite::~SimpleSprite() {
 	print("Unloading sprite");
 
 	{
@@ -224,7 +238,7 @@ void ComplexSprite::unload() {
 	sprites.erase(this);
 }
 
-void ComplexSprite::setZ(int pz) {
+void SimpleSprite::setZ(int pz) {
 	boost::lock_guard<boost::mutex> lock(spriteMutex);
 
 	sprites.erase(this);
@@ -236,7 +250,7 @@ void ComplexSprite::setZ(int pz) {
 	sprites.insert(this);
 }
 
-void ComplexSprite::setTexture(SimpleTexture* tex) {
+void SimpleSprite::setTexture(SimpleTexture* tex) {
 	boost::lock_guard<boost::mutex> lock(spriteMutex);
 
 	sprites.erase(this);
@@ -248,7 +262,7 @@ void ComplexSprite::setTexture(SimpleTexture* tex) {
 	sprites.insert(this);
 }
 
-void ComplexSprite::draw() const {
+void SimpleSprite::draw() const {
 	boost::lock_guard<boost::mutex> lock(mutex);
 
 	GLuint tex = texture->getTexture();
@@ -267,49 +281,42 @@ void ComplexSprite::draw() const {
 	}
 }
 
-void ComplexSprite::setAttrib(Attrib attrib) const {
-	attrib.spriteId = id;
-
-	boost::lock_guard<boost::mutex> lock(attribMutex);
-	attribQueue.push(std::move(attrib));
-}
-
-void ComplexSprite::setPosition(SimpleVector position) {
-	ComplexSprite::Attrib attrib(ComplexSprite::Attrib::POSITION);
+void SimpleSprite::setPosition(SimpleVector position) {
+	Attrib attrib(Attrib::POSITION);
 	int offset = 0;
 	loadPosition(position, attrib.data.get(), &offset);
 
-	setAttrib(std::move(attrib));
+	setAttrib(std::move(attrib), id);
 }
 
-void ComplexSprite::setBounds(SimpleVector bounds) {
+void SimpleSprite::setBounds(SimpleVector bounds) {
 	Attrib attrib(Attrib::BOUNDS);
 	int offset = 0;
 	loadBounds(bounds, texture, attrib.data.get(), &offset);
 
-	setAttrib(std::move(attrib));
+	setAttrib(std::move(attrib), id);
 }
 
-void ComplexSprite::setRotation(float rotation) {
-	ComplexSprite::Attrib attrib(ComplexSprite::Attrib::ROTATION);
+void SimpleSprite::setRotation(float rotation) {
+	Attrib attrib(Attrib::ROTATION);
 	int offset = 0;
 	loadRotation(rotation, attrib.data.get(), &offset);
 
-	setAttrib(std::move(attrib));
+	setAttrib(std::move(attrib), id);
 }
 
-void ComplexSprite::setColor(SimpleColor c) {
+void SimpleSprite::setColor(SimpleColor c) {
 	Attrib attrib(Attrib::COLOR);
 	int offset = 0;
 	loadColor(c, attrib.data.get(), &offset);
 
-	setAttrib(std::move(attrib));
+	setAttrib(std::move(attrib), id);
 }
 
-void ComplexSprite::setTexData(float x, float y, float width, float height) {
+void SimpleSprite::setTexData(float x, float y, float width, float height) {
 	Attrib attrib(Attrib::TEX_DATA);
 	int offset = 0;
 	loadTexData(x, y, width, height, attrib.data.get(), &offset);
 
-	setAttrib(std::move(attrib));
+	setAttrib(std::move(attrib), id);
 }

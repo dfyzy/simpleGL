@@ -8,8 +8,6 @@ private:
 	const unsigned pixelWidth, pixelHeight;
 	const GLuint texture;
 
-	void unload();
-
 public:
 	SimpleTexture(unsigned width, unsigned height, GLuint id);
 	~SimpleTexture();

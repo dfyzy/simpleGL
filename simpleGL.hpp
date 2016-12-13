@@ -30,6 +30,8 @@ namespace simpleGL {
 	 */
 	GLFWwindow* createWindowedWindow(const char* title, unsigned width, unsigned height, bool resizable, bool decorated);
 
+	void setBackground(SimpleColor background);
+
 	/*
 	 * Returns width of the created window.
 	 */
@@ -45,13 +47,14 @@ namespace simpleGL {
 	 */
 	SimpleVector toScreenCoords(SimpleVector sv);
 
+	boost::thread setUpdate(void func());
+
 	/*
-	 * Starts thread on which the opengl context will be initializated.
 	 * Should call this function before doing anything opengl related.
-	 *
-	 * returns: thread handle of the draw thread. Join the thread while closing the window to terminate GLFW properly.
 	 */
-	boost::thread startDrawThread(SimpleColor background);
+	void init();
+
+	void draw();
 
 	/*
 	 * Loads texture from file into opengl texture object. Only works with png images(for now?).

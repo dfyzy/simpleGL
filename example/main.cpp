@@ -50,9 +50,6 @@ int main() {
 	while (!glfwWindowShouldClose(window)) {
 		auto lastTimePoint = boost::chrono::steady_clock::now();
 
-		//you must call this function regularly on the main thread
-		glfwPollEvents();
-
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 			rotation += 0.03f;
 			simpleGL::setCameraRotation(rotation);

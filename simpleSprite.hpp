@@ -31,10 +31,10 @@ protected:
 	GLenum depthFail {GL_KEEP};
 	GLenum depthPass {GL_KEEP};
 
-	SimpleSprite(unsigned i, int pz, SimpleTexture* tex) : id(i), z(pz), texture(tex) {}
-
 public:
-	virtual ~SimpleSprite() =0;
+
+	SimpleSprite(unsigned i, int pz, SimpleTexture* tex) : id(i), z(pz), texture(tex) {}
+	~SimpleSprite();
 
 	unsigned getId() const { return id; }
 
@@ -59,7 +59,7 @@ public:
 		return z;
 	}
 
-	virtual void setZ(int pz) =0;
+	void setZ(int pz);
 
 	SimpleTexture* getTexture() const {
 		boost::lock_guard<boost::mutex> lock(mutex);
@@ -67,7 +67,7 @@ public:
 		return texture;
 	}
 
-	virtual void setTexture(SimpleTexture* tex) =0;
+	void setTexture(SimpleTexture* tex);
 
 	/*
 	 * Changes shader program for this sprite. When drawing this sprite opengl will use these shaders.
@@ -108,13 +108,37 @@ public:
 	/*
 	 * Changes attributes for this sprite.
 	 */
-	virtual void setPosition(SimpleVector position) =0;
-	virtual void setBounds(SimpleVector bounds) =0;
-	virtual void setRotation(float rotation) =0;
-	virtual void setColor(SimpleColor c) =0;
-	virtual void setTexData(float x, float y, float width, float height) =0;
+	void setPosition(SimpleVector position);
+	void setBounds(SimpleVector bounds);
+	void setRotation(float rotation);
+	void setColor(SimpleColor c);
+	void setTexData(float x, float y, float width, float height);
 
+	void draw() const;
+
+	struct Comparer {
+		bool operator()(const SimpleSprite* lhs, const SimpleSprite* rhs) {
+			if (lhs == rhs)	return false;
+
+			boost::lock_guard<boost::mutex> llock(lhs->mutex);
+			boost::lock_guard<boost::mutex> rlock(rhs->mutex);
+
+			if (lhs->z != rhs->z)
+				return lhs->z > rhs->z;
+
+			if (lhs->texture->getTexture() != rhs->texture->getTexture())
+				return lhs->texture->getTexture() < rhs->texture->getTexture();
+
+			if (lhs->vertexShader != rhs->vertexShader)
+				return lhs->vertexShader < rhs->vertexShader;
+			if (lhs->geometryShader != rhs->geometryShader)
+				return lhs->geometryShader < rhs->geometryShader;
+			if (lhs->fragmentShader != rhs->fragmentShader)
+				return lhs->fragmentShader < rhs->fragmentShader;
+
+			return lhs->id < rhs->id;
+		}
+	};
 };
-inline SimpleSprite::~SimpleSprite() {}
 
 #endif

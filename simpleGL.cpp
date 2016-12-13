@@ -22,7 +22,7 @@ namespace simpleGL {
 		simpleUtil::print(description);
 	}
 
-	inline void init() {
+	inline void initGLFW() {
 		glfwSetErrorCallback(errorCallback);
 
 		if(!glfwInit()) {
@@ -58,7 +58,7 @@ namespace simpleGL {
 			return nullptr;
 		}
 
-		init();
+		initGLFW();
 
 		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 
@@ -85,7 +85,7 @@ namespace simpleGL {
 			return nullptr;
 		}
 
-		init();
+		initGLFW();
 
 		setCreationHints(resizable, decorated);
 
@@ -94,6 +94,10 @@ namespace simpleGL {
 
 		createWindow(title, nullptr);
 		return window;
+	}
+
+	void setBackground(SimpleColor background) {
+		backgroundColor = background;
 	}
 
 	unsigned getWindowWidth() {
@@ -108,7 +112,23 @@ namespace simpleGL {
 		return f*(2.0f/windowHeight);
 	}
 
-	void draw() {
+	void update(void func()) {
+		while (!glfwWindowShouldClose(window)) {
+			auto lastTime = boost::chrono::steady_clock::now();
+
+			func();
+
+			auto thisTime = boost::chrono::steady_clock::now();
+			boost::this_thread::sleep_for(boost::chrono::duration<double, boost::ratio<1, 30>>(1) - (thisTime - lastTime));
+		}
+	}
+
+	boost::thread setUpdate(void func()) {
+
+		return boost::thread(update, func);
+	}
+
+	void init() {
 		simpleUtil::currentId = boost::this_thread::get_id();
 
 		glfwMakeContextCurrent(window);
@@ -150,7 +170,9 @@ namespace simpleGL {
 		simpleUtil::initBuffers();
 
 		glActiveTexture(GL_TEXTURE0);
+	}
 
+	void draw() {
 		#ifdef DEBUG
 			double lastFPSTime = glfwGetTime();
 			int frames = 0;
@@ -165,6 +187,8 @@ namespace simpleGL {
 					lastFPSTime = currentTime;
 				}
 			#endif
+
+			glfwPollEvents();
 
 			simpleUtil::checkTextures();
 			simpleUtil::checkSprites();
@@ -182,11 +206,6 @@ namespace simpleGL {
 		}
 
 		glfwTerminate();//raii
-	}
-
-	boost::thread startDrawThread(SimpleColor background) {
-		backgroundColor = background;
-		return boost::thread(draw);
 	}
 
 }
