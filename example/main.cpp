@@ -1,10 +1,9 @@
 #include <simpleGL/simpleGL.hpp>
 #include <iostream>
 
-typedef boost::chrono::duration<double, boost::ratio<1, 30>> duration;
-
 SimpleSprite* brimSprite;
 
+GLFWwindow* window;
 int width, height;
 float rotation = 0;
 
@@ -17,16 +16,24 @@ void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
 	brimSprite->setColor(SimpleColor(xpos/width, 1 - ypos/height, 0));
 }
 
-int main() {
+void update() {
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+		rotation += 0.03f;
+		simpleGL::setCameraRotation(rotation);
+	}
+}
 
-	width = 1366;
-	height = 768;
-	GLFWwindow* window = simpleGL::createWindowedWindow("Title", width, height, false, false);
+int main() {
+	width = 700;
+	height = 700;
+	window = simpleGL::createWindowedWindow("Title", width, height, false, true);
 
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetCursorPosCallback(window, cursorPosCallback);
 
-	boost::thread thread = simpleGL::startDrawThread(SimpleColor(0.5f));
+	simpleGL::setBackground(SimpleColor(0.5f));
+
+	simpleGL::init();
 
 	simpleGL::setTextureFiltering(GL_LINEAR);
 
@@ -47,17 +54,7 @@ int main() {
 	lightSp->setShader(customShader);
 	customShader.setUniformf("color", {1, 0, 0, 1});
 
-	while (!glfwWindowShouldClose(window)) {
-		auto lastTimePoint = boost::chrono::steady_clock::now();
+	simpleGL::setUpdate(update);
 
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-			rotation += 0.03f;
-			simpleGL::setCameraRotation(rotation);
-		}
-
-		auto thisTimePoint = boost::chrono::steady_clock::now();
-		boost::this_thread::sleep_for(duration(1) - (thisTimePoint - lastTimePoint));
-	}
-
-	thread.join();
+	simpleGL::draw();
 }

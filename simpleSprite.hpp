@@ -1,8 +1,6 @@
 #ifndef SIMPLE_SPRITE_H
 #define SIMPLE_SPRITE_H
 
-#include <boost/thread.hpp>
-
 #include "simpleColor.hpp"
 #include "SimpleVector.hpp"
 #include "simpleShader.hpp"
@@ -10,8 +8,6 @@
 
 class SimpleSprite {
 protected:
-	mutable boost::mutex mutex;
-
 	bool enabled {true};
 	unsigned id;
 
@@ -42,19 +38,16 @@ public:
 	 * If enabled is false the sprite won't draw.
 	 */
 	bool isEnabled() const {
-		boost::lock_guard<boost::mutex> lock(mutex);
 
 		return enabled;
 	}
 
 	void setEnabled(bool b) {
-		boost::lock_guard<boost::mutex> lock(mutex);
-
 		enabled = b;
+
 	}
 
 	int getZ() const {
-		boost::lock_guard<boost::mutex> lock(mutex);
 
 		return z;
 	}
@@ -62,7 +55,6 @@ public:
 	void setZ(int pz);
 
 	SimpleTexture* getTexture() const {
-		boost::lock_guard<boost::mutex> lock(mutex);
 
 		return texture;
 	}
@@ -73,8 +65,6 @@ public:
 	 * Changes shader program for this sprite. When drawing this sprite opengl will use these shaders.
 	 */
 	void setShader(SimpleShader ssh) {
-		boost::lock_guard<boost::mutex> lock(mutex);
-
 		if (ssh.getType() == GL_VERTEX_SHADER)
 			vertexShader = ssh.getShader();
 		else if (ssh.getType() == GL_GEOMETRY_SHADER)
@@ -87,8 +77,6 @@ public:
 	 * Sets data to use for glStencilFunc calls.
 	 */
 	void setStencilFunc(GLenum func, GLint ref, GLuint mask) {
-		boost::lock_guard<boost::mutex> lock(mutex);
-
 		stencilFunc = func;
 		stencilRef = ref;
 		stencilMask = mask;
@@ -98,8 +86,6 @@ public:
 	 * Sets data to use for glStencilOp calls.
 	 */
 	void setStencilOp(GLenum sfail, GLenum dpfail, GLenum dppass) {
-		boost::lock_guard<boost::mutex> lock(mutex);
-
 		stencilFail = sfail;
 		depthFail = dpfail;
 		depthPass = dppass;
@@ -119,9 +105,6 @@ public:
 	struct Comparer {
 		bool operator()(const SimpleSprite* lhs, const SimpleSprite* rhs) {
 			if (lhs == rhs)	return false;
-
-			boost::lock_guard<boost::mutex> llock(lhs->mutex);
-			boost::lock_guard<boost::mutex> rlock(rhs->mutex);
 
 			if (lhs->z != rhs->z)
 				return lhs->z > rhs->z;

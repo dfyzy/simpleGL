@@ -47,7 +47,7 @@ namespace simpleGL {
 	 */
 	SimpleVector toScreenCoords(SimpleVector sv);
 
-	boost::thread setUpdate(void func());
+	void setUpdate(void func());
 
 	/*
 	 * Should call this function before doing anything opengl related.
@@ -106,11 +106,11 @@ namespace simpleGL {
 	 * Loads, compiles, links and validates shader program of type ptype.
 	 *
 	 * 'path': path to shader file.
-	 * 'ptype': type of shader program. Must be only GL_VERTEX_SHADER or GL_FRAGMENT_SHADER.
+	 * 'type': type of shader program. Must be only GL_VERTEX_SHADER or GL_FRAGMENT_SHADER.
 	 *
 	 * returns: handle of created program. If 0 shader did not load.
 	 */
-	SimpleShader loadShader(std::string path, GLenum ptype);
+	SimpleShader loadShader(std::string path, GLenum type);
 
 }
 

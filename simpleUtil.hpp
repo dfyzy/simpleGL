@@ -15,9 +15,6 @@ namespace simpleUtil {
 		#endif
 	}
 
-	//check if current thread has opengl context.
-	bool isCurrentThread();
-
 	//creating program pipeline and default shader programs.
 	void initShaders();
 	//creating buffers for each sprite attribute. binding them to layout positions in shaders.
@@ -27,11 +24,6 @@ namespace simpleUtil {
 	void setDefaultShaders(SimpleSprite* sprite, bool empty);
 	//calling glUseProgramStages for each stage.
 	void useShaders(GLuint vertex, GLuint geometry, GLuint fragment);
-
-	//checks for updates
-	void checkTextures();
-	void checkSprites();
-	void checkShaders();
 
 	//draw sprites for each texture
 	void drawSprites();

@@ -20,9 +20,7 @@ public:
 
 	GLuint getTexture() const { return texture; }
 
-	bool operator==(const SimpleTexture& other) const {
-		return texture == other.texture;
-	}
+	void setFiltering(GLenum tf) const;
 
 };
 

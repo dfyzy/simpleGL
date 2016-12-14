@@ -1,5 +1,7 @@
 #include <simpleGL/simpleGL.hpp>
 #include <random>
+#include <functional>
+#include <ctime>
 
 std::mt19937 randEngine(time(0));
 float rotation = 0;

@@ -1,74 +1,58 @@
 #include <libpng/png.h>
 #include <zlib.h>
 
+#include <list>
+#include <memory>
+
+#include "simpleGL.hpp"
 #include "simpleUtil.hpp"
 
-namespace simpleUtil {
-
+namespace simpleGL {
 	SimpleTexture* emptyTexture = new SimpleTexture(100, 100, 0);//hmmm
 	std::list<SimpleTexture*> textures;
 
-	boost::mutex textureMutex;
-	boost::condition_variable textureCondition;
-	bool textureReady = true;
+	GLenum textureFiltering {GL_NEAREST};
 
-	std::string texturePath;
-	SimpleTexture* returnTexture;
-
-	boost::mutex untextureMutex;
-	SimpleTexture* unloadingTexture;
-	boost::condition_variable unloadCondition;
-	bool unloaded = true;
-
-	GLenum textureFilter = GL_NEAREST;
-	bool needFiltering = false;
-
-	inline void notifyTexture() {
-		textureReady = true;
-		textureCondition.notify_one();
+	SimpleTexture* getEmptyTexture() {
+		return emptyTexture;
 	}
 
-	SimpleTexture* loadTexture(bool toThread, std::string path) {
-		print("Loading texture");
+	SimpleTexture* loadTexture(std::string path) {
+		simpleUtil::print("Loading texture");
 
 		FILE *file = fopen(path.c_str(), "rb");
 		if (!file) {
-			print("Error opening texture");
-			if (toThread)	notifyTexture();
+			simpleUtil::print("Error opening texture");
 			return nullptr;
 		}
 
 		png_byte header[8];
 		fread(header, 1, 8, file);
 		if (png_sig_cmp(header, 0, 8)) {
-			print("Not a png");
+			simpleUtil::print("Not a png");
 			fclose(file);
-			if (toThread)	notifyTexture();
 			return nullptr;
 		}
 
 		png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 		if (!png_ptr) {
-			print("Failed to create read struct");
+			simpleUtil::print("Failed to create read struct");
 			fclose(file);
-			if (toThread)	notifyTexture();
 			return nullptr;
 		}
 
 		png_infop info_ptr = png_create_info_struct(png_ptr);
 		if (!info_ptr) {
-			print("Failed to create info struct");
+			simpleUtil::print("Failed to create info struct");
 			png_destroy_read_struct(&png_ptr, nullptr, nullptr);
 			fclose(file);
-			if (toThread)	notifyTexture();
 			return nullptr;
 		}
 
 		if (setjmp(png_jmpbuf(png_ptr))) {
-			print("Libpng error");
+			simpleUtil::print("Libpng error");
 			png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 			fclose(file);
-			if (toThread)	notifyTexture();
 			return nullptr;
 		}
 
@@ -86,12 +70,6 @@ namespace simpleUtil {
 
 		SimpleTexture* simpleTex = new SimpleTexture(width, height, texture);
 		textures.push_back(simpleTex);
-
-		if (toThread) {
-			returnTexture = simpleTex;
-			texturePath.clear();
-			notifyTexture();
-		}
 
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -112,80 +90,11 @@ namespace simpleUtil {
 		return simpleTex;
 	}
 
-	void unloadTexture(SimpleTexture* texture) {
-		print("Unloading texture");
-
-		textures.remove(texture);
-
-		GLuint texId = texture->getTexture();
-		glDeleteTextures(1, &texId);
-	}
-
-	void unloadTextureToThread() {
-		unloadTexture(unloadingTexture);
-
-		unloaded = true;
-		unloadCondition.notify_one();
-	}
-
-	void checkUnloading() {
-		boost::lock_guard<boost::mutex> lock(untextureMutex);
-
-		if (!unloaded)	unloadTextureToThread();
-	}
-
-	void setFiltering(GLuint texture) {
+	inline void setFiltering(GLuint texture, GLenum filtering) {
 		glBindTexture(GL_TEXTURE_RECTANGLE, texture);
 
-		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, textureFilter);
-		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, textureFilter);
-	}
-
-	void checkFiltering() {
-		boost::lock_guard<boost::mutex> lock(textureMutex);
-
-		if (needFiltering) {
-			for (SimpleTexture* st : textures)
-				setFiltering(st->getTexture());
-
-			needFiltering = false;
-		}
-	}
-
-	void checkTextures() {
-		checkUnloading();
-
-		textureMutex.lock();
-		bool loadNeeded = !textureReady;
-		textureMutex.unlock();
-
-		//loadTexture happens only when main thread is waiting for notifyTexture so we don't need lock here
-		if (loadNeeded)	loadTexture(true, texturePath);
-
-		checkFiltering();
-	}
-
-}
-
-using namespace simpleUtil;
-
-namespace simpleGL {
-	SimpleTexture* getEmptyTexture() {
-		return emptyTexture;
-	}
-
-	SimpleTexture* loadTexture(std::string path) {
-		if (isCurrentThread())	return simpleUtil::loadTexture(false, path);
-
-		boost::unique_lock<boost::mutex> lock(textureMutex);
-
-		texturePath = path;
-		textureReady = false;
-
-		do 	textureCondition.wait(lock);
-		while	(!textureReady);
-
-		return returnTexture;
+		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, filtering);
+		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, filtering);
 	}
 
 	void setTextureFiltering(GLenum tf) {
@@ -194,30 +103,30 @@ namespace simpleGL {
 			return;
 		}
 
-		boost::lock_guard<boost::mutex> lock(textureMutex);
-		if (tf == textureFilter)	return;
+		for (SimpleTexture* st : textures)
+			setFiltering(st->getTexture(), tf);
 
-		textureFilter = tf;
-		needFiltering = true;
+		textureFiltering = tf;
 	}
 }
 
 SimpleTexture::SimpleTexture(unsigned width, unsigned height, GLuint id) : pixelWidth(width), pixelHeight(height), texture(id) {
-	setFiltering(id);
+	simpleGL::setFiltering(id, simpleGL::textureFiltering);
 }
 
 SimpleTexture::~SimpleTexture() {
-	print("Texture destructor");
-	if (isCurrentThread()) {
-		simpleUtil::unloadTexture(this);
+	simpleUtil::print("Unloading texture");
+
+	simpleGL::textures.remove(this);
+
+	glDeleteTextures(1, &texture);
+}
+
+void SimpleTexture::setFiltering(GLenum tf) const {
+	if ((tf != GL_LINEAR) && (tf != GL_NEAREST)) {
+		simpleUtil::print("Wrong filtering type");
 		return;
 	}
 
-	boost::unique_lock<boost::mutex> lock(untextureMutex);
-
-	unloadingTexture = this;
-	unloaded = false;
-
-	do 	unloadCondition.wait(lock);
-	while	(!unloaded);
+	simpleGL::setFiltering(texture, tf);
 }

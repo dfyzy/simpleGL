@@ -1,4 +1,4 @@
-Using OpenGL, GLFW, GLEW and libpng(also boost/thread because my compiler has no thread)
+Using OpenGL, GLFW, GLEW and libpng
 
 You can draw stuff now.
 

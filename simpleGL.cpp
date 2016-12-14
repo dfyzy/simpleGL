@@ -3,20 +3,16 @@
 #include "simpleGL.hpp"
 #include "simpleUtil.hpp"
 
-namespace simpleUtil {
-	boost::thread::id currentId;
-
-	bool isCurrentThread() {
-		return currentId == boost::this_thread::get_id();
-	}
-}
-
 namespace simpleGL {
+	typedef void (*Callback)();
+
 	GLFWwindow* window = nullptr;
 	unsigned windowWidth, windowHeight;
 	SimpleColor backgroundColor;
 
 	GLuint vao;
+
+	Callback update;
 
 	void errorCallback(int error, const char* description) {
 		simpleUtil::print(description);
@@ -112,25 +108,11 @@ namespace simpleGL {
 		return f*(2.0f/windowHeight);
 	}
 
-	void update(void func()) {
-		while (!glfwWindowShouldClose(window)) {
-			auto lastTime = boost::chrono::steady_clock::now();
-
-			func();
-
-			auto thisTime = boost::chrono::steady_clock::now();
-			boost::this_thread::sleep_for(boost::chrono::duration<double, boost::ratio<1, 30>>(1) - (thisTime - lastTime));
-		}
-	}
-
-	boost::thread setUpdate(void func()) {
-
-		return boost::thread(update, func);
+	void setUpdate(void func()) {
+		update = func;
 	}
 
 	void init() {
-		simpleUtil::currentId = boost::this_thread::get_id();
-
 		glfwMakeContextCurrent(window);
 
 		// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
@@ -190,9 +172,7 @@ namespace simpleGL {
 
 			glfwPollEvents();
 
-			simpleUtil::checkTextures();
-			simpleUtil::checkSprites();
-			simpleUtil::checkShaders();
+			update();
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
