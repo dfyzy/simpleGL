@@ -4,7 +4,6 @@
 SimpleSprite* brimSprite;
 
 GLFWwindow* window;
-int width, height;
 float rotation = 0;
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
@@ -13,7 +12,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 }
 
 void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
-	brimSprite->setColor(SimpleColor(xpos/width, 1 - ypos/height, 0));
+	SimpleVector sv = simpleGL::glfwToScreen(xpos, ypos);
+	brimSprite->setColor(SimpleColor(sv.x, sv.y, 0));
 }
 
 void update() {
@@ -24,8 +24,8 @@ void update() {
 }
 
 int main() {
-	width = 700;
-	height = 700;
+	int width = 700;
+	int height = 700;
 	window = simpleGL::createWindowedWindow("Title", width, height, false, true);
 
 	glfwSetKeyCallback(window, keyCallback);

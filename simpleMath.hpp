@@ -4,7 +4,7 @@
 #include "simpleVector.hpp"
 
 namespace simpleMath {
-	
+
 	inline float distance(SimpleVector lhs, SimpleVector rhs) {
 		return (lhs - rhs).length();
 	}

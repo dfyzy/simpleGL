@@ -104,8 +104,12 @@ namespace simpleGL {
 		return windowHeight;
 	}
 
-	SimpleVector toScreenCoords(SimpleVector f)  {
+	SimpleVector actualToScreen(SimpleVector f) {
 		return f*(2.0f/windowHeight);
+	}
+
+	SimpleVector glfwToScreen(double x, double y) {
+		return SimpleVector(x/windowWidth, 1 - y/windowHeight);
 	}
 
 	void setUpdate(void func()) {

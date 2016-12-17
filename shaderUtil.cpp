@@ -82,7 +82,7 @@ using namespace simpleUtil;
 namespace simpleGL {
 
 	void setCameraPosition(SimpleVector position) {
-		SimpleVector sv = toScreenCoords(position);
+		SimpleVector sv = actualToScreen(position);
 		float data[2] {sv.x, sv.y};
 
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, 2*sizeof(float), data);

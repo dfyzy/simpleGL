@@ -43,9 +43,12 @@ namespace simpleGL {
 	unsigned getWindowHeight();
 
 	/*
-	 * Transforms vector to screen coord.
+	 *
 	 */
-	SimpleVector toScreenCoords(SimpleVector sv);
+	SimpleVector actualToScreen(SimpleVector sv);
+
+	SimpleVector glfwToScreen(double x, double y);
+
 
 	void setUpdate(void func());
 

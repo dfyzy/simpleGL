@@ -33,12 +33,12 @@ namespace simpleUtil {
 
 	inline void loadPosition(SimpleVector position, float* array, int* offset) {
 
-		loadVector(simpleGL::toScreenCoords(position), array, offset);
+		loadVector(simpleGL::actualToScreen(position), array, offset);
 	}
 
 	inline void loadBounds(SimpleVector bounds, SimpleTexture* tex, float* array, int* offset) {
 
-		loadVector(simpleGL::toScreenCoords(bounds*SimpleVector(tex->getWidth(), tex->getHeight())), array, offset);
+		loadVector(simpleGL::actualToScreen(bounds*SimpleVector(tex->getWidth(), tex->getHeight())), array, offset);
 	}
 
 	inline void loadRotation(float rotation, float* array, int* offset) {
