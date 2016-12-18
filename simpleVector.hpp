@@ -88,6 +88,20 @@ struct SimpleVector {
 		return operator*=(1/f);
 	}
 
+	bool operator==(const SimpleVector& sv) const {
+		return x == sv.x && y == sv.y;
+	}
+
+	bool operator!=(const SimpleVector& sv) const {
+		return !operator==(sv);
+	}
+
+	bool operator<(const SimpleVector& sv) const {
+		if (x == sv.x)	return y < sv.y;
+
+		return x < sv.x;
+	}
+
 };
 
 #endif
