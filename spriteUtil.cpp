@@ -157,7 +157,6 @@ SimpleSprite* simpleGL::loadSprite(SimpleTexture* tex, SimpleVector position, in
 	return sprite;
 }
 
-//TODO: before allocation
 SimpleSprite::~SimpleSprite() {
 	print("Unloading sprite");
 
@@ -167,6 +166,13 @@ SimpleSprite::~SimpleSprite() {
 		spriteCount--;
 
 	sprites.erase(this);
+}
+
+void SimpleSprite::setEnabled(bool b) {
+	if (!b && enabled)		sprites.erase(this);
+	else if (b && !enabled)	sprites.insert(this);
+
+	enabled = b;
 }
 
 void SimpleSprite::setZ(int pz) {
@@ -179,24 +185,6 @@ void SimpleSprite::setTexture(SimpleTexture* tex) {
 	sprites.erase(this);
 	texture = tex;
 	sprites.insert(this);
-}
-
-void SimpleSprite::draw() const {
-	GLuint tex = texture->getTexture();
-
-	if (tex != currentTexture) {
-		glBindTexture(GL_TEXTURE_RECTANGLE, tex);
-		currentTexture = tex;
-	}
-
-	if (enabled && id < spriteCapacity) {
-		useShaders(vertexShader, geometryShader, fragmentShader);
-
-		glStencilFunc(stencilFunc, stencilRef, stencilMask);
-		glStencilOp(stencilFail, depthFail, depthPass);
-
-		glDrawArrays(GL_POINTS, id, 1);
-	}
 }
 
 void SimpleSprite::setPosition(SimpleVector position) {
@@ -237,4 +225,22 @@ void SimpleSprite::setTexData(float x, float y, float width, float height) {
 	loadTexData(x, y, width, height, data, &offset);
 
 	bindSpriteAttrib(Attrib::TEX_DATA, id, data);
+}
+
+void SimpleSprite::draw() const {
+	GLuint tex = texture->getTexture();
+
+	if (tex != currentTexture) {
+		glBindTexture(GL_TEXTURE_RECTANGLE, tex);
+		currentTexture = tex;
+	}
+
+	if (id < spriteCapacity) {
+		useShaders(vertexShader, geometryShader, fragmentShader);
+
+		glStencilFunc(stencilFunc, stencilRef, stencilMask);
+		glStencilOp(stencilFail, depthFail, depthPass);
+
+		glDrawArrays(GL_POINTS, id, 1);
+	}
 }

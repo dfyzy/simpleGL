@@ -35,29 +35,17 @@ public:
 	unsigned getId() const { return id; }
 
 	/*
-	 * If enabled is false the sprite won't draw.
+	 * If enabled is false the sprite won't be used.
 	 */
-	bool isEnabled() const {
+	bool isEnabled() const { return enabled; }
 
-		return enabled;
-	}
+	void setEnabled(bool b);
 
-	void setEnabled(bool b) {
-		enabled = b;
-
-	}
-
-	int getZ() const {
-
-		return z;
-	}
+	int getZ() const { return z; }
 
 	void setZ(int pz);
 
-	SimpleTexture* getTexture() const {
-
-		return texture;
-	}
+	SimpleTexture* getTexture() const { return texture; }
 
 	void setTexture(SimpleTexture* tex);
 
