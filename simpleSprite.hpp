@@ -53,6 +53,7 @@ public:
 	 * Changes shader program for this sprite. When drawing this sprite opengl will use these shaders.
 	 */
 	void setShader(SimpleShader ssh) {
+		//sort?
 		if (ssh.getType() == GL_VERTEX_SHADER)
 			vertexShader = ssh.getShader();
 		else if (ssh.getType() == GL_GEOMETRY_SHADER)

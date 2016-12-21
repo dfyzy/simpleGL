@@ -75,6 +75,16 @@ namespace simpleUtil {
 		}
 	}
 
+	inline void printInfoLog(GLuint program) {
+		GLint length;
+		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
+
+		std::unique_ptr<GLchar> infoLog(new GLchar[length + 1]);
+		glGetProgramInfoLog(program, length, nullptr, infoLog.get());
+
+		print(infoLog.get());
+	}
+
 }
 
 using namespace simpleUtil;
@@ -114,20 +124,21 @@ namespace simpleGL {
 		const char* source = shaderString.c_str();
 
 		GLuint program = glCreateShaderProgramv(type, 1, &source);
-		glValidateProgram(program);
 
 		GLint status;
+		glGetProgramiv(program, GL_LINK_STATUS, &status);
+		if (!status) {
+			printInfoLog(program);
+			return SimpleShader(0, type);
+		} else	print("Shader linked");
+
+		glValidateProgram(program);
+
 		glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
 		if (!status) {
-			GLint length;
-			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
-
-			std::unique_ptr<GLchar> infoLog(new GLchar[length + 1]);
-			glGetProgramInfoLog(program, length, nullptr, infoLog.get());
-
-			simpleUtil::print(infoLog.get());
-			program = 0;
-		} else	print("Program validated");
+			printInfoLog(program);
+			return SimpleShader(0, type);
+		} else	print("Shader validated");
 
 		if (type == GL_GEOMETRY_SHADER) {
 			glUniformBlockBinding(program, glGetUniformBlockIndex(program, "DynamicData"), 1);

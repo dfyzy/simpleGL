@@ -30,29 +30,34 @@ layout(std140) uniform DynamicData {
 	uniform float cameraRotation;
 } dynData;
 
-const vec2 quad[4] = vec2[](vec2(-0.5, 0.5), vec2(-0.5, -0.5), vec2(0.5, 0.5), vec2(0.5, -0.5));
+mat3 rotV, rotC;
+
+void drawVert(vec2 vert) {
+	geomColor = inData[0].vColor;
+	geomTexPosition = vert * inData[0].vTexData.zw + inData[0].vTexData.xy;//hmmmm
+
+	gl_Position = vec4(rotC*(rotV*vec3(vert * inData[0].vBounds, 0) + vec3(gl_in[0].gl_Position.xy - dynData.cameraPosition, 0)), 1);
+	gl_Position.x *= stData.rAspect;
+	EmitVertex();
+}
 
 void main() {
 	float cosV = cos(inData[0].vAngle);
 	float sinV = sin(inData[0].vAngle);
-	mat3 rotV = mat3(	cosV,		sinV,	0,
+	rotV = mat3(	cosV,		sinV,	0,
 							-sinV,	cosV,	0,
 							0,			0,		1);
 
 	float cosC = cos(-dynData.cameraRotation);
 	float sinC = sin(-dynData.cameraRotation);
-	mat3 rotC = mat3(	cosC,		sinC,	0,
+	rotC = mat3(	cosC,		sinC,	0,
 							-sinC,	cosC,	0,
 							0,			0,		1);
 
-	for (int i = 0; i < 4; i++) {
-		geomColor = inData[0].vColor;
-		geomTexPosition = quad[i] * inData[0].vTexData.zw + inData[0].vTexData.xy;//hmmmm
-
-		gl_Position = vec4(rotC*(rotV*vec3(quad[i] * inData[0].vBounds, 0) + vec3(gl_in[0].gl_Position.xy - dynData.cameraPosition, 0)), 1);
-		gl_Position.x *= stData.rAspect;
-		EmitVertex();
-	}
+	drawVert(vec2(-0.5, 0.5));
+	drawVert(vec2(-0.5, -0.5));
+	drawVert(vec2(0.5, 0.5));
+	drawVert(vec2(0.5, -0.5));
 
 	EndPrimitive();
 }
