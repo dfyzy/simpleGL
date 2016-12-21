@@ -19,6 +19,7 @@ namespace simpleUtil {
 
 	GLuint currentTexture = 0;
 
+	//check if sorted vector is faster
 	std::set<SimpleSprite*, SimpleSprite::Comparer> sprites;
 
 	std::queue<unsigned> deletedQueue;
@@ -235,12 +236,10 @@ void SimpleSprite::draw() const {
 		currentTexture = tex;
 	}
 
-	if (id < spriteCapacity) {
-		useShaders(vertexShader, geometryShader, fragmentShader);
+	useShaders(vertexShader, geometryShader, fragmentShader);
 
-		glStencilFunc(stencilFunc, stencilRef, stencilMask);
-		glStencilOp(stencilFail, depthFail, depthPass);
+	glStencilFunc(stencilFunc, stencilRef, stencilMask);
+	glStencilOp(stencilFail, depthFail, depthPass);
 
-		glDrawArrays(GL_POINTS, id, 1);
-	}
+	glDrawArrays(GL_POINTS, id, 1);
 }

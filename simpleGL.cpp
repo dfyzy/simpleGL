@@ -3,6 +3,10 @@
 #include "simpleGL.hpp"
 #include "simpleUtil.hpp"
 
+#ifdef FPS_COUNTER
+	#include <iostream>
+#endif
+
 namespace simpleGL {
 	typedef void (*Callback)();
 
@@ -159,12 +163,12 @@ namespace simpleGL {
 	}
 
 	void draw() {
-		#ifdef DEBUG
+		#ifdef FPS_COUNTER
 			double lastFPSTime = glfwGetTime();
 			int frames = 0;
 		#endif
 		while (!glfwWindowShouldClose(window)) {
-			#ifdef DEBUG
+			#ifdef FPS_COUNTER
 				double currentTime = glfwGetTime();
 				frames++;
 				if (currentTime - lastFPSTime >= 1.0) {
