@@ -26,14 +26,10 @@ void update() {
 int main() {
 	int width = 700;
 	int height = 700;
-	window = simpleGL::createWindowedWindow("Title", width, height, false, true);
+	window = simpleGL::createWindowedWindow("Title", width, height, false, true, SimpleColor(0.5f));
 
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetCursorPosCallback(window, cursorPosCallback);
-
-	simpleGL::setBackground(SimpleColor(0.5f));
-
-	simpleGL::init();
 
 	simpleGL::setTextureFiltering(GL_LINEAR);
 

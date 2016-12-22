@@ -21,12 +21,9 @@ void update() {
 }
 
 int main() {
-	window = simpleGL::createFullscreenWindow("Title", true);
+	window = simpleGL::createFullscreenWindow("Title", true, SimpleColor(1));
 
 	glfwSetKeyCallback(window, keyCallback);
-	simpleGL::setBackground(SimpleColor(1));
-
-	simpleGL::init();
 
 	simpleGL::setTextureFiltering(GL_LINEAR);
 

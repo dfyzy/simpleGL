@@ -1,5 +1,7 @@
 #include <windows.h>
 
+#include <chrono>
+
 #include "simpleGL.hpp"
 #include "simpleUtil.hpp"
 
@@ -9,29 +11,30 @@
 
 namespace simpleGL {
 	typedef void (*Callback)();
+	typedef std::chrono::high_resolution_clock Clock;
 
 	GLFWwindow* window = nullptr;
 	unsigned windowWidth, windowHeight;
-	SimpleColor backgroundColor;
 
 	GLuint vao;
 
 	Callback update;
 
+	Clock::time_point previous;
+	double deltaTime = 0;
+
 	void errorCallback(int error, const char* description) {
 		simpleUtil::print(description);
 	}
 
-	inline void initGLFW() {
+	inline void initGLFW(bool resizable, bool decorated) {
 		glfwSetErrorCallback(errorCallback);
 
 		if(!glfwInit()) {
 			simpleUtil::print("Failed to initialize GLFW");
 			exit(EXIT_FAILURE);
 		} else simpleUtil::print("GLFW initialized");
-	}
 
-	inline void setCreationHints(bool resizable, bool decorated) {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -42,7 +45,7 @@ namespace simpleGL {
 		glfwWindowHint(GLFW_DECORATED, decorated);
 	}
 
-	inline void createWindow(const char* title, GLFWmonitor* monitor) {
+	inline void createWindow(const char* title, GLFWmonitor* monitor, SimpleColor background) {
 		window = glfwCreateWindow(windowWidth, windowHeight, title, monitor, nullptr);
 
 		if (!window) {
@@ -50,77 +53,7 @@ namespace simpleGL {
 			glfwTerminate();
 			exit(EXIT_FAILURE);
 		}
-	}
 
-	GLFWwindow* createFullscreenWindow(const char* title, bool borderless) {
-		if (window)	{
-			simpleUtil::print("Why would you need more than one window?");
-			return nullptr;
-		}
-
-		initGLFW();
-
-		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-
-		const GLFWvidmode* vidmode = glfwGetVideoMode(monitor);
-
-		setCreationHints(false, false);
-
-		glfwWindowHint(GLFW_RED_BITS, vidmode->redBits);
-		glfwWindowHint(GLFW_GREEN_BITS, vidmode->greenBits);
-		glfwWindowHint(GLFW_BLUE_BITS, vidmode->blueBits);
-
-		if (borderless)	monitor = nullptr;
-
-		windowWidth = vidmode->width;
-		windowHeight = vidmode->height;
-
-		createWindow(title, monitor);
-		return window;
-	}
-
-	GLFWwindow* createWindowedWindow(const char* title, unsigned width, unsigned height, bool resizable, bool decorated) {
-		if (window)	{
-			simpleUtil::print("Why would you need more than one window?");
-			return nullptr;
-		}
-
-		initGLFW();
-
-		setCreationHints(resizable, decorated);
-
-		windowWidth = width;
-		windowHeight = height;
-
-		createWindow(title, nullptr);
-		return window;
-	}
-
-	void setBackground(SimpleColor background) {
-		backgroundColor = background;
-	}
-
-	unsigned getWindowWidth() {
-		return windowWidth;
-	}
-
-	unsigned getWindowHeight() {
-		return windowHeight;
-	}
-
-	SimpleVector actualToScreen(SimpleVector f) {
-		return f*(2.0f/windowHeight);
-	}
-
-	SimpleVector glfwToScreen(double x, double y) {
-		return SimpleVector(x/windowWidth, 1 - y/windowHeight);
-	}
-
-	void setUpdate(void func()) {
-		update = func;
-	}
-
-	void init() {
 		glfwMakeContextCurrent(window);
 
 		// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
@@ -145,7 +78,7 @@ namespace simpleGL {
 
 		glViewport(0, 0, windowWidth, windowHeight);
 
-		glClearColor(backgroundColor.r, backgroundColor.g, backgroundColor.b, backgroundColor.a);
+		glClearColor(background.r, background.g, background.b, background.a);
 
 		glEnable(GL_STENCIL_TEST);
 
@@ -162,23 +95,93 @@ namespace simpleGL {
 		glActiveTexture(GL_TEXTURE0);
 	}
 
+	GLFWwindow* createFullscreenWindow(const char* title, bool borderless, SimpleColor background) {
+		if (window)	{
+			simpleUtil::print("Why would you need more than one window?");
+			return nullptr;
+		}
+
+		initGLFW(false, false);
+
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+
+		const GLFWvidmode* vidmode = glfwGetVideoMode(monitor);
+
+		glfwWindowHint(GLFW_RED_BITS, vidmode->redBits);
+		glfwWindowHint(GLFW_GREEN_BITS, vidmode->greenBits);
+		glfwWindowHint(GLFW_BLUE_BITS, vidmode->blueBits);
+
+		if (borderless)	monitor = nullptr;
+
+		windowWidth = vidmode->width;
+		windowHeight = vidmode->height;
+
+		createWindow(title, monitor, background);
+		return window;
+	}
+
+	GLFWwindow* createWindowedWindow(const char* title, unsigned width, unsigned height, bool resizable, bool decorated, SimpleColor background) {
+		if (window)	{
+			simpleUtil::print("Why would you need more than one window?");
+			return nullptr;
+		}
+
+		initGLFW(resizable, decorated);
+
+		windowWidth = width;
+		windowHeight = height;
+
+		createWindow(title, nullptr, background);
+		return window;
+	}
+
+	unsigned getWindowWidth() {
+		return windowWidth;
+	}
+
+	unsigned getWindowHeight() {
+		return windowHeight;
+	}
+
+	SimpleVector actualToScreen(SimpleVector f) {
+		return f*(2.0f/windowHeight);
+	}
+
+	SimpleVector glfwToScreen(double x, double y) {
+		return SimpleVector(x/windowWidth, 1 - y/windowHeight);
+	}
+
+	void setUpdate(void func()) {
+		update = func;
+	}
+
+	double getDeltaTime() {
+		return deltaTime;
+	}
+
 	void draw() {
+		previous = Clock::now();
+
 		#ifdef FPS_COUNTER
-			double lastFPSTime = glfwGetTime();
+			double fpsTime = 0;
 			int frames = 0;
 		#endif
 		while (!glfwWindowShouldClose(window)) {
+			glfwPollEvents();
+
+			Clock::time_point now = Clock::now();
+			deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(now - previous).count();
+			previous = now;
+
 			#ifdef FPS_COUNTER
-				double currentTime = glfwGetTime();
+				fpsTime += deltaTime;
 				frames++;
-				if (currentTime - lastFPSTime >= 1.0) {
-					std::cout << "fps: " << frames << "; spf: " << 1.0/frames << ";" << std::endl;
+				if (fpsTime >= 1000000) {
+					std::cout << "fps: " << frames << "; spf: " << fpsTime/1000000/frames << ";" << std::endl;
+					fpsTime = 0;
 					frames = 0;
-					lastFPSTime = currentTime;
 				}
 			#endif
-
-			glfwPollEvents();
 
 			update();
 

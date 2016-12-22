@@ -15,7 +15,7 @@ namespace simpleGL {
 	 *
 	 * returns: GLFW handle of created window.
 	 */
-	GLFWwindow* createFullscreenWindow(const char* title, bool borderless);
+	GLFWwindow* createFullscreenWindow(const char* title, bool borderless, SimpleColor background);
 
 	/*
 	 * Creates windowed window.
@@ -28,9 +28,7 @@ namespace simpleGL {
 	 *
 	 * returns: GLFW handle of created window.
 	 */
-	GLFWwindow* createWindowedWindow(const char* title, unsigned width, unsigned height, bool resizable, bool decorated);
-
-	void setBackground(SimpleColor background);
+	GLFWwindow* createWindowedWindow(const char* title, unsigned width, unsigned height, bool resizable, bool decorated, SimpleColor background);
 
 	/*
 	 * Returns width of the created window.
@@ -52,10 +50,8 @@ namespace simpleGL {
 
 	void setUpdate(void func());
 
-	/*
-	 * Should call this function before doing anything opengl related.
-	 */
-	void init();
+	//microseconds
+	double getDeltaTime();
 
 	void draw();
 
