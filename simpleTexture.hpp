@@ -9,7 +9,7 @@ private:
 	const GLuint texture;
 
 public:
-	SimpleTexture(unsigned width, unsigned height, GLuint id);
+	SimpleTexture(unsigned width, unsigned height, GLuint id) : pixelWidth(width), pixelHeight(height), texture(id) {}
 	~SimpleTexture();
 
 	/*

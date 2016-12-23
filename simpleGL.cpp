@@ -39,7 +39,7 @@ namespace simpleGL {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		glfwWindowHint(GLFW_SAMPLES, 4);
+		//glfwWindowHint(GLFW_SAMPLES, 4);
 
 		glfwWindowHint(GLFW_RESIZABLE, resizable);
 		glfwWindowHint(GLFW_DECORATED, decorated);
@@ -91,8 +91,7 @@ namespace simpleGL {
 		glBindVertexArray(vao);
 
 		simpleUtil::initBuffers();
-
-		glActiveTexture(GL_TEXTURE0);
+		simpleUtil::initFbos();
 	}
 
 	GLFWwindow* createFullscreenWindow(const char* title, bool borderless, SimpleColor background) {
@@ -167,8 +166,6 @@ namespace simpleGL {
 			int frames = 0;
 		#endif
 		while (!glfwWindowShouldClose(window)) {
-			glfwPollEvents();
-
 			Clock::time_point now = Clock::now();
 			deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(now - previous).count();
 			previous = now;
@@ -183,9 +180,9 @@ namespace simpleGL {
 				}
 			#endif
 
-			update();
+			glfwPollEvents();
 
-			glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+			update();
 
 			glBindVertexArray(vao);
 

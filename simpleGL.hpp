@@ -109,7 +109,11 @@ namespace simpleGL {
 	 *
 	 * returns: handle of created program. If 0 shader did not load.
 	 */
-	SimpleShader loadShader(std::string path, GLenum type);
+	SimpleShader loadShaderPath(std::string path, GLenum type);
+
+	SimpleShader loadShaderSource(std::string source, GLenum type);
+
+	void setOverlayShader(SimpleShader ss);
 
 }
 

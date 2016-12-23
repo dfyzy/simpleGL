@@ -4,8 +4,8 @@ LIBPATH = C:/Libs/C++/lib
 STLIBS = -static-libgcc -static-libstdc++
 LIBS = -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lpng16 -lz -lm
 
-INCS = simpleGL.hpp simpleTexture.hpp simpleSprite.hpp simpleShader.hpp simpleColor.hpp simpleVector.hpp simpleMath.hpp glfw.hpp
-OBJS = simpleGL.o spriteUtil.o textureUtil.o shaderUtil.o
+INCS = simpleGL.hpp simpleTexture.hpp simpleSprite.hpp simpleShader.hpp simpleColor.hpp simpleVector.hpp simpleMath.hpp glfw.hpp shaderData.hpp
+OBJS = simpleGL.o spriteUtil.o textureUtil.o shaderUtil.o shaderData.o
 
 %.o: %.cpp
 	g++ -DFPS_COUNTER $(CPPFLAGS) -c $< -I$(INCPATH)

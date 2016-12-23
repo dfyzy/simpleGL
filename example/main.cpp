@@ -46,7 +46,7 @@ int main() {
 
 	simpleGL::loadSprite(simpleGL::getEmptyTexture(), SimpleVector(0, 0), 5, SimpleVector(3), 0.25f*3.1415927f, SimpleColor(1));
 
-	SimpleShader customShader = simpleGL::loadShader("example/custom.glsl", GL_FRAGMENT_SHADER);
+	SimpleShader customShader = simpleGL::loadShaderPath("example/custom.glsl", GL_FRAGMENT_SHADER);
 	lightSp->setShader(customShader);
 	customShader.setUniformf("color", {1, 0, 0, 1});
 

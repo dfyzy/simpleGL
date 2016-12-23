@@ -15,6 +15,8 @@ const unsigned Attrib::sizes[5] = {2, 2, 1, 4, 4};
 namespace simpleUtil {
 	const int SPRITE_SIZE = 2 + 2 + 1 + 4 + 4;
 
+	GLuint msaaFbo;
+	GLuint rectFbo;
 	GLuint vbos[Attrib::COUNT];
 
 	GLuint currentTexture = 0;
@@ -70,10 +72,64 @@ namespace simpleUtil {
 			glBufferData(GL_ARRAY_BUFFER, spriteCapacity * Attrib::sizes[i] * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 
 			//binding buffers to layout locations in vertex shader.
-			glVertexAttribPointer(i, Attrib::sizes[i], GL_FLOAT, GL_FALSE, 0, nullptr);
-			glEnableVertexAttribArray(i);
+			glVertexAttribPointer(i + 1, Attrib::sizes[i], GL_FLOAT, GL_FALSE, 0, nullptr);
+			glEnableVertexAttribArray(i + 1);
 		}
+
 		print("Buffers initialized");
+	}
+
+	void initFbos() {
+		glGenFramebuffers(1, &msaaFbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo);
+
+		glActiveTexture(GL_TEXTURE1);
+
+		GLuint msaaTexture;
+		glGenTextures(1, &msaaTexture);
+		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, msaaTexture);
+
+		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGB, simpleGL::getWindowWidth(), simpleGL::getWindowHeight(), 0);
+
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, msaaTexture, 0);
+
+		glGenFramebuffers(1, &rectFbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, rectFbo);
+
+		glActiveTexture(GL_TEXTURE1);
+
+		GLuint rectTexture;
+		glGenTextures(1, &rectTexture);
+		glBindTexture(GL_TEXTURE_RECTANGLE, rectTexture);
+
+		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+		glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGB, simpleGL::getWindowWidth(), simpleGL::getWindowHeight(), 0,
+															GL_RGB, GL_UNSIGNED_INT, nullptr);
+
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, rectTexture, 0);
+
+		glActiveTexture(GL_TEXTURE0);
+
+		GLuint fboVbo;
+		glGenBuffers(1, &fboVbo);
+		glBindBuffer(GL_ARRAY_BUFFER, fboVbo);
+
+		float width = simpleGL::getWindowWidth(), height = simpleGL::getWindowHeight();
+		float data[] {-width, height,
+							-width, -height,
+							width, height,
+							width, -height};
+		glBufferData(GL_ARRAY_BUFFER, 8*sizeof(float), data, GL_STATIC_DRAW);
+
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(0);
+
+		print("Fbos initialized");
 	}
 
 	inline void bindSpriteAttrib(Attrib::E type, unsigned offset, float* data) {
@@ -84,8 +140,27 @@ namespace simpleUtil {
 	}
 
 	void drawSprites() {
+		unsigned width = simpleGL::getWindowWidth(), height = simpleGL::getWindowHeight();
+
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, msaaFbo);
+		//glViewport(0, 0, width, height);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
 		for (SimpleSprite* cs : sprites)
 			cs->draw();
+
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rectFbo);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, msaaFbo);
+
+		glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		//glViewport(0, 0, width, height);
+
+		useOverlayShaders();
+
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}
 
 }

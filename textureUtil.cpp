@@ -7,50 +7,74 @@
 #include "simpleGL.hpp"
 #include "simpleUtil.hpp"
 
-namespace simpleGL {
-	SimpleTexture* emptyTexture = new SimpleTexture(100, 100, 0);//hmmm
+namespace simpleUtil {
+	SimpleTexture* emptyTexture = new SimpleTexture(100, 100, 0);
 	std::list<SimpleTexture*> textures;
 
 	GLenum textureFiltering {GL_NEAREST};
+
+	inline void setFiltering(GLuint texture, GLenum filtering) {
+		glBindTexture(GL_TEXTURE_RECTANGLE, texture);
+
+		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, filtering);
+		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, filtering);
+	}
+}
+
+using namespace simpleUtil;
+
+namespace simpleGL {
 
 	SimpleTexture* getEmptyTexture() {
 		return emptyTexture;
 	}
 
+	void setTextureFiltering(GLenum tf) {
+		if ((tf != GL_LINEAR) && (tf != GL_NEAREST)) {
+			print("Wrong filtering type");
+			return;
+		}
+
+		for (SimpleTexture* st : textures)
+			setFiltering(st->getTexture(), tf);
+
+		textureFiltering = tf;
+	}
+
 	SimpleTexture* loadTexture(std::string path) {
-		simpleUtil::print("Loading texture");
+		print("Loading texture");
 
 		FILE *file = fopen(path.c_str(), "rb");
 		if (!file) {
-			simpleUtil::print("Error opening texture");
+			print("Error opening texture");
 			return nullptr;
 		}
 
 		png_byte header[8];
 		fread(header, 1, 8, file);
 		if (png_sig_cmp(header, 0, 8)) {
-			simpleUtil::print("Not a png");
+			print("Not a png");
 			fclose(file);
 			return nullptr;
 		}
 
 		png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 		if (!png_ptr) {
-			simpleUtil::print("Failed to create read struct");
+			print("Failed to create read struct");
 			fclose(file);
 			return nullptr;
 		}
 
 		png_infop info_ptr = png_create_info_struct(png_ptr);
 		if (!info_ptr) {
-			simpleUtil::print("Failed to create info struct");
+			print("Failed to create info struct");
 			png_destroy_read_struct(&png_ptr, nullptr, nullptr);
 			fclose(file);
 			return nullptr;
 		}
 
 		if (setjmp(png_jmpbuf(png_ptr))) {
-			simpleUtil::print("Libpng error");
+			print("Libpng error");
 			png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 			fclose(file);
 			return nullptr;
@@ -71,6 +95,8 @@ namespace simpleGL {
 		SimpleTexture* simpleTex = new SimpleTexture(width, height, texture);
 		textures.push_back(simpleTex);
 
+		setFiltering(texture, textureFiltering);
+
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -89,44 +115,21 @@ namespace simpleGL {
 
 		return simpleTex;
 	}
-
-	inline void setFiltering(GLuint texture, GLenum filtering) {
-		glBindTexture(GL_TEXTURE_RECTANGLE, texture);
-
-		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, filtering);
-		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, filtering);
-	}
-
-	void setTextureFiltering(GLenum tf) {
-		if ((tf != GL_LINEAR) && (tf != GL_NEAREST)) {
-			simpleUtil::print("Wrong filtering type");
-			return;
-		}
-
-		for (SimpleTexture* st : textures)
-			setFiltering(st->getTexture(), tf);
-
-		textureFiltering = tf;
-	}
-}
-
-SimpleTexture::SimpleTexture(unsigned width, unsigned height, GLuint id) : pixelWidth(width), pixelHeight(height), texture(id) {
-	simpleGL::setFiltering(id, simpleGL::textureFiltering);
 }
 
 SimpleTexture::~SimpleTexture() {
-	simpleUtil::print("Unloading texture");
+	print("Unloading texture");
 
-	simpleGL::textures.remove(this);
+	textures.remove(this);
 
 	glDeleteTextures(1, &texture);
 }
 
 void SimpleTexture::setFiltering(GLenum tf) const {
 	if ((tf != GL_LINEAR) && (tf != GL_NEAREST)) {
-		simpleUtil::print("Wrong filtering type");
+		print("Wrong filtering type");
 		return;
 	}
 
-	simpleGL::setFiltering(texture, tf);
+	simpleUtil::setFiltering(texture, tf);
 }
