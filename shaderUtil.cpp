@@ -23,39 +23,6 @@ namespace simpleUtil {
 	GLuint overlayVertexShader;
 	GLuint overlayFragmentShader;
 
-	void initShaders() {
-		glGenProgramPipelines(1, &pipeline);
-		glBindProgramPipeline(pipeline);
-
-		vertexShader = simpleGL::loadShaderSource(simpleShaderData::getVertex(), GL_VERTEX_SHADER);
-
-		geometryShader = simpleGL::loadShaderSource(simpleShaderData::getGeometry(), GL_GEOMETRY_SHADER);
-
-		GLuint stat;
-		glGenBuffers(1, &stat);
-		glBindBuffer(GL_UNIFORM_BUFFER, stat);
-		glBindBufferBase(GL_UNIFORM_BUFFER, 0, stat);
-
-		float aspect = ((float) simpleGL::getWindowHeight()) / simpleGL::getWindowWidth();
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(float), &aspect, GL_STATIC_DRAW);
-
-		GLuint dynamic;
-		glGenBuffers(1, &dynamic);
-		glBindBuffer(GL_UNIFORM_BUFFER, dynamic);
-		glBindBufferBase(GL_UNIFORM_BUFFER, 1, dynamic);
-
-		glBufferData(GL_UNIFORM_BUFFER, 3*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-
-		texFragmentShader = simpleGL::loadShaderSource(simpleShaderData::getTexFragment(), GL_FRAGMENT_SHADER);
-		emptyFragmentShader = simpleGL::loadShaderSource(simpleShaderData::getEmptyFragment(), GL_FRAGMENT_SHADER);
-
-		overlayVertexShader = simpleGL::loadShaderSource(simpleShaderData::getOverlayVertex(), GL_VERTEX_SHADER).getShader();
-		overlayFragmentShader = simpleGL::loadShaderSource(simpleShaderData::getOverlayFragment(), GL_FRAGMENT_SHADER).getShader();
-
-
-		print("Shaders initialized");
-	}
-
 	void setDefaultShaders(SimpleSprite* sprite, bool empty) {
 
 		sprite->setShader(vertexShader);
@@ -98,6 +65,71 @@ namespace simpleUtil {
 		print(infoLog.get());
 	}
 
+	GLuint loadShaderSource(std::string source, GLenum type) {
+		if (type != GL_VERTEX_SHADER && type != GL_GEOMETRY_SHADER && type != GL_FRAGMENT_SHADER) {
+			print("Wrong shader type");
+			return 0;
+		}
+
+		print("Loading shader");
+
+		const char* src = source.c_str();
+		GLuint program = glCreateShaderProgramv(type, 1, &src);
+
+		GLint status;
+		glGetProgramiv(program, GL_LINK_STATUS, &status);
+		if (!status) {
+			printInfoLog(program);
+			return 0;
+		} else	print("Shader linked");
+
+		glValidateProgram(program);
+
+		glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
+		if (!status) {
+			printInfoLog(program);
+			return 0;
+		} else	print("Shader validated");
+
+		if (type == GL_GEOMETRY_SHADER) {
+			glUniformBlockBinding(program, glGetUniformBlockIndex(program, "DynamicData"), 1);
+		}
+
+		return program;
+	}
+
+	void initShaders() {
+		glGenProgramPipelines(1, &pipeline);
+		glBindProgramPipeline(pipeline);
+
+		vertexShader = SimpleShader(simpleShaderData::getVertex(), GL_VERTEX_SHADER);
+
+		geometryShader = SimpleShader(simpleShaderData::getGeometry(), GL_GEOMETRY_SHADER);
+
+		GLuint stat;
+		glGenBuffers(1, &stat);
+		glBindBuffer(GL_UNIFORM_BUFFER, stat);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 0, stat);
+
+		float aspect = ((float) simpleGL::getWindowHeight()) / simpleGL::getWindowWidth();
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(float), &aspect, GL_STATIC_DRAW);
+
+		GLuint dynamic;
+		glGenBuffers(1, &dynamic);
+		glBindBuffer(GL_UNIFORM_BUFFER, dynamic);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 1, dynamic);
+
+		glBufferData(GL_UNIFORM_BUFFER, 3*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+
+		texFragmentShader = SimpleShader(simpleShaderData::getTexFragment(), GL_FRAGMENT_SHADER);
+		emptyFragmentShader = SimpleShader(simpleShaderData::getEmptyFragment(), GL_FRAGMENT_SHADER);
+
+		overlayVertexShader = loadShaderSource(simpleShaderData::getOverlayVertex(), GL_VERTEX_SHADER);
+		overlayFragmentShader = loadShaderSource(simpleShaderData::getOverlayFragment(), GL_FRAGMENT_SHADER);
+
+
+		print("Shaders initialized");
+	}
 }
 
 using namespace simpleUtil;
@@ -124,55 +156,26 @@ namespace simpleGL {
 
 		overlayFragmentShader = ss.getShader();
 	}
+}
 
-	SimpleShader loadShaderSource(std::string source, GLenum type) {
-		if (type != GL_VERTEX_SHADER && type != GL_GEOMETRY_SHADER && type != GL_FRAGMENT_SHADER) {
-			print("Wrong shader type");
-			return SimpleShader();
-		}
+SimpleShader::SimpleShader(std::string source, GLenum ptype) : type(ptype) {
+	shader = loadShaderSource(source, type);
+}
 
-		print("Loading shader");
+SimpleShader::SimpleShader(const char* path, GLenum ptype) : type(ptype) {
+	print("Loading source");
 
-		const char* src = source.c_str();
-		GLuint program = glCreateShaderProgramv(type, 1, &src);
+	std::ifstream file(path);
+	std::string shaderString;
 
-		GLint status;
-		glGetProgramiv(program, GL_LINK_STATUS, &status);
-		if (!status) {
-			printInfoLog(program);
-			return SimpleShader(0, type);
-		} else	print("Shader linked");
-
-		glValidateProgram(program);
-
-		glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
-		if (!status) {
-			printInfoLog(program);
-			return SimpleShader(0, type);
-		} else	print("Shader validated");
-
-		if (type == GL_GEOMETRY_SHADER) {
-			glUniformBlockBinding(program, glGetUniformBlockIndex(program, "DynamicData"), 1);
-		}
-
-		return SimpleShader(program, type);
+	std::string line;
+	while (getline(file, line)) {
+		shaderString += line;
+		shaderString.push_back('\n');
 	}
+	file.close();
 
-	SimpleShader loadShaderPath(std::string path, GLenum type) {
-		print("Loading source");
-
-		std::ifstream file(path);
-		std::string shaderString;
-
-		std::string line;
-		while (getline(file, line)) {
-			shaderString += line;
-			shaderString.push_back('\n');
-		}
-		file.close();
-
-		return loadShaderSource(shaderString, type);
-	}
+	shader = loadShaderSource(shaderString, type);
 }
 
 void SimpleShader::setUniformf(const char* location, std::initializer_list<GLfloat> list) const {

@@ -13,7 +13,7 @@ protected:
 
 	int z;
 
-	SimpleTexture* texture;
+	SimpleTexture texture;
 
 	GLuint vertexShader;
 	GLuint geometryShader;
@@ -28,9 +28,8 @@ protected:
 	GLenum depthPass {GL_KEEP};
 
 public:
-
-	SimpleSprite(unsigned i, int pz, SimpleTexture* tex) : id(i), z(pz), texture(tex) {}
-	~SimpleSprite();
+	SimpleSprite(unsigned i, int pz, SimpleTexture tex) : id(i), z(pz), texture(tex) {}
+	~SimpleSprite() { unload(); }
 
 	unsigned getId() const { return id; }
 
@@ -45,15 +44,14 @@ public:
 
 	void setZ(int pz);
 
-	SimpleTexture* getTexture() const { return texture; }
+	SimpleTexture getTexture() const { return texture; }
 
-	void setTexture(SimpleTexture* tex);
+	void setTexture(SimpleTexture tex);
 
 	/*
 	 * Changes shader program for this sprite. When drawing this sprite opengl will use these shaders.
 	 */
 	void setShader(SimpleShader ssh) {
-		//sort?
 		if (ssh.getType() == GL_VERTEX_SHADER)
 			vertexShader = ssh.getShader();
 		else if (ssh.getType() == GL_GEOMETRY_SHADER)
@@ -91,6 +89,8 @@ public:
 
 	void draw() const;
 
+	void unload();
+
 	struct Comparer {
 		bool operator()(const SimpleSprite* lhs, const SimpleSprite* rhs) {
 			if (lhs == rhs)	return false;
@@ -98,8 +98,8 @@ public:
 			if (lhs->z != rhs->z)
 				return lhs->z > rhs->z;
 
-			if (lhs->texture->getTexture() != rhs->texture->getTexture())
-				return lhs->texture->getTexture() < rhs->texture->getTexture();
+			if (lhs->texture.getTexture() != rhs->texture.getTexture())
+				return lhs->texture.getTexture() < rhs->texture.getTexture();
 
 			if (lhs->vertexShader != rhs->vertexShader)
 				return lhs->vertexShader < rhs->vertexShader;

@@ -39,9 +39,9 @@ namespace simpleUtil {
 		loadVector(simpleGL::actualToScreen(position), array, offset);
 	}
 
-	inline void loadBounds(SimpleVector bounds, SimpleTexture* tex, float* array, int* offset) {
+	inline void loadBounds(SimpleVector bounds, SimpleTexture tex, float* array, int* offset) {
 
-		loadVector(simpleGL::actualToScreen(bounds*SimpleVector(tex->getWidth(), tex->getHeight())), array, offset);
+		loadVector(simpleGL::actualToScreen(bounds*SimpleVector(tex.getWidth(), tex.getHeight())), array, offset);
 	}
 
 	inline void loadRotation(float rotation, float* array, int* offset) {
@@ -143,7 +143,6 @@ namespace simpleUtil {
 		unsigned width = simpleGL::getWindowWidth(), height = simpleGL::getWindowHeight();
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, msaaFbo);
-		//glViewport(0, 0, width, height);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -156,18 +155,19 @@ namespace simpleUtil {
 		glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		//glViewport(0, 0, width, height);
 
 		useOverlayShaders();
 
+		glDisable(GL_BLEND);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glEnable(GL_BLEND);
 	}
 
 }
 
 using namespace simpleUtil;
 
-SimpleSprite* simpleGL::loadSprite(SimpleTexture* tex, SimpleVector position, int z, SimpleVector bounds, float rotation, SimpleColor c,
+SimpleSprite* simpleGL::loadSprite(SimpleTexture tex, SimpleVector position, int z, SimpleVector bounds, float rotation, SimpleColor c,
 															float texX, float texY, float texW, float texH) {
 	print("Adding sprite");
 
@@ -226,14 +226,14 @@ SimpleSprite* simpleGL::loadSprite(SimpleTexture* tex, SimpleVector position, in
 	}
 
 	SimpleSprite* sprite = new SimpleSprite(id, z, tex);
-	setDefaultShaders(sprite, tex->getTexture() == 0);
+	setDefaultShaders(sprite, tex.getTexture() == 0);
 
 	sprites.insert(sprite);
 
 	return sprite;
 }
 
-SimpleSprite::~SimpleSprite() {
+void SimpleSprite::unload() {
 	print("Unloading sprite");
 
 	if (id < spriteCount - 1)
@@ -257,7 +257,7 @@ void SimpleSprite::setZ(int pz) {
 	sprites.insert(this);
 }
 
-void SimpleSprite::setTexture(SimpleTexture* tex) {
+void SimpleSprite::setTexture(SimpleTexture tex) {
 	sprites.erase(this);
 	texture = tex;
 	sprites.insert(this);
@@ -304,7 +304,7 @@ void SimpleSprite::setTexData(float x, float y, float width, float height) {
 }
 
 void SimpleSprite::draw() const {
-	GLuint tex = texture->getTexture();
+	GLuint tex = texture.getTexture();
 
 	if (tex != currentTexture) {
 		glBindTexture(GL_TEXTURE_RECTANGLE, tex);

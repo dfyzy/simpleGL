@@ -33,10 +33,10 @@ int main() {
 
 	simpleGL::setTextureFiltering(GL_LINEAR);
 
-	SimpleTexture* bodyFront = simpleGL::loadTexture("example\\body_front.png");
-	SimpleTexture* brim = simpleGL::loadTexture("example\\brim.png");
-	SimpleTexture* light = simpleGL::loadTexture("example\\light.png");
-	SimpleTexture* eye = simpleGL::loadTexture("example\\eye.png");
+	SimpleTexture bodyFront("example\\body_front.png");
+	SimpleTexture brim("example\\brim.png");
+	SimpleTexture light("example\\light.png");
+	SimpleTexture eye("example\\eye.png");
 
 	simpleGL::loadSprite(bodyFront, SimpleVector(), 0, SimpleColor(1));
 	brimSprite = simpleGL::loadSprite(brim, SimpleVector(0, 68.6), 0, SimpleColor(1));
@@ -44,9 +44,9 @@ int main() {
 	simpleGL::loadSprite(eye, SimpleVector(50.2, 32.1), -1, SimpleColor(1));
 	simpleGL::loadSprite(eye, SimpleVector(-50.2, 32.1), -1, SimpleColor(1));
 
-	simpleGL::loadSprite(simpleGL::getEmptyTexture(), SimpleVector(0, 0), 5, SimpleVector(3), 0.25f*3.1415927f, SimpleColor(1));
+	simpleGL::loadSprite(SimpleTexture(), SimpleVector(0, 0), 5, SimpleVector(3), 0.25f*3.1415927f, SimpleColor(1));
 
-	SimpleShader customShader = simpleGL::loadShaderPath("example/custom.glsl", GL_FRAGMENT_SHADER);
+	SimpleShader customShader("example/custom.glsl", GL_FRAGMENT_SHADER);
 	lightSp->setShader(customShader);
 	customShader.setUniformf("color", {1, 0, 0, 1});
 

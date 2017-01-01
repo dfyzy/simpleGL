@@ -2,6 +2,7 @@
 #define SIMPLE_SHADER_H
 
 #include <initializer_list>
+#include <string>
 
 #include "glfw.hpp"
 
@@ -12,7 +13,9 @@ private:
 
 public:
 	SimpleShader() : shader(0), type(0) {}
-	SimpleShader(GLuint sh, GLenum t) : shader(sh), type(t) {}
+
+	SimpleShader(std::string source, GLenum ptype);
+	SimpleShader(const char* path, GLenum ptype);
 
 	GLuint getShader() const { return shader; }
 	GLenum getType() const { return type; }

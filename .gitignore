@@ -1,4 +1,3 @@
 *.exe
-patchwork/*.*
 *.o
 *.a

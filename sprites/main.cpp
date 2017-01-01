@@ -27,7 +27,7 @@ int main() {
 
 	simpleGL::setTextureFiltering(GL_LINEAR);
 
-	SimpleTexture* st = simpleGL::loadTexture("sprites/eye.png");
+	SimpleTexture st("sprites/eye.png");
 
 	std::uniform_int_distribution<int> positionDist(-500, 500);
 	auto randomPosition = std::bind(positionDist, randEngine);
