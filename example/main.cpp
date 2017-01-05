@@ -52,8 +52,10 @@ int main() {
 	lightSp->setFragmentShader(customShader);
 	glProgramUniform4f(customShader, glGetUniformLocation(customShader, "color"), 1, 0, 0, 1);
 
-	SimpleFont sans("example/MODERNE SANS.ttf", 50);
-	SimpleText text(&sans, "Lorem ipsum", SimpleVector(), -10, 1, -1, SimpleColor(0, 0.5f, 0, 0.7f), SimpleText::CENTER, 0);
+	SimpleFont sans("example/MODERNE SANS.ttf", 20);
+
+	std::string lorem("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
+	SimpleText text(&sans, lorem, SimpleVector(), -10, 1, -1, SimpleColor(0, 0.5f, 0, 1), SimpleText::JUSTIFIED, 350);
 
 	simpleGL::setUpdate(update);
 
