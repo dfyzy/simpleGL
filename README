@@ -1,12 +1,10 @@
-Using OpenGL, GLFW, GLEW and libpng
+Using OpenGL, GLFW, GLEW, libpng and FreeType
 
 You can draw stuff now.
 
 TODO:
--Fonts
 -Buffer data proper resizing
 -Window resizability
--Stencil masks?
 -Particles(if there is a need for further optimization)
 -Audio
 -Networking

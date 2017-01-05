@@ -96,7 +96,7 @@ namespace simpleShaderData {
 		"}");
 	}
 
-	std::string getTexFragment() {
+	std::string getDefaultFragment() {
 		return std::string("#version 430 core\n"
 
 		"in vec4 geomColor;\n"
@@ -151,4 +151,19 @@ namespace simpleShaderData {
 		"}");
 	}
 
+	std::string getTextFragment() {
+		return std::string("#version 430 core\n"
+
+		"in vec4 geomColor;\n"
+		"in vec2 geomTexPosition;\n"
+
+		"out vec4 fColor;\n"
+
+		"uniform sampler2DRect text;\n"
+
+		"void main() {\n"
+		"	fColor = geomColor;\n"
+		"	fColor.a *= texture(text, geomTexPosition).r;\n"
+		"}");
+	}
 }

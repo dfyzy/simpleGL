@@ -3,7 +3,6 @@
 
 #include "simpleGL.hpp"
 #include "simpleUtil.hpp"
-#include "simpleSprite.hpp"
 
 struct Attrib {
 	enum E { POSITION, BOUNDS, ROTATION, COLOR, TEX_DATA, COUNT } type;
@@ -21,7 +20,6 @@ namespace simpleUtil {
 
 	GLuint currentTexture = 0;
 
-	//check if sorted vector is faster
 	std::set<SimpleSprite*, SimpleSprite::Comparer> sprites;
 
 	std::queue<unsigned> deletedQueue;
@@ -39,9 +37,9 @@ namespace simpleUtil {
 		loadVector(simpleGL::actualToScreen(position), array, offset);
 	}
 
-	inline void loadBounds(SimpleVector bounds, SimpleTexture tex, float* array, int* offset) {
+	inline void loadBounds(SimpleVector bounds, SimpleVector texBounds, float* array, int* offset) {
 
-		loadVector(simpleGL::actualToScreen(bounds*SimpleVector(tex.getWidth(), tex.getHeight())), array, offset);
+		loadVector(simpleGL::actualToScreen(bounds*texBounds), array, offset);
 	}
 
 	inline void loadRotation(float rotation, float* array, int* offset) {
@@ -55,11 +53,11 @@ namespace simpleUtil {
 		array[(*offset)++] = c.a;
 	}
 
-	inline void loadTexData(float x, float y, float width, float height, float* array, int* offset) {
-		array[(*offset)++] = x + width*0.5f;
-		array[(*offset)++] = y + height*0.5f;
-		array[(*offset)++] = width;
-		array[(*offset)++] = height;
+	inline void loadTexData(SimpleVector texPosition, SimpleVector texBounds, float* array, int* offset) {
+		array[(*offset)++] = texPosition.x + texBounds.x*0.5f;
+		array[(*offset)++] = texPosition.y + texBounds.y*0.5f;
+		array[(*offset)++] = texBounds.x;
+		array[(*offset)++] = texBounds.y;
 	}
 
 	void initBuffers() {
@@ -96,17 +94,8 @@ namespace simpleUtil {
 		glGenFramebuffers(1, &rectFbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, rectFbo);
 
-		glActiveTexture(GL_TEXTURE1);
-
 		GLuint rectTexture;
-		glGenTextures(1, &rectTexture);
-		glBindTexture(GL_TEXTURE_RECTANGLE, rectTexture);
-
-		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		genTexture(&rectTexture, GL_NEAREST);
 
 		glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGB, simpleGL::getWindowWidth(), simpleGL::getWindowHeight(), 0,
 															GL_RGB, GL_UNSIGNED_INT, nullptr);
@@ -167,17 +156,17 @@ namespace simpleUtil {
 
 using namespace simpleUtil;
 
-SimpleSprite* simpleGL::loadSprite(SimpleTexture tex, SimpleVector position, int z, SimpleVector bounds, float rotation, SimpleColor c,
-															float texX, float texY, float texW, float texH) {
+SimpleSprite* SimpleSprite::load(SimpleTexture* tex, SimpleVector position, int z, SimpleVector bounds, float rotation, SimpleColor c,
+															SimpleVector texPosition, SimpleVector texBounds) {
 	print("Adding sprite");
 
 	float data[SPRITE_SIZE];
 	int offset = 0;
 	loadPosition(position, data, &offset);
-	loadBounds(bounds, tex, data, &offset);
+	loadBounds(bounds, texBounds, data, &offset);
 	loadRotation(rotation, data, &offset);
 	loadColor(c, data, &offset);
-	loadTexData(texX, texY, texW, texH, data, &offset);
+	loadTexData(texPosition, texBounds, data, &offset);
 
 	unsigned id;
 	if (!deletedQueue.empty()) {
@@ -225,8 +214,8 @@ SimpleSprite* simpleGL::loadSprite(SimpleTexture tex, SimpleVector position, int
 		dataOffset += Attrib::sizes[i];
 	}
 
-	SimpleSprite* sprite = new SimpleSprite(id, z, tex);
-	setDefaultShaders(sprite, tex.getTexture() == 0);
+	SimpleSprite* sprite = new SimpleSprite(id, z, tex->getTexture(), texBounds);
+	setDefaultShaders(sprite, tex->getTexture() == 0);
 
 	sprites.insert(sprite);
 
@@ -257,7 +246,7 @@ void SimpleSprite::setZ(int pz) {
 	sprites.insert(this);
 }
 
-void SimpleSprite::setTexture(SimpleTexture tex) {
+void SimpleSprite::setTexture(GLuint tex) {
 	sprites.erase(this);
 	texture = tex;
 	sprites.insert(this);
@@ -274,7 +263,7 @@ void SimpleSprite::setPosition(SimpleVector position) {
 void SimpleSprite::setBounds(SimpleVector bounds) {
 	float data[Attrib::sizes[Attrib::BOUNDS]];
 	int offset = 0;
-	loadBounds(bounds, texture, data, &offset);
+	loadBounds(bounds, textureBounds, data, &offset);
 
 	bindSpriteAttrib(Attrib::BOUNDS, id, data);
 }
@@ -295,20 +284,20 @@ void SimpleSprite::setColor(SimpleColor c) {
 	bindSpriteAttrib(Attrib::COLOR, id, data);
 }
 
-void SimpleSprite::setTexData(float x, float y, float width, float height) {
+void SimpleSprite::setTexData(SimpleVector texPosition, SimpleVector texBounds) {
+	textureBounds = texBounds;
+
 	float data[Attrib::sizes[Attrib::TEX_DATA]];
 	int offset = 0;
-	loadTexData(x, y, width, height, data, &offset);
+	loadTexData(texPosition, texBounds, data, &offset);
 
 	bindSpriteAttrib(Attrib::TEX_DATA, id, data);
 }
 
 void SimpleSprite::draw() const {
-	GLuint tex = texture.getTexture();
-
-	if (tex != currentTexture) {
-		glBindTexture(GL_TEXTURE_RECTANGLE, tex);
-		currentTexture = tex;
+	if (texture != currentTexture) {
+		glBindTexture(GL_TEXTURE_RECTANGLE, texture);
+		currentTexture = texture;
 	}
 
 	useShaders(vertexShader, geometryShader, fragmentShader);

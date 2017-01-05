@@ -22,8 +22,16 @@ namespace simpleUtil {
 
 	void initFbos();
 
+	void initFonts();
+	void closeFonts();
+
+	void genTexture(GLuint* texture, GLenum filtering);
+
 	//setting default shaders for given sprite.
 	void setDefaultShaders(SimpleSprite* sprite, bool empty);
+
+	void setTextShader(SimpleSprite* sprite);
+
 	//calling glUseProgramStages for each stage.
 	void useShaders(GLuint vertex, GLuint geometry, GLuint fragment);
 

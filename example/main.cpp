@@ -33,22 +33,27 @@ int main() {
 
 	simpleGL::setTextureFiltering(GL_LINEAR);
 
-	SimpleTexture bodyFront("example\\body_front.png");
-	SimpleTexture brim("example\\brim.png");
-	SimpleTexture light("example\\light.png");
-	SimpleTexture eye("example\\eye.png");
+	SimpleTexture bodyFront("example/body_front.png");
+	SimpleTexture brim("example/brim.png");
+	SimpleTexture light("example/light.png");
+	SimpleTexture eye("example/eye.png");
 
-	simpleGL::loadSprite(bodyFront, SimpleVector(), 0, SimpleColor(1));
-	brimSprite = simpleGL::loadSprite(brim, SimpleVector(0, 68.6), 0, SimpleColor(1));
-	SimpleSprite* lightSp = simpleGL::loadSprite(light, SimpleVector(0, 108.8), 1, SimpleColor(1));
-	simpleGL::loadSprite(eye, SimpleVector(50.2, 32.1), -1, SimpleColor(1));
-	simpleGL::loadSprite(eye, SimpleVector(-50.2, 32.1), -1, SimpleColor(1));
+	SimpleSprite::load(&bodyFront, SimpleVector(), 0, SimpleColor(1));
+	brimSprite = SimpleSprite::load(&brim, SimpleVector(0, 68.6), 0, SimpleColor(1));
+	SimpleSprite* lightSp = SimpleSprite::load(&light, SimpleVector(0, 108.8), 1, SimpleColor(1));
+	SimpleSprite::load(&eye, SimpleVector(50.2, 32.1), -1, SimpleColor(1));
+	SimpleSprite::load(&eye, SimpleVector(-50.2, 32.1), -1, SimpleColor(1));
 
-	simpleGL::loadSprite(SimpleTexture(), SimpleVector(0, 0), 5, SimpleVector(3), 0.25f*3.1415927f, SimpleColor(1));
+	SimpleTexture empty;
+	SimpleSprite::load(&empty, SimpleVector(), 5, SimpleVector(3), 0.25f*3.1415927f, SimpleColor(1));
+	SimpleSprite::load(&empty, SimpleVector(), -11, SimpleVector(0.1f), SimpleColor(0, 0, 0, 1));
 
-	SimpleShader customShader("example/custom.glsl", GL_FRAGMENT_SHADER);
-	lightSp->setShader(customShader);
-	customShader.setUniformf("color", {1, 0, 0, 1});
+	GLuint customShader = simpleGL::loadShaderPath("example/custom.glsl", GL_FRAGMENT_SHADER);
+	lightSp->setFragmentShader(customShader);
+	glProgramUniform4f(customShader, glGetUniformLocation(customShader, "color"), 1, 0, 0, 1);
+
+	SimpleFont sans("example/MODERNE SANS.ttf", 50);
+	SimpleText text(&sans, "Lorem ipsum", SimpleVector(), -10, 1, -1, SimpleColor(0, 0.5f, 0, 0.7f), SimpleText::CENTER, 0);
 
 	simpleGL::setUpdate(update);
 

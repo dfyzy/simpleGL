@@ -1,12 +1,10 @@
 #ifndef SIMPLE_TEXTURE_H
 #define SIMPLE_TEXTURE_H
 
-#include <string>
-
 #include "glfw.hpp"
 
 class SimpleTexture {
-private:
+protected:
 	unsigned pixelWidth = 100, pixelHeight = 100;
 	GLuint texture = 0;
 
@@ -23,8 +21,8 @@ public:
 	 *
 	 * returns: handle to texture object.
 	 */
-	SimpleTexture(std::string path);
-	
+	SimpleTexture(const char* path);
+
 	/*
 	 *	Gets pixel width and height of this texture.
 	 */

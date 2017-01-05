@@ -24,6 +24,13 @@ struct SimpleVector {
 		return SimpleVector();
 	}
 
+	SimpleVector rotate(float rotation) const {
+		float sinRot = std::sin(rotation);
+		float cosRot = std::cos(rotation);
+
+		return SimpleVector(cosRot*x - sinRot*y, sinRot*x + cosRot*y);
+	}
+
 	const SimpleVector operator+(const SimpleVector& sp) const {
 
 		return SimpleVector(x + sp.x, y + sp.y);

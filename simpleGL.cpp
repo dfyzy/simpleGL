@@ -92,6 +92,7 @@ namespace simpleGL {
 
 		simpleUtil::initBuffers();
 		simpleUtil::initFbos();
+		simpleUtil::initFonts();
 	}
 
 	GLFWwindow* createFullscreenWindow(const char* title, bool borderless, SimpleColor background) {
@@ -193,6 +194,7 @@ namespace simpleGL {
 			glfwSwapBuffers(window);
 		}
 
+		simpleUtil::closeFonts();
 		glfwTerminate();//raii
 	}
 

@@ -1,7 +1,7 @@
 #ifndef SIMPLE_GL_H
 #define SIMPLE_GL_H
 
-#include "simpleSprite.hpp"
+#include "simpleText.hpp"
 
 namespace simpleGL {
 
@@ -45,33 +45,20 @@ namespace simpleGL {
 
 	SimpleVector glfwToScreen(double x, double y);
 
-
-	void setUpdate(void func());
-
 	//microseconds
 	double getDeltaTime();
 
-	void draw();
+
+	void setUpdate(void func());
+
+	GLuint loadShaderSource(std::string source, GLenum type);
+
+	GLuint loadShaderPath(std::string path, GLenum type);
 
 	/*
-	 * Creates sprite object and loads attribute data into data buffers.
-	 *
-	 * returns: sprite handle.
+	 *	Starts draw loop
 	 */
-	SimpleSprite* loadSprite(SimpleTexture tex, SimpleVector position, int z, SimpleVector bounds, float rotation, SimpleColor c,
-													float texX, float texY, float texW, float texH);
-
-	inline SimpleSprite* loadSprite(SimpleTexture tex, SimpleVector position, int z, SimpleVector bounds, float rotation, SimpleColor c) {
-		return loadSprite(tex, position, z, bounds, rotation, c, 0, 0, tex.getWidth(), tex.getHeight());
-	}
-
-	inline SimpleSprite* loadSprite(SimpleTexture tex, SimpleVector position, int z, SimpleVector bounds, SimpleColor c) {
-		return loadSprite(tex, position, z, bounds, 0, c);
-	}
-
-	inline SimpleSprite* loadSprite(SimpleTexture tex, SimpleVector position, int z, SimpleColor c) {
-		return loadSprite(tex, position, z, SimpleVector(1), c);
-	}
+	void draw();
 
 	void setCameraPosition(SimpleVector position);
 
@@ -85,7 +72,7 @@ namespace simpleGL {
 	 */
 	void setTextureFiltering(GLenum tf);
 
-	void setOverlayShader(SimpleShader ss);
+	void setOverlayShader(GLuint sh);
 
 }
 

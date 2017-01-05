@@ -3,17 +3,17 @@
 
 #include "simpleColor.hpp"
 #include "SimpleVector.hpp"
-#include "simpleShader.hpp"
 #include "simpleTexture.hpp"
 
 class SimpleSprite {
-protected:
+private:
 	bool enabled {true};
 	unsigned id;
 
 	int z;
 
-	SimpleTexture texture;
+	GLuint texture;
+	SimpleVector textureBounds;
 
 	GLuint vertexShader;
 	GLuint geometryShader;
@@ -27,8 +27,27 @@ protected:
 	GLenum depthFail {GL_KEEP};
 	GLenum depthPass {GL_KEEP};
 
+	SimpleSprite(unsigned i, int pz, GLuint tex, SimpleVector texBounds) : id(i), z(pz), texture(tex), textureBounds(texBounds) {}
+
 public:
-	SimpleSprite(unsigned i, int pz, SimpleTexture tex) : id(i), z(pz), texture(tex) {}
+	/*
+	 * Creates sprite object and loads attribute data into data buffers.
+	 *
+	 * returns: sprite handle.
+	 */
+	static SimpleSprite* load(SimpleTexture* tex, SimpleVector position, int z, SimpleVector bounds, float rotation, SimpleColor c,
+													SimpleVector texPosition, SimpleVector texBounds);
+
+	inline static SimpleSprite* load(SimpleTexture* tex, SimpleVector position, int z, SimpleVector bounds, float rotation, SimpleColor c) {
+		return load(tex, position, z, bounds, rotation, c, SimpleVector(), SimpleVector(tex->getWidth(), tex->getHeight()));
+	}
+	inline static SimpleSprite* load(SimpleTexture* tex, SimpleVector position, int z, SimpleVector bounds, SimpleColor c) {
+		return load(tex, position, z, bounds, 0, c);
+	}
+	inline static SimpleSprite* load(SimpleTexture* tex, SimpleVector position, int z, SimpleColor c) {
+		return load(tex, position, z, 1, c);
+	}
+
 	~SimpleSprite() { unload(); }
 
 	unsigned getId() const { return id; }
@@ -44,21 +63,16 @@ public:
 
 	void setZ(int pz);
 
-	SimpleTexture getTexture() const { return texture; }
+	GLuint getTexture() const { return texture; }
 
-	void setTexture(SimpleTexture tex);
+	void setTexture(GLuint tex);
 
 	/*
 	 * Changes shader program for this sprite. When drawing this sprite opengl will use these shaders.
 	 */
-	void setShader(SimpleShader ssh) {
-		if (ssh.getType() == GL_VERTEX_SHADER)
-			vertexShader = ssh.getShader();
-		else if (ssh.getType() == GL_GEOMETRY_SHADER)
-			geometryShader = ssh.getShader();
-		else if (ssh.getType() == GL_FRAGMENT_SHADER)
-			fragmentShader = ssh.getShader();
-	}
+	void setVertexShader(GLuint sh) { vertexShader = sh; }
+	void setGeometryShader(GLuint sh) { geometryShader = sh; }
+	void setFragmentShader(GLuint sh) { fragmentShader = sh; }
 
 	/*
 	 * Sets data to use for glStencilFunc calls.
@@ -85,7 +99,7 @@ public:
 	void setBounds(SimpleVector bounds);
 	void setRotation(float rotation);
 	void setColor(SimpleColor c);
-	void setTexData(float x, float y, float width, float height);
+	void setTexData(SimpleVector texPosition, SimpleVector texBounds);
 
 	void draw() const;
 
@@ -98,8 +112,8 @@ public:
 			if (lhs->z != rhs->z)
 				return lhs->z > rhs->z;
 
-			if (lhs->texture.getTexture() != rhs->texture.getTexture())
-				return lhs->texture.getTexture() < rhs->texture.getTexture();
+			if (lhs->texture != rhs->texture)
+				return lhs->texture < rhs->texture;
 
 			if (lhs->vertexShader != rhs->vertexShader)
 				return lhs->vertexShader < rhs->vertexShader;
