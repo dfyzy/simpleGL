@@ -18,7 +18,8 @@ namespace simpleGL {
 
 	GLuint vao;
 
-	Callback update;
+	void defaultUpdate() {}
+	Callback update = defaultUpdate;
 
 	Clock::time_point previous;
 	double deltaTime = 0;
