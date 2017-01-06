@@ -24,7 +24,6 @@ void SimpleText::setLayout(SimpleVector position, float scale, float rotation, A
 	float cosRot = std::cos(rotation);
 
 	SimpleVector newLine = SimpleVector(-sinRot, cosRot) * (font->getLineSpacing()*scale);
-	SimpleVector space = SimpleVector(cosRot, sinRot) * (font->getSpaceWidth()*scale);
 
 	//position is our cursor
 	position -= newLine;
@@ -36,6 +35,7 @@ void SimpleText::setLayout(SimpleVector position, float scale, float rotation, A
 	while (lineStart != caption.end()) {
 		auto lineEnd = caption.end();
 		float lineWidth = 0;
+		int spaces = 0;
 
 		//incrementing until end of line is found
 		for (auto c = lineStart; ; c++) {
@@ -48,7 +48,7 @@ void SimpleText::setLayout(SimpleVector position, float scale, float rotation, A
 			if (!font->getGlyphData(*c, &data)) {
 				lineEnd = c;
 
-				if (*c == ' ')			lineWidth += font->getSpaceWidth()*scale;
+				if (*c == ' ')			spaces++;
 				else if (*c == '\n')	break;//easy way
 				continue;
 			}
@@ -60,27 +60,42 @@ void SimpleText::setLayout(SimpleVector position, float scale, float rotation, A
 				for (auto s = lineEnd; s != c;) {
 					s++;
 
-					if (!font->getGlyphData(*s, &data) && *s == ' ')	lineWidth -= font->getSpaceWidth()*scale;
+					if (!font->getGlyphData(*s, &data) && *s == ' ') 			spaces--;
 
 					lineWidth -= data->advance*scale;
 				}
 
 				//substracting all needless spaces
 				c = lineEnd;
-				while (!font->getGlyphData(*c, &data))	if (*(c--) == ' ')	lineWidth -= font->getSpaceWidth()*scale;
+				while (!font->getGlyphData(*c, &data))	if (*(c--) == ' ')	spaces--;
 
 				break;
 			}
 			if (*c == '-')	lineEnd = c;
 		}
 
+		lineWidth += font->getSpaceWidth()*spaces*scale;
+
+		float spaceWidth = font->getSpaceWidth()*scale;
+
 		//alignment
 		SimpleVector lastPosition = position;
+		if (align == JUSTIFIED) {
+			if (lineEnd != caption.end()) {
+				spaceWidth += (width - lineWidth)/spaces;
+				lineWidth = width;
+			} else {
+				align = LEFT;//this will depend on language default alignment.
+				position -= SimpleVector(cosRot, sinRot) * (width/2);//will in the general meaning of intention, not like i have time to do this
+			}
+		}
+
 		if (align != LEFT) {
-			position -= SimpleVector(cosRot, sinRot) * lineWidth/(2 - (align == RIGHT));
+			position -= SimpleVector(cosRot, sinRot) * (lineWidth/(2 - (align == RIGHT)));
 		}
 
 		//actually setting position
+		SimpleVector space = SimpleVector(cosRot, sinRot) * spaceWidth;
 		if (lineEnd != caption.end())	lineEnd++;
 		for (; lineStart != lineEnd; lineStart++) {
 			SimpleGlyphData* data;

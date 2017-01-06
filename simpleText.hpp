@@ -9,7 +9,7 @@
 
 class SimpleText {
 public:
-	enum Alignment { LEFT, CENTER, RIGHT };
+	enum Alignment { LEFT, CENTER, RIGHT, JUSTIFIED };
 
 private:
 	SimpleFont* font;

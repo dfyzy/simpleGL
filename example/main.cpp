@@ -46,7 +46,6 @@ int main() {
 
 	SimpleTexture empty;
 	SimpleSprite::load(&empty, SimpleVector(), 5, SimpleVector(3), 0.25f*3.1415927f, SimpleColor(1));
-	SimpleSprite::load(&empty, SimpleVector(), -11, SimpleVector(0.1f), SimpleColor(0, 0, 0, 1));
 
 	GLuint customShader = simpleGL::loadShaderPath("example/custom.glsl", GL_FRAGMENT_SHADER);
 	lightSp->setFragmentShader(customShader);
@@ -55,7 +54,7 @@ int main() {
 	SimpleFont sans("example/MODERNE SANS.ttf", 20);
 
 	std::string lorem("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
-	SimpleText text(&sans, lorem, SimpleVector(), -10, 1, -1, SimpleColor(0, 0.5f, 0, 1), SimpleText::JUSTIFIED, 350);
+	SimpleText text(&sans, lorem, SimpleVector(0, -100), -10, 1, 0, SimpleColor(0, 0, 0, 1), SimpleText::JUSTIFIED, 350);
 
 	simpleGL::setUpdate(update);
 
