@@ -35,18 +35,36 @@ public:
 	 *
 	 * returns: sprite handle.
 	 */
-	static SimpleSprite* load(SimpleTexture* tex, SimpleVector position, int z, SimpleVector bounds, float rotation, SimpleColor c,
-													SimpleVector texPosition, SimpleVector texBounds);
+	static SimpleSprite* load(SimpleTexture* texture, SimpleVector position, int z, SimpleVector bounds, float rotation,
+													SimpleColor color, SimpleVector texPosition, SimpleVector texBounds);
+	class Loader {
+	private:
+		SimpleTexture* texture;
+		SimpleVector pposition;
+		int pz{0};
+		SimpleVector pbounds{1};
+		float protation{0};
+		SimpleColor pcolor{1};
+		SimpleVector ptexPosition;
+		SimpleVector ptexBounds;
 
-	inline static SimpleSprite* load(SimpleTexture* tex, SimpleVector position, int z, SimpleVector bounds, float rotation, SimpleColor c) {
-		return load(tex, position, z, bounds, rotation, c, SimpleVector(), SimpleVector(tex->getWidth(), tex->getHeight()));
-	}
-	inline static SimpleSprite* load(SimpleTexture* tex, SimpleVector position, int z, SimpleVector bounds, SimpleColor c) {
-		return load(tex, position, z, bounds, 0, c);
-	}
-	inline static SimpleSprite* load(SimpleTexture* tex, SimpleVector position, int z, SimpleColor c) {
-		return load(tex, position, z, 1, c);
-	}
+	public:
+		Loader(SimpleTexture* texture) : texture(texture) {}
+
+		Loader& position(SimpleVector sv) { pposition = sv; return *this; }
+		Loader& z(int i) { pz = i; return *this; }
+		Loader& bounds(SimpleVector sv) { pbounds = sv; return *this; }
+		Loader& rotation(float f) { protation = f; return *this; }
+		Loader& color(SimpleColor sc) { pcolor = sc; return *this; }
+		Loader& texPosition(SimpleVector sv) { ptexPosition = sv; return *this; }
+		Loader& texBounds(SimpleVector sv) { ptexBounds = sv; return *this; }
+
+		SimpleSprite* load() {
+			if (ptexBounds == SimpleVector())	ptexBounds = SimpleVector(texture->getWidth(), texture->getHeight());
+
+			return SimpleSprite::load(texture, pposition, pz, pbounds, protation, pcolor, ptexPosition, ptexBounds);
+		}
+	};
 
 	~SimpleSprite() { unload(); }
 

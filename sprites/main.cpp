@@ -33,7 +33,7 @@ int main() {
 	auto randomPosition = std::bind(positionDist, randEngine);
 
 	for (int i = 0; i < 10000; i++)
-		SimpleSprite::load(&st, SimpleVector(randomPosition(), randomPosition()), 0, SimpleColor(1, 0, 0, 1));
+		SimpleSprite::Loader(&st).position({(float)randomPosition(), (float)randomPosition()}).color({1, 0, 0, 1}).load();
 
 	simpleGL::setUpdate(update);
 

@@ -38,23 +38,23 @@ int main() {
 	SimpleTexture light("example/light.png");
 	SimpleTexture eye("example/eye.png");
 
-	SimpleSprite::load(&bodyFront, SimpleVector(), 0, SimpleColor(1));
-	brimSprite = SimpleSprite::load(&brim, SimpleVector(0, 68.6), 0, SimpleColor(1));
-	SimpleSprite* lightSp = SimpleSprite::load(&light, SimpleVector(0, 108.8), 1, SimpleColor(1));
-	SimpleSprite::load(&eye, SimpleVector(50.2, 32.1), -1, SimpleColor(1));
-	SimpleSprite::load(&eye, SimpleVector(-50.2, 32.1), -1, SimpleColor(1));
+	SimpleSprite::Loader(&bodyFront).load();
+	brimSprite = SimpleSprite::Loader(&brim).position({0, 68.6}).load();
+	SimpleSprite* lightSp = SimpleSprite::Loader(&light).position({0, 108.8}).z(1).load();
+	SimpleSprite::Loader(&eye).position({50.2, 32.1}).z(-1).load();
+	SimpleSprite::Loader(&eye).position({-50.2, 32.1}).z(-1).load();
 
 	SimpleTexture empty;
-	SimpleSprite::load(&empty, SimpleVector(), 5, SimpleVector(3), 0.25f*3.1415927f, SimpleColor(1));
+	SimpleSprite::Loader(&empty).z(5).bounds({3}).rotation(0.25f*3.1415927f).load();
 
 	GLuint customShader = simpleGL::loadShaderPath("example/custom.glsl", GL_FRAGMENT_SHADER);
 	lightSp->setFragmentShader(customShader);
 	glProgramUniform4f(customShader, glGetUniformLocation(customShader, "color"), 1, 0, 0, 1);
 
-	SimpleFont sans("example/MODERNE SANS.ttf", 20);
+	SimpleFont sans("example/Oranienbaum.ttf", 26);
 
 	std::string lorem("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
-	SimpleText text(&sans, lorem, SimpleVector(0, -100), -10, 1, 0, SimpleColor(0, 0, 0, 1), SimpleText::JUSTIFIED, 350);
+	SimpleText text(&sans, lorem, SimpleVector(0, -100), -10, 1, 0, SimpleColor(0), SimpleText::CENTER, 350);
 
 	simpleGL::setUpdate(update);
 

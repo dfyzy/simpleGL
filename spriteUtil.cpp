@@ -156,8 +156,8 @@ namespace simpleUtil {
 
 using namespace simpleUtil;
 
-SimpleSprite* SimpleSprite::load(SimpleTexture* tex, SimpleVector position, int z, SimpleVector bounds, float rotation, SimpleColor c,
-															SimpleVector texPosition, SimpleVector texBounds) {
+SimpleSprite* SimpleSprite::load(SimpleTexture* texture, SimpleVector position, int z, SimpleVector bounds, float rotation,
+															SimpleColor color, SimpleVector texPosition, SimpleVector texBounds) {
 	print("Adding sprite");
 
 	float data[SPRITE_SIZE];
@@ -165,7 +165,7 @@ SimpleSprite* SimpleSprite::load(SimpleTexture* tex, SimpleVector position, int 
 	loadPosition(position, data, &offset);
 	loadBounds(bounds, texBounds, data, &offset);
 	loadRotation(rotation, data, &offset);
-	loadColor(c, data, &offset);
+	loadColor(color, data, &offset);
 	loadTexData(texPosition, texBounds, data, &offset);
 
 	unsigned id;
@@ -214,8 +214,8 @@ SimpleSprite* SimpleSprite::load(SimpleTexture* tex, SimpleVector position, int 
 		dataOffset += Attrib::sizes[i];
 	}
 
-	SimpleSprite* sprite = new SimpleSprite(id, z, tex->getTexture(), texBounds);
-	setDefaultShaders(sprite, tex->getTexture() == 0);
+	SimpleSprite* sprite = new SimpleSprite(id, z, texture->getTexture(), texBounds);
+	setDefaultShaders(sprite, texture->getTexture() == 0);
 
 	sprites.insert(sprite);
 
