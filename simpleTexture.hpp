@@ -1,7 +1,9 @@
 #ifndef SIMPLE_TEXTURE_H
 #define SIMPLE_TEXTURE_H
 
-#include "glfw.hpp"
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 class SimpleTexture {
 protected:
