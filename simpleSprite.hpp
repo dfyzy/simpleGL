@@ -13,7 +13,6 @@ private:
 	int z;
 
 	GLuint texture;
-	SimpleVector textureBounds;
 
 	GLuint vertexShader;
 	GLuint geometryShader;
@@ -27,7 +26,7 @@ private:
 	GLenum depthFail {GL_KEEP};
 	GLenum depthPass {GL_KEEP};
 
-	SimpleSprite(unsigned i, int pz, GLuint tex, SimpleVector texBounds) : id(i), z(pz), texture(tex), textureBounds(texBounds) {}
+	SimpleSprite(unsigned i, int pz, GLuint tex) : id(i), z(pz), texture(tex) {}
 
 public:
 	/*
@@ -35,11 +34,11 @@ public:
 	 *
 	 * returns: sprite handle.
 	 */
-	static SimpleSprite* load(SimpleTexture* texture, SimpleVector position, int z, SimpleVector bounds, float rotation,
+	static SimpleSprite* load(GLuint texture, SimpleVector position, int z, SimpleVector bounds, float rotation,
 													SimpleColor color, SimpleVector texPosition, SimpleVector texBounds);
 	class Loader {
 	private:
-		SimpleTexture* texture;
+		const SimpleTexture& texture;
 		SimpleVector pposition;
 		int pz{0};
 		SimpleVector pbounds{1};
@@ -49,7 +48,7 @@ public:
 		SimpleVector ptexBounds;
 
 	public:
-		Loader(SimpleTexture* texture) : texture(texture) {}
+		Loader(const SimpleTexture& texture) : texture(texture) {}
 
 		Loader& position(SimpleVector sv) { pposition = sv; return *this; }
 		Loader& z(int i) { pz = i; return *this; }
@@ -60,9 +59,9 @@ public:
 		Loader& texBounds(SimpleVector sv) { ptexBounds = sv; return *this; }
 
 		SimpleSprite* load() {
-			if (ptexBounds == SimpleVector())	ptexBounds = SimpleVector(texture->getWidth(), texture->getHeight());
+			if (ptexBounds == SimpleVector())	ptexBounds = SimpleVector(texture.getWidth(), texture.getHeight());
 
-			return SimpleSprite::load(texture, pposition, pz, pbounds, protation, pcolor, ptexPosition, ptexBounds);
+			return SimpleSprite::load(texture.getTexture(), pposition, pz, pbounds, protation, pcolor, ptexPosition, ptexBounds);
 		}
 	};
 

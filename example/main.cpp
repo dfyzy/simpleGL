@@ -38,14 +38,14 @@ int main() {
 	SimpleTexture light("example/light.png");
 	SimpleTexture eye("example/eye.png");
 
-	SimpleSprite::Loader(&bodyFront).load();
-	brimSprite = SimpleSprite::Loader(&brim).position({0, 68.6}).load();
-	SimpleSprite* lightSp = SimpleSprite::Loader(&light).position({0, 108.8}).z(1).load();
-	SimpleSprite::Loader(&eye).position({50.2, 32.1}).z(-1).load();
-	SimpleSprite::Loader(&eye).position({-50.2, 32.1}).z(-1).load();
+	SimpleSprite::Loader(bodyFront).load();
+	brimSprite = SimpleSprite::Loader(brim).position({0, 68.6}).load();
+	SimpleSprite* lightSp = SimpleSprite::Loader(light).position({0, 108.8}).z(1).load();
+	SimpleSprite::Loader(eye).position({50.2, 32.1}).z(-1).load();
+	SimpleSprite::Loader(eye).position({-50.2, 32.1}).z(-1).load();
 
 	SimpleTexture empty;
-	SimpleSprite::Loader(&empty).z(5).bounds({3}).rotation(0.25f*3.1415927f).load();
+	SimpleSprite::Loader(empty).z(5).bounds({3}).rotation(0.25f*3.1415927f).load();
 
 	GLuint customShader = simpleGL::loadShaderPath("example/custom.glsl", GL_FRAGMENT_SHADER);
 	lightSp->setFragmentShader(customShader);

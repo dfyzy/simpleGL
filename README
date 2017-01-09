@@ -2,6 +2,9 @@ Using OpenGL, GLFW, GLEW, libpng and FreeType
 
 You can draw stuff now.
 
+TOFIX:
+-The uneven sized texture problem(look circle.exe)
+
 TODO:
 -Buffer data proper resizing
 -Window resizability

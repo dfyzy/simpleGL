@@ -8,7 +8,7 @@ SimpleText::SimpleText(SimpleFont* font, std::string caption, SimpleVector posit
 		SimpleGlyphData* data;
 		if (!font->getGlyphData(*c, &data)) continue;
 
-		SimpleSprite* sprite = SimpleSprite::load(font, SimpleVector(0), z, scale,
+		SimpleSprite* sprite = SimpleSprite::load(font->getTexture(), SimpleVector(0), z, scale,
 										rotation, color, SimpleVector(data->x, 0), SimpleVector(data->width, data->height));//a bit to the right????
 		simpleUtil::setTextShader(sprite);
 

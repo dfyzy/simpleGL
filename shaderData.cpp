@@ -67,9 +67,10 @@ namespace simpleShaderData {
 
 		"void drawVert(vec2 vert) {\n"
 		"	geomColor = inData[0].vColor;\n"
-		"	geomTexPosition = vert * inData[0].vTexData.zw + inData[0].vTexData.xy;//hmmmm\n"
+		"	vec2 vertex = vert*inData[0].vTexData.zw;"
+		"	geomTexPosition = vertex + inData[0].vTexData.xy;//hmmmm\n"
 
-		"	gl_Position = vec4(rotC*(rotV*vec3(vert * inData[0].vBounds, 0) + vec3(gl_in[0].gl_Position.xy - dynData.cameraPosition, 0)), 1);\n"
+		"	gl_Position = vec4(rotC*(rotV*vec3(vertex * inData[0].vBounds, 0) + vec3(gl_in[0].gl_Position.xy - dynData.cameraPosition, 0)), 1);\n"
 		"	gl_Position.x *= stData.rAspect;\n"
 		"	EmitVertex();\n"
 		"}\n"
