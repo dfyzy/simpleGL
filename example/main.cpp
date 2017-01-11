@@ -5,6 +5,7 @@ SimpleSprite* brimSprite;
 
 GLFWwindow* window;
 float rotation = 0;
+float scale = 1;
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
 	if ((action == GLFW_PRESS) && (key == GLFW_KEY_ESCAPE))
@@ -20,6 +21,11 @@ void update() {
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 		rotation += 0.03f;
 		simpleGL::setCameraRotation(rotation);
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+		scale += 0.01f;
+		simpleGL::setCameraScale(scale);
 	}
 }
 

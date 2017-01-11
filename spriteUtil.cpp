@@ -250,7 +250,7 @@ void SimpleSprite::setTexture(GLuint tex) {
 	sprites.insert(this);
 }
 
-void SimpleSprite::setPosition(SimpleVector position) {
+void SimpleSprite::setPosition(SimpleVector position) const {
 	float data[Attrib::sizes[Attrib::POSITION]];
 	int offset = 0;
 	loadPosition(position, data, &offset);
@@ -258,7 +258,7 @@ void SimpleSprite::setPosition(SimpleVector position) {
 	bindSpriteAttrib(Attrib::POSITION, id, data);
 }
 
-void SimpleSprite::setBounds(SimpleVector bounds) {
+void SimpleSprite::setBounds(SimpleVector bounds) const {
 	float data[Attrib::sizes[Attrib::BOUNDS]];
 	int offset = 0;
 	loadBounds(bounds, data, &offset);
@@ -266,7 +266,7 @@ void SimpleSprite::setBounds(SimpleVector bounds) {
 	bindSpriteAttrib(Attrib::BOUNDS, id, data);
 }
 
-void SimpleSprite::setRotation(float rotation) {
+void SimpleSprite::setRotation(float rotation) const {
 	float data[Attrib::sizes[Attrib::ROTATION]];
 	int offset = 0;
 	loadRotation(rotation, data, &offset);
@@ -274,7 +274,7 @@ void SimpleSprite::setRotation(float rotation) {
 	bindSpriteAttrib(Attrib::ROTATION, id, data);
 }
 
-void SimpleSprite::setColor(SimpleColor c) {
+void SimpleSprite::setColor(SimpleColor c) const {
 	float data[Attrib::sizes[Attrib::COLOR]];
 	int offset = 0;
 	loadColor(c, data, &offset);
@@ -282,7 +282,7 @@ void SimpleSprite::setColor(SimpleColor c) {
 	bindSpriteAttrib(Attrib::COLOR, id, data);
 }
 
-void SimpleSprite::setTexData(SimpleVector texPosition, SimpleVector texBounds) {
+void SimpleSprite::setTexData(SimpleVector texPosition, SimpleVector texBounds) const {
 	float data[Attrib::sizes[Attrib::TEX_DATA]];
 	int offset = 0;
 	loadTexData(texPosition, texBounds, data, &offset);

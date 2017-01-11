@@ -61,8 +61,8 @@ namespace simpleGL {
 	void draw();
 
 	void setCameraPosition(SimpleVector position);
-
 	void setCameraRotation(float rotation);
+	void setCameraScale(float scale);
 
 	/*
 	 * Changes texture filtering on textures that will be loaded from this point.

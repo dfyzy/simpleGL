@@ -112,11 +112,11 @@ public:
 	/*
 	 * Changes attributes for this sprite.
 	 */
-	void setPosition(SimpleVector position);
-	void setBounds(SimpleVector bounds);
-	void setRotation(float rotation);
-	void setColor(SimpleColor c);
-	void setTexData(SimpleVector texPosition, SimpleVector texBounds);
+	void setPosition(SimpleVector position) const;
+	void setBounds(SimpleVector bounds) const;
+	void setRotation(float rotation) const;
+	void setColor(SimpleColor c) const;
+	void setTexData(SimpleVector texPosition, SimpleVector texBounds) const;
 
 	void draw() const;
 

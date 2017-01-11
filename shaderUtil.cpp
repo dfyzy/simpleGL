@@ -17,7 +17,7 @@ namespace simpleUtil {
 
 	GLuint vertexShader;
 	GLuint geometryShader;
-	
+
 	GLuint defaultFragmentShader;
 	GLuint emptyFragmentShader;
 	GLuint textFragmentShader;
@@ -98,7 +98,8 @@ namespace simpleUtil {
 		glBindBuffer(GL_UNIFORM_BUFFER, dynamic);
 		glBindBufferBase(GL_UNIFORM_BUFFER, 1, dynamic);
 
-		glBufferData(GL_UNIFORM_BUFFER, 3*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+		float defData[] {0, 0, 0, 1};
+		glBufferData(GL_UNIFORM_BUFFER, 4*sizeof(float), defData, GL_DYNAMIC_DRAW);
 
 		print("Shaders initialized");
 	}
@@ -167,6 +168,11 @@ namespace simpleGL {
 	void setCameraRotation(float rotation) {
 
 		glBufferSubData(GL_UNIFORM_BUFFER, 2*sizeof(float), sizeof(float), &rotation);
+	}
+
+	void setCameraScale(float scale) {
+		
+		glBufferSubData(GL_UNIFORM_BUFFER, 3*sizeof(float), sizeof(float), &scale);
 	}
 
 	void setOverlayShader(GLuint sh) {
