@@ -1,14 +1,14 @@
 #ifndef SIMPLE_TEXTURE_H
 #define SIMPLE_TEXTURE_H
 
-#define GLEW_STATIC
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include "glfw.hpp"
 
 class SimpleTexture {
 protected:
-	unsigned pixelWidth = 100, pixelHeight = 100;
+	unsigned width = 100, height = 100;
 	GLuint texture = 0;
+
+	SimpleTexture(unsigned width, unsigned height) : width(width), height(height) {}
 
 public:
 	/*
@@ -28,14 +28,14 @@ public:
 	/*
 	 *	Gets pixel width and height of this texture.
 	 */
-	unsigned getWidth() const { return pixelWidth; }
-	unsigned getHeight() const { return pixelHeight; }
+	unsigned getWidth() const { return width; }
+	unsigned getHeight() const { return height; }
 
 	GLuint getTexture() const { return texture; }
 
 	void setFiltering(GLenum tf) const;
 
-	void unload() const;
+	virtual void unload();
 
 };
 

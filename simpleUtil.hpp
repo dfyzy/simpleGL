@@ -28,14 +28,20 @@ namespace simpleUtil {
 	void genTexture(GLuint* texture, GLenum filtering);
 
 	//setting default shaders for given sprite.
-	void setDefaultShaders(SimpleSprite* sprite, bool empty);
+	void setDefaultShaders(SimplerSprite* sprite, bool empty);
 
 	void setTextShader(SimpleSprite* sprite);
+	void setLightShader(SimpleSprite* sprite);
 
 	//calling glUseProgramStages for each stage.
 	void useShaders(GLuint vertex, GLuint geometry, GLuint fragment);
 
 	void useOverlayShaders();
+
+	void setResolution(unsigned width, unsigned height);
+	void setDefaultResolution();
+
+	void drawLights();
 
 	//draw sprites for each texture
 	void drawSprites();

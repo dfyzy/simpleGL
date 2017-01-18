@@ -1,33 +1,16 @@
 #ifndef SIMPLE_SPRITE_H
 #define SIMPLE_SPRITE_H
 
-#include "simpleColor.hpp"
-#include "SimpleVector.hpp"
+#include "simplerSprite.hpp"
 #include "simpleTexture.hpp"
 
-class SimpleSprite {
+class SimpleSprite : public SimplerSprite {
 private:
-	bool enabled {true};
-	unsigned id;
-
 	int z;
 
-	GLuint texture;
-
-	GLuint vertexShader;
-	GLuint geometryShader;
-	GLuint fragmentShader;
-
-	GLenum stencilFunc {GL_ALWAYS};
-	GLint stencilRef {0};
-	GLuint stencilMask {0xFF};
-
-	GLenum stencilFail {GL_KEEP};
-	GLenum depthFail {GL_KEEP};
-	GLenum depthPass {GL_KEEP};
-
-	SimpleSprite(unsigned i, int pz, GLuint tex) : id(i), z(pz), texture(tex) {}
-
+	SimpleSprite(GLuint texture, SimpleVector position, int z, SimpleVector bounds, float rotation,
+								SimpleColor color, SimpleVector texPosition, SimpleVector texBounds)
+								: SimplerSprite(texture, position, bounds, rotation, color, texPosition, texBounds), z(z) {}
 public:
 	/*
 	 * Creates sprite object and loads attribute data into data buffers.
@@ -65,60 +48,12 @@ public:
 		}
 	};
 
-	~SimpleSprite() { unload(); }
-
-	unsigned getId() const { return id; }
-
-	/*
-	 * If enabled is false the sprite won't be used.
-	 */
-	bool isEnabled() const { return enabled; }
-
 	void setEnabled(bool b);
 
 	int getZ() const { return z; }
-
 	void setZ(int pz);
 
-	GLuint getTexture() const { return texture; }
-
 	void setTexture(GLuint tex);
-
-	/*
-	 * Changes shader program for this sprite. When drawing this sprite opengl will use these shaders.
-	 */
-	void setVertexShader(GLuint sh) { vertexShader = sh; }
-	void setGeometryShader(GLuint sh) { geometryShader = sh; }
-	void setFragmentShader(GLuint sh) { fragmentShader = sh; }
-
-	/*
-	 * Sets data to use for glStencilFunc calls.
-	 */
-	void setStencilFunc(GLenum func, GLint ref, GLuint mask) {
-		stencilFunc = func;
-		stencilRef = ref;
-		stencilMask = mask;
-	}
-
-	/*
-	 * Sets data to use for glStencilOp calls.
-	 */
-	void setStencilOp(GLenum sfail, GLenum dpfail, GLenum dppass) {
-		stencilFail = sfail;
-		depthFail = dpfail;
-		depthPass = dppass;
-	}
-
-	/*
-	 * Changes attributes for this sprite.
-	 */
-	void setPosition(SimpleVector position) const;
-	void setBounds(SimpleVector bounds) const;
-	void setRotation(float rotation) const;
-	void setColor(SimpleColor c) const;
-	void setTexData(SimpleVector texPosition, SimpleVector texBounds) const;
-
-	void draw() const;
 
 	void unload();
 

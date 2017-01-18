@@ -54,14 +54,12 @@ namespace simpleShaderData {
 		"out vec4 geomColor;\n"
 		"out vec2 geomTexPosition;\n"
 
-		"layout(std140) uniform StaticData {\n"
-		"	uniform float rAspect;\n"
-		"} stData;\n"
-
 		"layout(std140) uniform DynamicData {\n"
 		"	uniform vec2 cameraPosition;\n"
 		"	uniform float cameraRotation;\n"
 		"	uniform float cameraScale;\n"
+		"	uniform float rScale;\n"
+		"	uniform float rAspect;\n"
 		"} dynData;\n"
 
 		"mat3 rotV, rotC;\n"
@@ -71,8 +69,9 @@ namespace simpleShaderData {
 		"	vec2 vertex = vert*inData[0].vTexData.zw;"
 		"	geomTexPosition = vertex + inData[0].vTexData.xy;//hmmmm\n"
 
-		"	gl_Position = vec4(rotC*(rotV*vec3(vertex * inData[0].vBounds, 0) + vec3(gl_in[0].gl_Position.xy - dynData.cameraPosition, 0)), 1);\n"
-		"	gl_Position.x *= stData.rAspect;\n"
+		"	gl_Position = vec4(rotC*(rotV*vec3(vertex * inData[0].vBounds * dynData.rScale, 0)"
+		"								+ vec3((gl_in[0].gl_Position.xy - dynData.cameraPosition) * dynData.rScale, 0)), 1);\n"
+		"	gl_Position.x *= dynData.rAspect;\n"
 		"	EmitVertex();\n"
 		"}\n"
 
@@ -166,6 +165,22 @@ namespace simpleShaderData {
 		"void main() {\n"
 		"	fColor = geomColor;\n"
 		"	fColor.a *= texture(text, geomTexPosition).r;\n"
+		"}");
+	}
+
+	std::string getLightFragment() {
+		return std::string("#version 430 core\n"
+
+		"in vec4 geomColor;\n"
+		"in vec2 geomTexPosition;\n"
+
+		"out vec4 fColor;\n"
+
+		"uniform sampler2DRect text;\n"
+
+		"void main() {\n"
+		"	vec3 tex = texture(text, geomTexPosition).rgb;\n"
+		"	fColor = vec4(tex, 1 - (tex.r + tex.g + tex.b)/3)*geomColor;\n"
 		"}");
 	}
 }

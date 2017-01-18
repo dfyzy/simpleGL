@@ -57,24 +57,24 @@ SimpleFont::SimpleFont(const char* path, int size) {
 	FT_Load_Char(face, 32, FT_LOAD_RENDER);//space
 	spaceWidth = face->glyph->advance.x >> 6;
 
-	pixelWidth = 0;
-	pixelHeight = 0;
+	width = 0;
+	height = 0;
 	for (int i = SIMPLE_FIRST_CHAR; i <= SIMPLE_LAST_CHAR; i++) {
 		if(FT_Load_Char(face, i, FT_LOAD_RENDER)) {
 			print("Failed loading char");
 			return;
 		}
 
-		pixelWidth += face->glyph->bitmap.width + TEX_GAP;
-		pixelHeight = std::max(pixelHeight, face->glyph->bitmap.rows);
+		width += face->glyph->bitmap.width + TEX_GAP;
+		height = std::max(height, face->glyph->bitmap.rows);
 	}
-	pixelWidth -= TEX_GAP;
+	width -= TEX_GAP;
 
 	genTexture(&texture, GL_LINEAR);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RED, pixelWidth, pixelHeight, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 
 	unsigned offset = 0;
 	for(int i = SIMPLE_FIRST_CHAR; i <= SIMPLE_LAST_CHAR; i++) {

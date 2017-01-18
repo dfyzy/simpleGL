@@ -85,17 +85,17 @@ SimpleTexture::SimpleTexture(const char* path) {
 
 	png_read_info(png_ptr, info_ptr);
 
-	png_get_IHDR(png_ptr, info_ptr, &pixelWidth, &pixelHeight, nullptr, nullptr, nullptr, nullptr, nullptr);
+	png_get_IHDR(png_ptr, info_ptr, &width, &height, nullptr, nullptr, nullptr, nullptr, nullptr);
 
 	genTexture(&texture, textureFiltering);
 
-	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, pixelWidth, pixelHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
-	std::unique_ptr<png_byte[]> row(new png_byte[4*pixelWidth]);
+	std::unique_ptr<png_byte[]> row(new png_byte[4*width]);
 
-	for (png_uint_32 i = pixelHeight; i > 0; i--) {
+	for (png_uint_32 i = height; i > 0; i--) {
 		png_read_row(png_ptr, row.get(), nullptr);
-		glTexSubImage2D(GL_TEXTURE_RECTANGLE, 0, 0, i - 1, pixelWidth, 1, GL_RGBA, GL_UNSIGNED_BYTE, row.get());
+		glTexSubImage2D(GL_TEXTURE_RECTANGLE, 0, 0, i - 1, width, 1, GL_RGBA, GL_UNSIGNED_BYTE, row.get());
 	}
 
 	png_read_end(png_ptr, nullptr);
@@ -112,7 +112,7 @@ void SimpleTexture::setFiltering(GLenum tf) const {
 	simpleUtil::setFiltering(texture, tf);
 }
 
-void SimpleTexture::unload() const {
+void SimpleTexture::unload() {
 	if (texture == 0)	return;
 	print("Unloading texture");
 

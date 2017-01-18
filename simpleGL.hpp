@@ -2,6 +2,7 @@
 #define SIMPLE_GL_H
 
 #include "simpleText.hpp"
+#include "simpleLight.hpp"
 
 namespace simpleGL {
 
@@ -37,11 +38,6 @@ namespace simpleGL {
 	 * Returns height of the created window.
 	 */
 	unsigned getWindowHeight();
-
-	/*
-	 *
-	 */
-	SimpleVector actualToScreen(SimpleVector sv);
 
 	SimpleVector glfwToScreen(double x, double y);
 

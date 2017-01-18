@@ -16,6 +16,8 @@ namespace simpleGL {
 	GLFWwindow* window = nullptr;
 	unsigned windowWidth, windowHeight;
 
+	SimpleColor clearColor;
+
 	GLuint vao;
 
 	void defaultUpdate() {}
@@ -45,6 +47,8 @@ namespace simpleGL {
 	}
 
 	inline void createWindow(const char* title, GLFWmonitor* monitor, SimpleColor background) {
+		clearColor = background;
+
 		window = glfwCreateWindow(windowWidth, windowHeight, title, monitor, nullptr);
 
 		if (!window) {
@@ -74,12 +78,6 @@ namespace simpleGL {
 		#else
 			glfwSwapInterval(1);
 		#endif
-
-		glViewport(0, 0, windowWidth, windowHeight);
-
-		glClearColor(background.r, background.g, background.b, background.a);
-
-		glEnable(GL_STENCIL_TEST);
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -141,11 +139,7 @@ namespace simpleGL {
 	unsigned getWindowHeight() {
 		return windowHeight;
 	}
-
-	SimpleVector actualToScreen(SimpleVector f) {
-		return f*(2.0f/windowHeight);
-	}
-
+	
 	SimpleVector glfwToScreen(double x, double y) {
 		return SimpleVector(x/windowWidth, 1 - y/windowHeight);
 	}
@@ -185,6 +179,11 @@ namespace simpleGL {
 			update();
 
 			glBindVertexArray(vao);
+
+			simpleUtil::drawLights();
+
+			glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+			glViewport(0, 0, windowWidth, windowHeight);
 
 			simpleUtil::drawSprites();
 

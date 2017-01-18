@@ -5,15 +5,16 @@
 
 namespace simpleShaderData {
 
-	extern std::string getVertex();
-	extern std::string getGeometry();
+	std::string getVertex();
+	std::string getGeometry();
 
-	extern std::string getDefaultFragment();
-	extern std::string getEmptyFragment();
-	extern std::string getTextFragment();
+	std::string getDefaultFragment();
+	std::string getEmptyFragment();
+	std::string getTextFragment();
+	std::string getLightFragment();
 
-	extern std::string getOverlayVertex();
-	extern std::string getOverlayFragment();
+	std::string getOverlayVertex();
+	std::string getOverlayFragment();
 
 }
 

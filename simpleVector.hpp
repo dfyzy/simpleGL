@@ -31,6 +31,10 @@ struct SimpleVector {
 		return SimpleVector(cosRot*x - sinRot*y, sinRot*x + cosRot*y);
 	}
 
+	SimpleVector abs() const {
+		return SimpleVector(std::abs(x), std::abs(y));
+	}
+
 	const SimpleVector operator+(const SimpleVector& sp) const {
 
 		return SimpleVector(x + sp.x, y + sp.y);

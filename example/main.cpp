@@ -30,7 +30,7 @@ void update() {
 }
 
 int main() {
-	int width = 700;
+	int width = 1000;
 	int height = 700;
 	window = simpleGL::createWindowedWindow("Title", width, height, false, true, SimpleColor(0.5f));
 
@@ -50,8 +50,7 @@ int main() {
 	SimpleSprite::Loader(eye).position({50.2, 32.1}).z(-1).load();
 	SimpleSprite::Loader(eye).position({-50.2, 32.1}).z(-1).load();
 
-	SimpleTexture empty;
-	SimpleSprite::Loader(empty).z(5).bounds({3}).rotation(0.25f*3.1415927f).load();
+	SimpleSprite::Loader({}).z(5).bounds({3}).rotation(0.25f*3.1415927f).load();
 
 	GLuint customShader = simpleGL::loadShaderPath("example/custom.glsl", GL_FRAGMENT_SHADER);
 	lightSp->setFragmentShader(customShader);
@@ -61,6 +60,10 @@ int main() {
 
 	std::string lorem("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
 	SimpleText text(&sans, lorem, SimpleVector(0, -100), -10, 1, 0, SimpleColor(0), SimpleText::CENTER, 350);
+
+	SimpleLight dark({0, -200}, -10, 200, 200, {0});
+	SimpleLight::Source::load(dark, SimpleVector(0, -200) + SimpleVector(25), {100}, 0, {0.5f, 0, 0});
+	SimpleLight::Source::load(dark, SimpleVector(0, -200) + SimpleVector(-25), {100}, 0, {0, 0.5f, 0});
 
 	simpleGL::setUpdate(update);
 

@@ -21,11 +21,12 @@ namespace simpleUtil {
 	GLuint defaultFragmentShader;
 	GLuint emptyFragmentShader;
 	GLuint textFragmentShader;
+	GLuint lightFragmentShader;
 
 	GLuint overlayVertexShader;
 	GLuint overlayFragmentShader;
 
-	void setDefaultShaders(SimpleSprite* sprite, bool empty) {
+	void setDefaultShaders(SimplerSprite* sprite, bool empty) {
 
 		sprite->setVertexShader(vertexShader);
 		sprite->setGeometryShader(geometryShader);
@@ -36,6 +37,10 @@ namespace simpleUtil {
 
 	void setTextShader(SimpleSprite* sprite) {
 		sprite->setFragmentShader(textFragmentShader);
+	}
+
+	void setLightShader(SimpleSprite* sprite) {
+		sprite->setFragmentShader(lightFragmentShader);
 	}
 
 	void useShaders(GLuint vertex, GLuint geometry, GLuint fragment) {
@@ -61,6 +66,16 @@ namespace simpleUtil {
 		useShaders(overlayVertexShader, 0, overlayFragmentShader);
 	}
 
+	void setResolution(unsigned width, unsigned height) {
+		float data[] {2.0f/height, ((float) height)/width};
+
+		glBufferSubData(GL_UNIFORM_BUFFER, 4*sizeof(float), 2*sizeof(float), data);
+	}
+
+	void setDefaultResolution() {
+		setResolution(simpleGL::getWindowWidth(), simpleGL::getWindowHeight());
+	}
+
 	inline void printInfoLog(GLuint program) {
 		GLint length;
 		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
@@ -81,25 +96,19 @@ namespace simpleUtil {
 		defaultFragmentShader = simpleGL::loadShaderSource(simpleShaderData::getDefaultFragment(), GL_FRAGMENT_SHADER);
 		emptyFragmentShader = simpleGL::loadShaderSource(simpleShaderData::getEmptyFragment(), GL_FRAGMENT_SHADER);
 		textFragmentShader = simpleGL::loadShaderSource(simpleShaderData::getTextFragment(), GL_FRAGMENT_SHADER);
+		lightFragmentShader = simpleGL::loadShaderSource(simpleShaderData::getLightFragment(), GL_FRAGMENT_SHADER);
 
 		overlayVertexShader = simpleGL::loadShaderSource(simpleShaderData::getOverlayVertex(), GL_VERTEX_SHADER);
 		overlayFragmentShader = simpleGL::loadShaderSource(simpleShaderData::getOverlayFragment(), GL_FRAGMENT_SHADER);
 
-		GLuint stat;
-		glGenBuffers(1, &stat);
-		glBindBuffer(GL_UNIFORM_BUFFER, stat);
-		glBindBufferBase(GL_UNIFORM_BUFFER, 0, stat);
-
-		float aspect = ((float) simpleGL::getWindowHeight()) / simpleGL::getWindowWidth();
-		glBufferData(GL_UNIFORM_BUFFER, sizeof(float), &aspect, GL_STATIC_DRAW);
-
 		GLuint dynamic;
 		glGenBuffers(1, &dynamic);
 		glBindBuffer(GL_UNIFORM_BUFFER, dynamic);
-		glBindBufferBase(GL_UNIFORM_BUFFER, 1, dynamic);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 0, dynamic);
 
-		float defData[] {0, 0, 0, 1};
-		glBufferData(GL_UNIFORM_BUFFER, 4*sizeof(float), defData, GL_DYNAMIC_DRAW);
+		glBufferData(GL_UNIFORM_BUFFER, 6*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+		simpleGL::setCameraScale(1);
+		setDefaultResolution();
 
 		print("Shaders initialized");
 	}
@@ -135,10 +144,6 @@ namespace simpleGL {
 			return 0;
 		} else	print("Shader validated");
 
-		if (type == GL_GEOMETRY_SHADER) {
-			glUniformBlockBinding(program, glGetUniformBlockIndex(program, "DynamicData"), 1);
-		}
-
 		return program;
 	}
 
@@ -159,8 +164,7 @@ namespace simpleGL {
 	}
 
 	void setCameraPosition(SimpleVector position) {
-		SimpleVector sv = actualToScreen(position);
-		float data[2] {sv.x, sv.y};
+		float data[2] {position.x, position.y};
 
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, 2*sizeof(float), data);
 	}
@@ -171,7 +175,7 @@ namespace simpleGL {
 	}
 
 	void setCameraScale(float scale) {
-		
+
 		glBufferSubData(GL_UNIFORM_BUFFER, 3*sizeof(float), sizeof(float), &scale);
 	}
 
