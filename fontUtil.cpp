@@ -70,7 +70,7 @@ SimpleFont::SimpleFont(const char* path, int size) {
 	}
 	width -= TEX_GAP;
 
-	genTexture(&texture, GL_LINEAR);
+	genTexture(GL_LINEAR);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 

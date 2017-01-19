@@ -10,25 +10,14 @@
 namespace simpleUtil {
 	GLenum textureFiltering = GL_NEAREST;
 
-	inline void setFiltering(GLuint texture, GLenum filtering) {
-		glBindTexture(GL_TEXTURE_RECTANGLE, texture);
-
-		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, filtering);
-		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, filtering);
-	}
-
-	void genTexture(GLuint* texture, GLenum filtering) {
-		glGenTextures(1, texture);
-
-		setFiltering(*texture, filtering);
-
-		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	}
-
 }
 
 using namespace simpleUtil;
+
+SimpleTexture::SimpleTexture(unsigned width, unsigned height, GLenum format) : width(width), height(height) {
+	genTexture(textureFiltering);
+	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
+}
 
 void simpleGL::setTextureFiltering(GLenum tf) {
 	if ((tf != GL_LINEAR) && (tf != GL_NEAREST)) {
@@ -87,7 +76,7 @@ SimpleTexture::SimpleTexture(const char* path) {
 
 	png_get_IHDR(png_ptr, info_ptr, &width, &height, nullptr, nullptr, nullptr, nullptr, nullptr);
 
-	genTexture(&texture, textureFiltering);
+	genTexture(textureFiltering);
 
 	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
@@ -103,18 +92,31 @@ SimpleTexture::SimpleTexture(const char* path) {
 	fclose(file);
 }
 
-void SimpleTexture::setFiltering(GLenum tf) const {
-	if ((tf != GL_LINEAR) && (tf != GL_NEAREST)) {
+void SimpleTexture::setFiltering(GLenum filtering) const {
+	if ((filtering != GL_LINEAR) && (filtering != GL_NEAREST)) {
 		print("Wrong filtering type");
 		return;
 	}
 
-	simpleUtil::setFiltering(texture, tf);
+	glBindTexture(GL_TEXTURE_RECTANGLE, texture);
+
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, filtering);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, filtering);
+}
+
+void SimpleTexture::genTexture(GLenum filtering) {
+	glGenTextures(1, &texture);
+
+	setFiltering(filtering);
+
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
 void SimpleTexture::unload() {
-	if (texture == 0)	return;
-	print("Unloading texture");
+	if (texture != 0) {
+		print("Unloading texture");
 
-	glDeleteTextures(1, &texture);
+		glDeleteTextures(1, &texture);
+	}
 }

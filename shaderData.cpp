@@ -30,7 +30,7 @@ namespace simpleShaderData {
 		"}");
 	}
 
-	std::string getGeometry() {
+	std::string getDefaultGeometry() {
 		return std::string("#version 430 core\n"
 
 		"layout(points) in;\n"
@@ -66,7 +66,7 @@ namespace simpleShaderData {
 
 		"void drawVert(vec2 vert) {\n"
 		"	geomColor = inData[0].vColor;\n"
-		"	vec2 vertex = vert*inData[0].vTexData.zw;"
+		"	vec2 vertex = vert*inData[0].vTexData.zw;\n"
 		"	geomTexPosition = vertex + inData[0].vTexData.xy;//hmmmm\n"
 
 		"	gl_Position = vec4(rotC*(rotV*vec3(vertex * inData[0].vBounds * dynData.rScale, 0)"
@@ -87,6 +87,69 @@ namespace simpleShaderData {
 		"	rotC = dynData.cameraScale * mat3(	cosC,		sinC,	0,\n"
 		"													-sinC,	cosC,	0,\n"
 		"													0,			0,		1);\n"
+
+		"	drawVert(vec2(-0.5, 0.5));\n"
+		"	drawVert(vec2(-0.5, -0.5));\n"
+		"	drawVert(vec2(0.5, 0.5));\n"
+		"	drawVert(vec2(0.5, -0.5));\n"
+
+		"	EndPrimitive();\n"
+		"}");
+	}
+
+	std::string getLightingGeometry() {
+		return std::string("#version 430 core\n"
+
+		"layout(points) in;\n"
+		"layout(triangle_strip, max_vertices = 4) out;\n"
+
+		"in gl_PerVertex {\n"
+		"  vec4 gl_Position;\n"
+		"} gl_in[];\n"
+
+		"in QuadData {\n"
+		"	vec2 vBounds;\n"
+		"	float vAngle;\n"
+		"	vec4 vColor;\n"
+		"	vec4 vTexData;\n"
+		"} inData[];\n"
+
+		"out gl_PerVertex {\n"
+		"	vec4 gl_Position;\n"
+		"};\n"
+
+		"out vec4 geomColor;\n"
+		"out vec2 geomTexPosition;\n"
+		"out vec2 geomCentre;\n"
+
+		"layout(std140) uniform DynamicData {\n"
+		"	uniform vec2 cameraPosition;\n"
+		"	uniform float cameraRotation;\n"
+		"	uniform float cameraScale;\n"
+		"	uniform float rScale;\n"
+		"	uniform float rAspect;\n"
+		"} dynData;\n"
+
+		"mat3 rotV;\n"
+
+		"void drawVert(vec2 vert) {\n"
+		"	geomColor = inData[0].vColor;\n"
+		"	geomCentre = gl_in[0].gl_Position.xy;\n"
+		"	vec2 vertex = vert*inData[0].vTexData.zw;\n"
+		"	geomTexPosition = vertex + inData[0].vTexData.xy;//hmmmm\n"
+
+		"	gl_Position = vec4(rotV*vec3(vertex * inData[0].vBounds * dynData.rScale, 0)"
+		"								+ vec3((gl_in[0].gl_Position.xy) * dynData.rScale, 0), 1);\n"
+		"	gl_Position.x *= dynData.rAspect;\n"
+		"	EmitVertex();\n"
+		"}\n"
+
+		"void main() {\n"
+		"	float cosV = cos(inData[0].vAngle);\n"
+		"	float sinV = sin(inData[0].vAngle);\n"
+		"	rotV = mat3(cosV,		sinV,	0,\n"
+		"					-sinV,	cosV,	0,\n"
+		"					0,			0,		1);\n"
 
 		"	drawVert(vec2(-0.5, 0.5));\n"
 		"	drawVert(vec2(-0.5, -0.5));\n"
@@ -168,19 +231,17 @@ namespace simpleShaderData {
 		"}");
 	}
 
-	std::string getLightFragment() {
+	std::string getLightingDefaultFragment() {
 		return std::string("#version 430 core\n"
 
 		"in vec4 geomColor;\n"
 		"in vec2 geomTexPosition;\n"
+		"in vec2 geomCentre;\n"
 
 		"out vec4 fColor;\n"
 
-		"uniform sampler2DRect text;\n"
-
 		"void main() {\n"
-		"	vec3 tex = texture(text, geomTexPosition).rgb;\n"
-		"	fColor = vec4(tex, 1 - (tex.r + tex.g + tex.b)/3)*geomColor;\n"
+		"	fColor = geomColor;\n"
 		"}");
 	}
 }

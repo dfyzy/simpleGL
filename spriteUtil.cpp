@@ -16,6 +16,7 @@ namespace simpleUtil {
 
 	GLuint msaaFbo;
 	GLuint rectFbo;
+
 	GLuint vbos[Attrib::COUNT];
 
 	GLuint currentTexture = 0;
@@ -58,6 +59,10 @@ namespace simpleUtil {
 		loadVector(texBounds, array, offset);
 	}
 
+	GLuint getMsaaFbo() {
+		return msaaFbo;
+	}
+
 	void initBuffers() {
 		glGenBuffers(Attrib::COUNT, vbos);
 
@@ -92,13 +97,8 @@ namespace simpleUtil {
 
 		glActiveTexture(GL_TEXTURE1);
 
-		GLuint texture;
-		genTexture(&texture, GL_NEAREST);
-
-		glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGB, simpleGL::getWindowWidth(), simpleGL::getWindowHeight(), 0,
-															GL_RGB, GL_UNSIGNED_INT, nullptr);
-
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texture, 0);
+		SimpleTexture texture(simpleGL::getWindowWidth(), simpleGL::getWindowHeight(), GL_RGB);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texture.getTexture(), 0);
 
 		glActiveTexture(GL_TEXTURE0);
 
@@ -154,74 +154,73 @@ namespace simpleUtil {
 
 using namespace simpleUtil;
 
-SimplerSprite::SimplerSprite(GLuint texture, SimpleVector position, SimpleVector bounds, float rotation,
-										SimpleColor color, SimpleVector texPosition, SimpleVector texBounds) : texture(texture) {
-		print("Adding sprite");
+SimplerSprite::SimplerSprite(GLuint textureId, SimpleVector position, SimpleVector bounds, float rotation,
+										SimpleColor color, SimpleVector texPosition, SimpleVector texBounds) : textureId(textureId) {
+	print("Adding sprite");
 
-		if (!deletedQueue.empty()) {
-			id = deletedQueue.front();
-			deletedQueue.pop();
-		}else	id = spriteCount++;
+	if (!deletedQueue.empty()) {
+		id = deletedQueue.front();
+		deletedQueue.pop();
+	}else	id = spriteCount++;
 
-		if (spriteCapacity < spriteCount) {
-			print("Resizing data buffers");
+	if (spriteCapacity < spriteCount) {
+		print("Resizing data buffers");
 
-			GLuint tempVbo;
-			glGenBuffers(1, &tempVbo);
+		GLuint tempVbo;
+		glGenBuffers(1, &tempVbo);
 
-			for (int i = 0; i < Attrib::COUNT; i++) {
-				int size = Attrib::sizes[i] * sizeof(float);
-				int oldSize = spriteCapacity * size;
-
-				//loading current data into temp buffer, resizing this buffer and loading data back from temp buffer.
-				glBindBuffer(GL_COPY_WRITE_BUFFER, tempVbo);
-				glBufferData(GL_COPY_WRITE_BUFFER, oldSize, nullptr, GL_DYNAMIC_DRAW);
-
-				glBindBuffer(GL_COPY_READ_BUFFER, vbos[i]);
-				glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, oldSize);
-
-				glBindBuffer(GL_COPY_WRITE_BUFFER, vbos[i]);
-				glBufferData(GL_COPY_WRITE_BUFFER, 2 * spriteCount * size, nullptr, GL_DYNAMIC_DRAW);
-
-				glBindBuffer(GL_COPY_READ_BUFFER, tempVbo);
-				glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, oldSize);
-
-				// TODO: check if one copy/attribpointer is faster than copy/copy
-				// GLuint t = vbos[i];
-				// vbos[i] = tempVbo;
-				// tempVbo = t;
-			}
-			glDeleteBuffers(1, &tempVbo);
-
-			spriteCapacity = 2*spriteCount;
-		}
-
-		float data[SPRITE_SIZE];
-		int offset = 0;
-		loadPosition(position, data, &offset);
-		loadBounds(bounds, data, &offset);
-		loadRotation(rotation, data, &offset);
-		loadColor(color, data, &offset);
-		loadTexData(texPosition, texBounds, data, &offset);
-
-		int dataOffset = 0;
 		for (int i = 0; i < Attrib::COUNT; i++) {
-			bindSpriteAttrib(static_cast<Attrib::E>(i), id, data + dataOffset);
+			int size = Attrib::sizes[i] * sizeof(float);
+			int oldSize = spriteCapacity * size;
 
-			dataOffset += Attrib::sizes[i];
+			//loading current data into temp buffer, resizing this buffer and loading data back from temp buffer.
+			glBindBuffer(GL_COPY_WRITE_BUFFER, tempVbo);
+			glBufferData(GL_COPY_WRITE_BUFFER, oldSize, nullptr, GL_DYNAMIC_DRAW);
+
+			glBindBuffer(GL_COPY_READ_BUFFER, vbos[i]);
+			glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, oldSize);
+
+			glBindBuffer(GL_COPY_WRITE_BUFFER, vbos[i]);
+			glBufferData(GL_COPY_WRITE_BUFFER, 2 * spriteCount * size, nullptr, GL_DYNAMIC_DRAW);
+
+			glBindBuffer(GL_COPY_READ_BUFFER, tempVbo);
+			glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, oldSize);
+
+			// TODO: check if one copy/attribpointer is faster than copy/copy
+			// GLuint t = vbos[i];
+			// vbos[i] = tempVbo;
+			// tempVbo = t;
 		}
+		glDeleteBuffers(1, &tempVbo);
 
-		setDefaultShaders(this, texture == 0);
+		spriteCapacity = 2*spriteCount;
 	}
 
-SimpleSprite* SimpleSprite::load(GLuint texture, SimpleVector position, int z, SimpleVector bounds, float rotation,
-															SimpleColor color, SimpleVector texPosition, SimpleVector texBounds) {
-	SimpleSprite* sprite = new SimpleSprite(texture, position, z, bounds, rotation, color, texPosition, texBounds);
-	sprites.insert(sprite);
-	return sprite;
+	float data[SPRITE_SIZE];
+	int offset = 0;
+	loadPosition(position, data, &offset);
+	loadBounds(bounds, data, &offset);
+	loadRotation(rotation, data, &offset);
+	loadColor(color, data, &offset);
+	loadTexData(texPosition, texBounds, data, &offset);
+
+	int dataOffset = 0;
+	for (int i = 0; i < Attrib::COUNT; i++) {
+		bindSpriteAttrib(static_cast<Attrib::E>(i), id, data + dataOffset);
+
+		dataOffset += Attrib::sizes[i];
+	}
+
+	setDefaultShaders(this, textureId == 0);
 }
 
-void SimplerSprite::unload() {
+SimpleSprite::SimpleSprite(GLuint texture, SimpleVector position, int z, SimpleVector bounds, float rotation,
+										SimpleColor color, SimpleVector texPosition, SimpleVector texBounds)
+										: SimplerSprite(texture, position, bounds, rotation, color, texPosition, texBounds), z(z) {
+	sprites.insert(this);
+}
+
+SimplerSprite::~SimplerSprite() {
 	print("Unloading sprite");
 
 	if (id < spriteCount - 1)
@@ -230,9 +229,7 @@ void SimplerSprite::unload() {
 		spriteCount--;
 }
 
-void SimpleSprite::unload() {
-	SimplerSprite::unload();
-
+SimpleSprite::~SimpleSprite() {
 	sprites.erase(this);
 }
 
@@ -249,9 +246,9 @@ void SimpleSprite::setZ(int pz) {
 	sprites.insert(this);
 }
 
-void SimpleSprite::setTexture(GLuint tex) {
+void SimpleSprite::setTextureId(GLuint tex) {
 	sprites.erase(this);
-	texture = tex;
+	textureId = tex;
 	sprites.insert(this);
 }
 
@@ -295,10 +292,10 @@ void SimplerSprite::setTexData(SimpleVector texPosition, SimpleVector texBounds)
 	bindSpriteAttrib(Attrib::TEX_DATA, id, data);
 }
 
-void SimplerSprite::draw() const {
-	if (texture != currentTexture) {
-		glBindTexture(GL_TEXTURE_RECTANGLE, texture);
-		currentTexture = texture;
+void SimplerSprite::draw() {
+	if (textureId != currentTexture) {
+		glBindTexture(GL_TEXTURE_RECTANGLE, textureId);
+		currentTexture = textureId;
 	}
 
 	useShaders(vertexShader, geometryShader, fragmentShader);

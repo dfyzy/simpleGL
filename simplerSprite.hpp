@@ -10,18 +10,18 @@ protected:
 	bool enabled {true};
 	unsigned id;
 
-	GLuint texture;
+	GLuint textureId;
 
 	GLuint vertexShader;
 	GLuint geometryShader;
 	GLuint fragmentShader;
 
-	SimplerSprite(GLuint texture, SimpleVector position, SimpleVector bounds, float rotation,
+	SimplerSprite(GLuint textureId, SimpleVector position, SimpleVector bounds, float rotation,
 								SimpleColor color, SimpleVector texPosition, SimpleVector texBounds);
 
-public:
+	virtual ~SimplerSprite();
 
-	~SimplerSprite() { unload(); }
+public:
 
 	unsigned getId() const { return id; }
 
@@ -31,8 +31,8 @@ public:
 	bool isEnabled() const { return enabled; }
 	virtual void setEnabled(bool b) { enabled = b; }
 
-	GLuint getTexture() const { return texture; }
-	virtual void setTexture(GLuint tex) { texture = tex; }
+	GLuint getTextureId() const { return textureId; }
+	virtual void setTextureId(GLuint tex) { textureId = tex; }
 
 	/*
 	 * Changes shader program for this sprite. When drawing this sprite opengl will use these shaders.
@@ -50,9 +50,7 @@ public:
 	virtual void setColor(SimpleColor c) const;
 	virtual void setTexData(SimpleVector texPosition, SimpleVector texBounds) const;
 
-	void draw() const;
-
-	virtual void unload();
+	virtual void draw();
 
 };
 

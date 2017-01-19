@@ -5,20 +5,20 @@
 #include "simpleTexture.hpp"
 
 class SimpleSprite : public SimplerSprite {
-private:
+protected:
 	int z;
 
-	SimpleSprite(GLuint texture, SimpleVector position, int z, SimpleVector bounds, float rotation,
-								SimpleColor color, SimpleVector texPosition, SimpleVector texBounds)
-								: SimplerSprite(texture, position, bounds, rotation, color, texPosition, texBounds), z(z) {}
+	~SimpleSprite();
+
 public:
 	/*
 	 * Creates sprite object and loads attribute data into data buffers.
 	 *
 	 * returns: sprite handle.
 	 */
-	static SimpleSprite* load(GLuint texture, SimpleVector position, int z, SimpleVector bounds, float rotation,
-													SimpleColor color, SimpleVector texPosition, SimpleVector texBounds);
+	SimpleSprite(GLuint texture, SimpleVector position, int z, SimpleVector bounds, float rotation,
+ 								SimpleColor color, SimpleVector texPosition, SimpleVector texBounds);
+
 	class Loader {
 	private:
 		const SimpleTexture& texture;
@@ -44,7 +44,7 @@ public:
 		SimpleSprite* load() {
 			if (ptexBounds == SimpleVector())	ptexBounds = SimpleVector(texture.getWidth(), texture.getHeight());
 
-			return SimpleSprite::load(texture.getTexture(), pposition, pz, pbounds, protation, pcolor, ptexPosition, ptexBounds);
+			return new SimpleSprite(texture.getTexture(), pposition, pz, pbounds, protation, pcolor, ptexPosition, ptexBounds);
 		}
 	};
 
@@ -53,9 +53,9 @@ public:
 	int getZ() const { return z; }
 	void setZ(int pz);
 
-	void setTexture(GLuint tex);
+	void setTextureId(GLuint tex);
 
-	void unload();
+	void unload() { delete this; }
 
 	struct Comparer {
 		bool operator()(const SimpleSprite* lhs, const SimpleSprite* rhs) {
@@ -64,8 +64,8 @@ public:
 			if (lhs->z != rhs->z)
 				return lhs->z > rhs->z;
 
-			if (lhs->texture != rhs->texture)
-				return lhs->texture < rhs->texture;
+			if (lhs->textureId != rhs->textureId)
+				return lhs->textureId < rhs->textureId;
 
 			if (lhs->vertexShader != rhs->vertexShader)
 				return lhs->vertexShader < rhs->vertexShader;

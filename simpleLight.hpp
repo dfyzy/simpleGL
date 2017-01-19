@@ -5,48 +5,45 @@
 #include "simpleSprite.hpp"
 #include "simpleTexture.hpp"
 
-class SimpleLight : public SimpleTexture {
+class SimpleLight : public SimpleTexture, public SimpleSprite {
 public:
 	class Source : public SimplerSprite {
 	public:
-		SimpleLight& light;
-
-		Source(SimpleLight& light, SimpleVector position, SimpleVector bounds, float rotation, SimpleRGB rgb)
-			: SimplerSprite(0, position - light.position, bounds/100, rotation, rgb, {}, bounds), light(light) {}
+		SimpleLight* light;
 
 	public:
-		static Source* load(SimpleLight& light, SimpleVector position, SimpleVector bounds, float rotation, SimpleRGB rgb);
+		Source(SimpleLight* light, SimpleVector position, SimpleVector bounds, float rotation, SimpleRGB rgb);
+
+		Source(const Source& other) =delete;
+		Source(Source&& other) =delete;
+
+		~Source() {
+			light->sources.remove(this);
+		}
 
 		void setPosition(SimpleVector position) const {
-			SimplerSprite::setPosition(position);
-			light.toggleDraw();
+			SimplerSprite::setPosition(position - light->position);
+			light->toggleDraw();
 		}
 
 		void setBounds(SimpleVector bounds) const {
 			SimplerSprite::setBounds(bounds);
-			light.toggleDraw();
+			light->toggleDraw();
 		}
 
 		void setRotation(float rotation) const {
 			SimplerSprite::setRotation(rotation);
-			light.toggleDraw();
+			light->toggleDraw();
 		}
 
 		void setColor(SimpleRGB c) const {
 			SimplerSprite::setColor(c);
-			light.toggleDraw();
-		}
-
-		void unload() {
-			SimplerSprite::unload();
-			light.sources.remove(this);
+			light->toggleDraw();
 		}
 
 	};
 
 private:
-	SimpleSprite* sprite;
-
 	SimpleVector position;
 	SimpleRGB baseRGB;
 
@@ -55,16 +52,19 @@ private:
 
 	bool needToDraw = true;
 
+	~SimpleLight();
+
 public:
 	SimpleLight(SimpleVector position, int z, unsigned width, unsigned height, SimpleRGB baseRGB);
-
-	SimpleLight(const SimpleLight& other) = delete;
 
 	void toggleDraw() { needToDraw = true; }
 
 	void draw();
 
-	void unload();
+	void unload() {
+		SimpleTexture::unload();
+		SimpleSprite::unload();
+	}
 
 };
 

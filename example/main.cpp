@@ -61,9 +61,9 @@ int main() {
 	std::string lorem("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
 	SimpleText text(&sans, lorem, SimpleVector(0, -100), -10, 1, 0, SimpleColor(0), SimpleText::CENTER, 350);
 
-	SimpleLight dark({0, -200}, -10, 200, 200, {0});
-	SimpleLight::Source::load(dark, SimpleVector(0, -200) + SimpleVector(25), {100}, 0, {0.5f, 0, 0});
-	SimpleLight::Source::load(dark, SimpleVector(0, -200) + SimpleVector(-25), {100}, 0, {0, 0.5f, 0});
+	SimpleLight* dark = new SimpleLight({0, -200}, -10, 200, 200, {0});
+	new SimpleLight::Source(dark, SimpleVector(0, -200) + SimpleVector(25), {100}, 0, {0.5f, 0, 0});
+	new SimpleLight::Source(dark, SimpleVector(0, -200) + SimpleVector(-25), {100}, 0, {0, 0.5f, 0});
 
 	simpleGL::setUpdate(update);
 

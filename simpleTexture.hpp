@@ -8,13 +8,18 @@ protected:
 	unsigned width = 100, height = 100;
 	GLuint texture = 0;
 
-	SimpleTexture(unsigned width, unsigned height) : width(width), height(height) {}
+	void genTexture(GLenum filtering);
 
 public:
 	/*
 	 * Texture object without texture with width and height equal 100.
 	 */
 	SimpleTexture() {}
+
+	/*
+	 *	Creates empty texture with given resolution.
+	 */
+	SimpleTexture(unsigned width, unsigned height, GLenum format);
 
 	/*
 	 * Loads texture from file into opengl texture object. Only works with png images(for now?).
@@ -24,6 +29,8 @@ public:
 	 * returns: handle to texture object.
 	 */
 	SimpleTexture(const char* path);
+
+	SimpleTexture(const SimpleTexture& other) =delete;
 
 	/*
 	 *	Gets pixel width and height of this texture.
@@ -35,7 +42,7 @@ public:
 
 	void setFiltering(GLenum tf) const;
 
-	virtual void unload();
+	void unload();
 
 };
 

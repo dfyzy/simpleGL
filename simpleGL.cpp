@@ -139,7 +139,7 @@ namespace simpleGL {
 	unsigned getWindowHeight() {
 		return windowHeight;
 	}
-	
+
 	SimpleVector glfwToScreen(double x, double y) {
 		return SimpleVector(x/windowWidth, 1 - y/windowHeight);
 	}
@@ -180,11 +180,8 @@ namespace simpleGL {
 
 			glBindVertexArray(vao);
 
-			simpleUtil::drawLights();
-
 			glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-			glViewport(0, 0, windowWidth, windowHeight);
-
+			
 			simpleUtil::drawSprites();
 
 			glBindVertexArray(0);

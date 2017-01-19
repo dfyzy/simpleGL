@@ -16,12 +16,14 @@ namespace simpleUtil {
 	GLuint currentFragment {0};
 
 	GLuint vertexShader;
-	GLuint geometryShader;
+
+	GLuint defaultGeometryShader;
+	GLuint lightingGeometryShader;
 
 	GLuint defaultFragmentShader;
 	GLuint emptyFragmentShader;
 	GLuint textFragmentShader;
-	GLuint lightFragmentShader;
+	GLuint lightingFragmentShader;
 
 	GLuint overlayVertexShader;
 	GLuint overlayFragmentShader;
@@ -29,18 +31,20 @@ namespace simpleUtil {
 	void setDefaultShaders(SimplerSprite* sprite, bool empty) {
 
 		sprite->setVertexShader(vertexShader);
-		sprite->setGeometryShader(geometryShader);
+		sprite->setGeometryShader(defaultGeometryShader);
 		if (empty)	sprite->setFragmentShader(emptyFragmentShader);
 		else			sprite->setFragmentShader(defaultFragmentShader);
 
 	}
 
-	void setTextShader(SimpleSprite* sprite) {
-		sprite->setFragmentShader(textFragmentShader);
+	void setLightingShaders(SimplerSprite* sprite) {
+		sprite->setGeometryShader(lightingGeometryShader);
+		sprite->setFragmentShader(lightingFragmentShader);
 	}
 
-	void setLightShader(SimpleSprite* sprite) {
-		sprite->setFragmentShader(lightFragmentShader);
+
+	void setTextShader(SimpleSprite* sprite) {
+		sprite->setFragmentShader(textFragmentShader);
 	}
 
 	void useShaders(GLuint vertex, GLuint geometry, GLuint fragment) {
@@ -91,12 +95,14 @@ namespace simpleUtil {
 		glBindProgramPipeline(pipeline);
 
 		vertexShader = simpleGL::loadShaderSource(simpleShaderData::getVertex(), GL_VERTEX_SHADER);
-		geometryShader = simpleGL::loadShaderSource(simpleShaderData::getGeometry(), GL_GEOMETRY_SHADER);
+
+		defaultGeometryShader = simpleGL::loadShaderSource(simpleShaderData::getDefaultGeometry(), GL_GEOMETRY_SHADER);
+		lightingGeometryShader = simpleGL::loadShaderSource(simpleShaderData::getLightingGeometry(), GL_GEOMETRY_SHADER);
 
 		defaultFragmentShader = simpleGL::loadShaderSource(simpleShaderData::getDefaultFragment(), GL_FRAGMENT_SHADER);
 		emptyFragmentShader = simpleGL::loadShaderSource(simpleShaderData::getEmptyFragment(), GL_FRAGMENT_SHADER);
 		textFragmentShader = simpleGL::loadShaderSource(simpleShaderData::getTextFragment(), GL_FRAGMENT_SHADER);
-		lightFragmentShader = simpleGL::loadShaderSource(simpleShaderData::getLightFragment(), GL_FRAGMENT_SHADER);
+		lightingFragmentShader = simpleGL::loadShaderSource(simpleShaderData::getLightingDefaultFragment(), GL_FRAGMENT_SHADER);
 
 		overlayVertexShader = simpleGL::loadShaderSource(simpleShaderData::getOverlayVertex(), GL_VERTEX_SHADER);
 		overlayFragmentShader = simpleGL::loadShaderSource(simpleShaderData::getOverlayFragment(), GL_FRAGMENT_SHADER);
