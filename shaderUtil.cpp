@@ -71,7 +71,7 @@ namespace simpleUtil {
 	}
 
 	void setResolution(unsigned width, unsigned height) {
-		float data[] {2.0f/height, ((float) height)/width};
+		float data[] {(float)width, (float)height};
 
 		glBufferSubData(GL_UNIFORM_BUFFER, 4*sizeof(float), 2*sizeof(float), data);
 	}

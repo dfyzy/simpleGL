@@ -181,7 +181,7 @@ namespace simpleGL {
 			glBindVertexArray(vao);
 
 			glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-			
+
 			simpleUtil::drawSprites();
 
 			glBindVertexArray(0);

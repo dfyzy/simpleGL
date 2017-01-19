@@ -58,8 +58,7 @@ namespace simpleShaderData {
 		"	uniform vec2 cameraPosition;\n"
 		"	uniform float cameraRotation;\n"
 		"	uniform float cameraScale;\n"
-		"	uniform float rScale;\n"
-		"	uniform float rAspect;\n"
+		"	uniform vec2 resolution;\n"
 		"} dynData;\n"
 
 		"mat3 rotV, rotC;\n"
@@ -69,9 +68,9 @@ namespace simpleShaderData {
 		"	vec2 vertex = vert*inData[0].vTexData.zw;\n"
 		"	geomTexPosition = vertex + inData[0].vTexData.xy;//hmmmm\n"
 
-		"	gl_Position = vec4(rotC*(rotV*vec3(vertex * inData[0].vBounds * dynData.rScale, 0)"
-		"								+ vec3((gl_in[0].gl_Position.xy - dynData.cameraPosition) * dynData.rScale, 0)), 1);\n"
-		"	gl_Position.x *= dynData.rAspect;\n"
+		"	gl_Position = vec4(rotC*(rotV*vec3(vertex * inData[0].vBounds * 2/dynData.resolution.y, 0)"
+		"								+ vec3((gl_in[0].gl_Position.xy - dynData.cameraPosition) * 2/dynData.resolution.y, 0)), 1);\n"
+		"	gl_Position.x *= dynData.resolution.y/dynData.resolution.x;\n"
 		"	EmitVertex();\n"
 		"}\n"
 
@@ -121,26 +120,27 @@ namespace simpleShaderData {
 		"out vec4 geomColor;\n"
 		"out vec2 geomTexPosition;\n"
 		"out vec2 geomCentre;\n"
+		"out vec2 geomBounds;\n"
 
 		"layout(std140) uniform DynamicData {\n"
 		"	uniform vec2 cameraPosition;\n"
 		"	uniform float cameraRotation;\n"
 		"	uniform float cameraScale;\n"
-		"	uniform float rScale;\n"
-		"	uniform float rAspect;\n"
+		"	uniform vec2 resolution;\n"
 		"} dynData;\n"
 
 		"mat3 rotV;\n"
 
 		"void drawVert(vec2 vert) {\n"
 		"	geomColor = inData[0].vColor;\n"
-		"	geomCentre = gl_in[0].gl_Position.xy;\n"
+		"	geomCentre = gl_in[0].gl_Position.xy + dynData.resolution/2;\n"
+		"	geomBounds = inData[0].vTexData.zw;\n"
 		"	vec2 vertex = vert*inData[0].vTexData.zw;\n"
-		"	geomTexPosition = vertex + inData[0].vTexData.xy;//hmmmm\n"
+		"	geomTexPosition = vertex + inData[0].vTexData.xy;\n"
 
-		"	gl_Position = vec4(rotV*vec3(vertex * inData[0].vBounds * dynData.rScale, 0)"
-		"								+ vec3((gl_in[0].gl_Position.xy) * dynData.rScale, 0), 1);\n"
-		"	gl_Position.x *= dynData.rAspect;\n"
+		"	gl_Position = vec4(rotV*vec3(vertex * inData[0].vBounds * 2/dynData.resolution.y, 0)"
+		"								+ vec3((gl_in[0].gl_Position.xy) * 2/dynData.resolution.y, 0), 1);\n"
+		"	gl_Position.x *= dynData.resolution.y/dynData.resolution.x;\n"
 		"	EmitVertex();\n"
 		"}\n"
 
@@ -237,6 +237,7 @@ namespace simpleShaderData {
 		"in vec4 geomColor;\n"
 		"in vec2 geomTexPosition;\n"
 		"in vec2 geomCentre;\n"
+		"in vec2 geomBounds;\n"
 
 		"out vec4 fColor;\n"
 

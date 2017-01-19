@@ -30,13 +30,14 @@ void SimpleLight::draw() {
 	if (needToDraw) {
 		needToDraw = false;
 
-		glBlendFunc(GL_ONE, GL_ONE);
+		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE);
+		//glBlendEquation(GL_MAX);
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
 		glViewport(0, 0, width, height);
 		setResolution(width, height);
 
-		glClearColor(baseRGB.r, baseRGB.g, baseRGB.b, 1);
+		glClearColor(baseRGB.r, baseRGB.g, baseRGB.b, 0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		for (Source* s : sources)
@@ -45,6 +46,8 @@ void SimpleLight::draw() {
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, getMsaaFbo());
 		glViewport(0, 0, simpleGL::getWindowWidth(), simpleGL::getWindowHeight());
 		setDefaultResolution();
+
+		//glBlendEquation(GL_FUNC_ADD);
 	}
 
 	glBlendFunc(GL_ZERO, GL_SRC_COLOR);
