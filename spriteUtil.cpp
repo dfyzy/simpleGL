@@ -5,14 +5,14 @@
 #include "simpleUtil.hpp"
 #include <iostream>
 struct Attrib {
-	enum E { POSITION, BOUNDS, ROTATION, COLOR, TEX_DATA, COUNT } type;
-	static const unsigned sizes[5];
+	enum E { POSITION, BOUNDS, ROTATION, COLOR, TEX_POSITION, TEX_BOUNDS, COUNT } type;
+	static const unsigned sizes[6];
 };
 
-const unsigned Attrib::sizes[5] = {2, 2, 1, 4, 4};
+const unsigned Attrib::sizes[6] = {2, 2, 1, 4, 2, 2};
 
 namespace simpleUtil {
-	const int SPRITE_SIZE = 2 + 2 + 1 + 4 + 4;
+	const int SPRITE_SIZE = 2 + 2 + 1 + 4 + 2 + 2;
 
 	GLuint msaaFbo;
 	GLuint rectFbo;
@@ -54,8 +54,11 @@ namespace simpleUtil {
 		array[(*offset)++] = c.a;
 	}
 
-	inline void loadTexData(SimpleVector texPosition, SimpleVector texBounds, float* array, int* offset) {
-		loadVector(texPosition + texBounds*0.5f, array, offset);
+	inline void loadTexPosition(SimpleVector texPosition, float* array, int* offset) {
+		loadVector(texPosition, array, offset);
+	}
+
+	inline void loadTexBounds(SimpleVector texBounds, float* array, int* offset) {
 		loadVector(texBounds, array, offset);
 	}
 
@@ -202,7 +205,8 @@ SimplerSprite::SimplerSprite(GLuint textureId, SimpleVector position, SimpleVect
 	loadBounds(bounds, data, &offset);
 	loadRotation(rotation, data, &offset);
 	loadColor(color, data, &offset);
-	loadTexData(texPosition, texBounds, data, &offset);
+	loadTexPosition(texPosition, data, &offset);
+	loadTexBounds(texBounds, data, &offset);
 
 	int dataOffset = 0;
 	for (int i = 0; i < Attrib::COUNT; i++) {
@@ -284,12 +288,20 @@ void SimplerSprite::setColor(SimpleColor c) const {
 	bindSpriteAttrib(Attrib::COLOR, id, data);
 }
 
-void SimplerSprite::setTexData(SimpleVector texPosition, SimpleVector texBounds) const {
-	float data[Attrib::sizes[Attrib::TEX_DATA]];
+void SimplerSprite::setTexPosition(SimpleVector texPosition) const {
+	float data[Attrib::sizes[Attrib::TEX_POSITION]];
 	int offset = 0;
-	loadTexData(texPosition, texBounds, data, &offset);
+	loadTexPosition(texPosition, data, &offset);
 
-	bindSpriteAttrib(Attrib::TEX_DATA, id, data);
+	bindSpriteAttrib(Attrib::TEX_POSITION, id, data);
+}
+
+void SimplerSprite::setTexBounds(SimpleVector texBounds) const {
+	float data[Attrib::sizes[Attrib::TEX_BOUNDS]];
+	int offset = 0;
+	loadTexBounds(texBounds, data, &offset);
+
+	bindSpriteAttrib(Attrib::TEX_BOUNDS, id, data);
 }
 
 void SimplerSprite::draw() {

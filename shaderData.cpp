@@ -8,13 +8,15 @@ namespace simpleShaderData {
 		"layout(location=2)	in vec2 inBounds;\n"
 		"layout(location=3)	in float inAngle;\n"
 		"layout(location=4)	in vec4 inColor;\n"
-		"layout(location=5)	in vec4 inTexData;\n"
+		"layout(location=5)	in vec2 inTexPosition;\n"
+		"layout(location=6)	in vec2 inTexBounds;\n"
 
 		"out QuadData {\n"
 		"	vec2 vBounds;\n"
 		"	float vAngle;\n"
 		"	vec4 vColor;\n"
-		"	vec4 vTexData;\n"
+		"	vec2 vTexPosition;\n"
+		"	vec2 vTexBounds;\n"
 		"};\n"
 
 		"out gl_PerVertex {\n"
@@ -25,7 +27,8 @@ namespace simpleShaderData {
 		"	vBounds = inBounds;\n"
 		"	vAngle = inAngle;\n"
 		"	vColor = inColor;\n"
-		"	vTexData = inTexData;\n"
+		"	vTexPosition = inTexPosition + 0.5f*inTexBounds;\n"
+		"	vTexBounds = inTexBounds;\n"
 		"	gl_Position = vec4(inPosition, 0, 1);\n"
 		"}");
 	}
@@ -44,7 +47,8 @@ namespace simpleShaderData {
 		"	vec2 vBounds;\n"
 		"	float vAngle;\n"
 		"	vec4 vColor;\n"
-		"	vec4 vTexData;\n"
+		"	vec2 inTexPosition;\n"
+		"	vec2 inTexBounds;\n"
 		"} inData[];\n"
 
 		"out gl_PerVertex {\n"
@@ -65,8 +69,8 @@ namespace simpleShaderData {
 
 		"void drawVert(vec2 vert) {\n"
 		"	geomColor = inData[0].vColor;\n"
-		"	vec2 vertex = vert*inData[0].vTexData.zw;\n"
-		"	geomTexPosition = vertex + inData[0].vTexData.xy;//hmmmm\n"
+		"	vec2 vertex = vert*inData[0].inTexBounds;\n"
+		"	geomTexPosition = vertex + inData[0].inTexPosition;\n"
 
 		"	gl_Position = vec4(rotC*(rotV*vec3(vertex * inData[0].vBounds * 2/dynData.resolution.y, 0)"
 		"								+ vec3((gl_in[0].gl_Position.xy - dynData.cameraPosition) * 2/dynData.resolution.y, 0)), 1);\n"
@@ -110,7 +114,8 @@ namespace simpleShaderData {
 		"	vec2 vBounds;\n"
 		"	float vAngle;\n"
 		"	vec4 vColor;\n"
-		"	vec4 vTexData;\n"
+		"	vec2 inTexPosition;\n"
+		"	vec2 inTexBounds;\n"
 		"} inData[];\n"
 
 		"out gl_PerVertex {\n"
@@ -134,9 +139,9 @@ namespace simpleShaderData {
 		"void drawVert(vec2 vert) {\n"
 		"	geomColor = inData[0].vColor;\n"
 		"	geomCentre = gl_in[0].gl_Position.xy + dynData.resolution/2;\n"
-		"	geomBounds = inData[0].vTexData.zw;\n"
-		"	vec2 vertex = vert*inData[0].vTexData.zw;\n"
-		"	geomTexPosition = vertex + inData[0].vTexData.xy;\n"
+		"	geomBounds = inData[0].inTexBounds;\n"
+		"	vec2 vertex = vert*inData[0].inTexBounds;\n"
+		"	geomTexPosition = vertex + inData[0].inTexPosition;\n"
 
 		"	gl_Position = vec4(rotV*vec3(vertex * inData[0].vBounds * 2/dynData.resolution.y, 0)"
 		"								+ vec3((gl_in[0].gl_Position.xy) * 2/dynData.resolution.y, 0), 1);\n"

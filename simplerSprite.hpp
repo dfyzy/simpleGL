@@ -48,7 +48,8 @@ public:
 	virtual void setBounds(SimpleVector bounds) const;
 	virtual void setRotation(float rotation) const;
 	virtual void setColor(SimpleColor c) const;
-	virtual void setTexData(SimpleVector texPosition, SimpleVector texBounds) const;
+	virtual void setTexPosition(SimpleVector texPosition) const;
+	virtual void setTexBounds(SimpleVector texBounds) const;
 
 	virtual void draw();
 

@@ -41,7 +41,7 @@ void SimpleLight::draw() {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		for (Source* s : sources)
-			s->draw();
+			if (s->isEnabled())	s->draw();
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, getMsaaFbo());
 		glViewport(0, 0, simpleGL::getWindowWidth(), simpleGL::getWindowHeight());
