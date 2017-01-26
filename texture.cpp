@@ -13,8 +13,9 @@ namespace simpleUtil {
 }
 
 using namespace simpleUtil;
+using namespace simpleGL;
 
-SimpleTexture::SimpleTexture(unsigned width, unsigned height, GLenum format) : width(width), height(height) {
+Texture::Texture(unsigned width, unsigned height, GLenum format) : width(width), height(height) {
 	genTexture(textureFiltering);
 	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
 }
@@ -29,7 +30,7 @@ void simpleGL::setTextureFiltering(GLenum tf) {
 }
 
 
-SimpleTexture::SimpleTexture(const char* path) {
+Texture::Texture(const char* path) {
 	print("Loading texture");
 
 	FILE *file = fopen(path, "rb");
@@ -92,7 +93,7 @@ SimpleTexture::SimpleTexture(const char* path) {
 	fclose(file);
 }
 
-void SimpleTexture::setFiltering(GLenum filtering) const {
+void Texture::setFiltering(GLenum filtering) const {
 	if ((filtering != GL_LINEAR) && (filtering != GL_NEAREST)) {
 		print("Wrong filtering type");
 		return;
@@ -104,7 +105,7 @@ void SimpleTexture::setFiltering(GLenum filtering) const {
 	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, filtering);
 }
 
-void SimpleTexture::genTexture(GLenum filtering) {
+void Texture::genTexture(GLenum filtering) {
 	glGenTextures(1, &texture);
 
 	setFiltering(filtering);
@@ -113,7 +114,7 @@ void SimpleTexture::genTexture(GLenum filtering) {
 	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
-void SimpleTexture::unload() {
+void Texture::unload() {
 	if (texture != 0) {
 		print("Unloading texture");
 

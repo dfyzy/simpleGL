@@ -5,44 +5,44 @@
 	#include <iostream>
 #endif
 
-#include "simpleSprite.hpp"
+#include "sprite.hpp"
 
 namespace simpleUtil {
 
-	inline void print(const char* str) {
-		#ifdef DEBUG
-			std::cout << str << std::endl;
-		#endif
-	}
+inline void print(const char* str) {
+	#ifdef DEBUG
+		std::cout << str << std::endl;
+	#endif
+}
 
-	//creating program pipeline and default shader programs.
-	void initShaders();
-	//creating buffers for each sprite attribute. binding them to layout positions in shaders.
-	void initBuffers();
+//creating program pipeline and default shader programs.
+void initShaders();
+//creating buffers for each sprite attribute. binding them to layout positions in shaders.
+void initBuffers();
 
-	void initFbos();
+void initFbos();
 
-	void initFonts();
-	void closeFonts();
+void initFonts();
+void closeFonts();
 
-	GLuint getMsaaFbo();
+GLuint getMsaaFbo();
 
-	//setting default shaders for given sprite.
-	void setDefaultShaders(SimplerSprite* sprite, bool empty);
-	void setLightingShaders(SimplerSprite* sprite);
+//setting default shaders for given sprite.
+void setDefaultShaders(simpleGL::UnsortedSprite* sprite, bool empty);
+void setLightingShaders(simpleGL::UnsortedSprite* sprite);
 
-	void setTextShader(SimpleSprite* sprite);
+void setTextShader(simpleGL::Sprite* sprite);
 
-	//calling glUseProgramStages for each stage.
-	void useShaders(GLuint vertex, GLuint geometry, GLuint fragment);
+//calling glUseProgramStages for each stage.
+void useShaders(GLuint vertex, GLuint geometry, GLuint fragment);
 
-	void useOverlayShaders();
+void useOverlayShaders();
 
-	void setResolution(unsigned width, unsigned height);
-	void setDefaultResolution();
+void setResolution(unsigned width, unsigned height);
+void setDefaultResolution();
 
-	//draw sprites for each texture
-	void drawSprites();
+//draw sprites for each texture
+void drawSprites();
 
 }
 

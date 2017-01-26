@@ -250,4 +250,20 @@ namespace simpleShaderData {
 		"	fColor = geomColor;\n"
 		"}");
 	}
+
+	std::string getLightingPow2Fragment() {
+		return std::string("#version 430 core\n"
+
+		"in vec4 geomColor;\n"
+		"in vec2 geomTexPosition;\n"
+		"in vec2 geomCentre;\n"
+		"in vec2 geomBounds;\n"
+
+		"out vec4 fColor;\n"
+
+		"void main() {\n"
+		"	fColor = (1 - pow(2*length((geomCentre - gl_FragCoord.xy)/geomBounds), 2))*geomColor;\n"
+		"}");
+	}
+
 }

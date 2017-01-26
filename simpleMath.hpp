@@ -1,13 +1,13 @@
 #ifndef SIMPLE_MATH_HPP
-#define  SIMPLE_MATH_HPP
+#define SIMPLE_MATH_HPP
 
-#include "simpleVector.hpp"
+#include "vector.hpp"
 
 namespace simpleMath {
 
-	inline float distance(SimpleVector lhs, SimpleVector rhs) {
-		return (lhs - rhs).length();
-	}
+inline float distance(simpleGL::Vector lhs, simpleGL::Vector rhs) {
+	return (lhs - rhs).length();
+}
 
 }
 

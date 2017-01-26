@@ -2,17 +2,18 @@
 #include "simpleUtil.hpp"
 
 using namespace simpleUtil;
+using namespace simpleGL;
 
-SimpleLight::Source::Source(SimpleLight* light, SimpleVector position, SimpleVector bounds, float rotation, SimpleRGB rgb)
-			: SimplerSprite(0, position - light->position, {1}, rotation, rgb, {}, bounds), light(light) {
+Light::Source::Source(Light* light, Vector position, Vector bounds, float rotation, Rgb rgb)
+			: UnsortedSprite(0, position - light->position, {1}, rotation, rgb, {}, bounds), light(light) {
 	simpleUtil::setLightingShaders(this);
 	light->sources.push_back(this);
 	light->toggleDraw();
 }
 
-SimpleLight::SimpleLight(SimpleVector position, int z, unsigned width, unsigned height, SimpleRGB baseRGB)
-				: SimpleTexture(width, height, GL_RGB), SimpleSprite(texture, position, z, {1}, 0, {1}, {}, SimpleVector(width, height)),
-							position(position), baseRGB(baseRGB) {
+Light::Light(Vector position, int z, unsigned width, unsigned height, Rgb baseRgb)
+				: Texture(width, height, GL_RGB), Sprite(texture, position, z, {1}, 0, {1}, {}, Vector(width, height)),
+							position(position), baseRgb(baseRgb) {
 	setFiltering(GL_LINEAR);
 
 	glGenFramebuffers(1, &fbo);
@@ -20,13 +21,13 @@ SimpleLight::SimpleLight(SimpleVector position, int z, unsigned width, unsigned 
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texture, 0);
 }
 
-SimpleLight::~SimpleLight() {
+Light::~Light() {
 	//TODO: delete fbo
 	for (Source* s : sources)
 		delete s;
 }
 
-void SimpleLight::draw() {
+void Light::draw() {
 	if (needToDraw) {
 		needToDraw = false;
 
@@ -37,7 +38,7 @@ void SimpleLight::draw() {
 		glViewport(0, 0, width, height);
 		setResolution(width, height);
 
-		glClearColor(baseRGB.r, baseRGB.g, baseRGB.b, 0);
+		glClearColor(baseRgb.r, baseRgb.g, baseRgb.b, 0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		for (Source* s : sources)
@@ -52,7 +53,7 @@ void SimpleLight::draw() {
 
 	glBlendFunc(GL_ZERO, GL_SRC_COLOR);
 
-	SimpleSprite::draw();
+	Sprite::draw();
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

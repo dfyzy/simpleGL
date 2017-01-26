@@ -1,5 +1,7 @@
 #include <simpleGL/simpleGL.hpp>
 
+using namespace simpleGL;
+
 GLFWwindow* window;
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
@@ -8,15 +10,15 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 }
 
 int main() {
-	window = simpleGL::createFullscreenWindow("Title", false, SimpleColor(0.5f));
+	window = createFullscreenWindow("Title", false, Color(0.5f));
 
 	glfwSetKeyCallback(window, keyCallback);
 
-	//simpleGL::setTextureFiltering(GL_LINEAR); this will fix it
+	//setTextureFiltering(GL_LINEAR); this will fix it
 
-	SimpleTexture circle("circle/circle.png");
-	SimpleSprite::Loader(circle).position({-30, 0}).load();//bad
-	SimpleSprite::Loader(circle).position({30.5, 0.5}).load();//good
+	Texture circle("circle/circle.png");
+	Sprite::Loader(circle).position({-30, 0}).load();//bad
+	Sprite::Loader(circle).position({30.5, 0.5}).load();//good
 
-	simpleGL::draw();
+	draw();
 }

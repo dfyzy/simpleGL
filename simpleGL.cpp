@@ -16,7 +16,7 @@ namespace simpleGL {
 	GLFWwindow* window = nullptr;
 	unsigned windowWidth, windowHeight;
 
-	SimpleColor clearColor;
+	Color clearColor;
 
 	GLuint vao;
 
@@ -46,7 +46,7 @@ namespace simpleGL {
 		glfwWindowHint(GLFW_DECORATED, decorated);
 	}
 
-	inline void createWindow(const char* title, GLFWmonitor* monitor, SimpleColor background) {
+	inline void createWindow(const char* title, GLFWmonitor* monitor, Color background) {
 		clearColor = background;
 
 		window = glfwCreateWindow(windowWidth, windowHeight, title, monitor, nullptr);
@@ -92,7 +92,7 @@ namespace simpleGL {
 		simpleUtil::initFonts();
 	}
 
-	GLFWwindow* createFullscreenWindow(const char* title, bool borderless, SimpleColor background) {
+	GLFWwindow* createFullscreenWindow(const char* title, bool borderless, Color background) {
 		if (window)	{
 			simpleUtil::print("Why would you need more than one window?");
 			return nullptr;
@@ -117,7 +117,7 @@ namespace simpleGL {
 		return window;
 	}
 
-	GLFWwindow* createWindowedWindow(const char* title, unsigned width, unsigned height, bool resizable, bool decorated, SimpleColor background) {
+	GLFWwindow* createWindowedWindow(const char* title, unsigned width, unsigned height, bool resizable, bool decorated, Color background) {
 		if (window)	{
 			simpleUtil::print("Why would you need more than one window?");
 			return nullptr;
@@ -140,8 +140,8 @@ namespace simpleGL {
 		return windowHeight;
 	}
 
-	SimpleVector glfwToScreen(double x, double y) {
-		return SimpleVector(x/windowWidth, 1 - y/windowHeight);
+	Vector glfwToScreen(double x, double y) {
+		return Vector(x/windowWidth, 1 - y/windowHeight);
 	}
 
 	void setUpdate(void func()) {

@@ -3,7 +3,9 @@
 
 #include "glfw.hpp"
 
-class SimpleTexture {
+namespace simpleGL {
+
+class Texture {
 protected:
 	unsigned width = 100, height = 100;
 	GLuint texture = 0;
@@ -14,12 +16,12 @@ public:
 	/*
 	 * Texture object without texture with width and height equal 100.
 	 */
-	SimpleTexture() {}
+	Texture() {}
 
 	/*
 	 *	Creates empty texture with given resolution.
 	 */
-	SimpleTexture(unsigned width, unsigned height, GLenum format);
+	Texture(unsigned width, unsigned height, GLenum format);
 
 	/*
 	 * Loads texture from file into opengl texture object. Only works with png images(for now?).
@@ -28,9 +30,9 @@ public:
 	 *
 	 * returns: handle to texture object.
 	 */
-	SimpleTexture(const char* path);
+	Texture(const char* path);
 
-	SimpleTexture(const SimpleTexture& other) =delete;
+	Texture(const Texture& other) =delete;
 
 	/*
 	 *	Gets pixel width and height of this texture.
@@ -45,5 +47,7 @@ public:
 	void unload();
 
 };
+
+}
 
 #endif

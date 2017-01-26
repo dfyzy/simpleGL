@@ -5,7 +5,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include "simpleFont.hpp"
+#include "font.hpp"
 #include "simpleUtil.hpp"
 
 const unsigned TEX_GAP = 1;
@@ -36,8 +36,9 @@ namespace simpleUtil {
 }
 
 using namespace simpleUtil;
+using namespace simpleGL;
 
-SimpleFont::SimpleFont(const char* path, int size) {
+Font::Font(const char* path, int size) {
 	print("Loading font");
 
 	FT_Face face;
@@ -59,7 +60,7 @@ SimpleFont::SimpleFont(const char* path, int size) {
 
 	width = 0;
 	height = 0;
-	for (int i = SIMPLE_FIRST_CHAR; i <= SIMPLE_LAST_CHAR; i++) {
+	for (int i = FIRST_CHAR; i <= LAST_CHAR; i++) {
 		if(FT_Load_Char(face, i, FT_LOAD_RENDER)) {
 			print("Failed loading char");
 			return;
@@ -77,14 +78,14 @@ SimpleFont::SimpleFont(const char* path, int size) {
 	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 
 	unsigned offset = 0;
-	for(int i = SIMPLE_FIRST_CHAR; i <= SIMPLE_LAST_CHAR; i++) {
+	for(int i = FIRST_CHAR; i <= LAST_CHAR; i++) {
 		FT_Load_Char(face, i, FT_LOAD_RENDER);
 
 		FT_Bitmap& bitmap = face->glyph->bitmap;
 
-		glyphData[i - SIMPLE_FIRST_CHAR] = SimpleGlyphData {offset,
+		glyphData[i - FIRST_CHAR] = GlyphData {offset,
 			bitmap.width, bitmap.rows,
-			SimpleVector(face->glyph->bitmap_left + bitmap.width * 0.5f, face->glyph->bitmap_top - bitmap.rows * 0.5f),
+			Vector(face->glyph->bitmap_left + bitmap.width * 0.5f, face->glyph->bitmap_top - bitmap.rows * 0.5f),
 			face->glyph->advance.x >> 6};
 
 		std::unique_ptr<unsigned char[]> data(new unsigned char[bitmap.width * bitmap.rows]);

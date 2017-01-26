@@ -7,6 +7,8 @@
 #include "simpleUtil.hpp"
 #include "shaderData.hpp"
 
+using namespace simpleGL;
+
 namespace simpleUtil {
 
 	GLuint pipeline;
@@ -28,7 +30,7 @@ namespace simpleUtil {
 	GLuint overlayVertexShader;
 	GLuint overlayFragmentShader;
 
-	void setDefaultShaders(SimplerSprite* sprite, bool empty) {
+	void setDefaultShaders(UnsortedSprite* sprite, bool empty) {
 
 		sprite->setVertexShader(vertexShader);
 		sprite->setGeometryShader(defaultGeometryShader);
@@ -37,13 +39,13 @@ namespace simpleUtil {
 
 	}
 
-	void setLightingShaders(SimplerSprite* sprite) {
+	void setLightingShaders(UnsortedSprite* sprite) {
 		sprite->setGeometryShader(lightingGeometryShader);
 		sprite->setFragmentShader(lightingFragmentShader);
 	}
 
 
-	void setTextShader(SimpleSprite* sprite) {
+	void setTextShader(Sprite* sprite) {
 		sprite->setFragmentShader(textFragmentShader);
 	}
 
@@ -169,7 +171,7 @@ namespace simpleGL {
 		return loadShaderSource(shaderString, type);
 	}
 
-	void setCameraPosition(SimpleVector position) {
+	void setCameraPosition(Vector position) {
 		float data[2] {position.x, position.y};
 
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, 2*sizeof(float), data);

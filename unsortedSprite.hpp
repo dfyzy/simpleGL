@@ -1,11 +1,13 @@
-#ifndef SIMPLER_SPRITE_H
-#define SIMPLER_SPRITE_H
+#ifndef SIMPLE_UNSORTED_SPRITE_H
+#define SIMPLE_UNSORTED_SPRITE_H
 
-#include "simpleColor.hpp"
-#include "simpleVector.hpp"
+#include "color.hpp"
+#include "vector.hpp"
 #include "glfw.hpp"
 
-class SimplerSprite {
+namespace simpleGL {
+
+class UnsortedSprite {
 protected:
 	bool enabled {true};
 	unsigned id;
@@ -16,10 +18,10 @@ protected:
 	GLuint geometryShader;
 	GLuint fragmentShader;
 
-	SimplerSprite(GLuint textureId, SimpleVector position, SimpleVector bounds, float rotation,
-								SimpleColor color, SimpleVector texPosition, SimpleVector texBounds);
+	UnsortedSprite(GLuint textureId, Vector position, Vector bounds, float rotation,
+								Color color, Vector texPosition, Vector texBounds);
 
-	virtual ~SimplerSprite();
+	virtual ~UnsortedSprite();
 
 public:
 
@@ -44,15 +46,17 @@ public:
 	/*
 	 * Changes attributes for this sprite.
 	 */
-	virtual void setPosition(SimpleVector position) const;
-	virtual void setBounds(SimpleVector bounds) const;
+	virtual void setPosition(Vector position) const;
+	virtual void setBounds(Vector bounds) const;
 	virtual void setRotation(float rotation) const;
-	virtual void setColor(SimpleColor c) const;
-	virtual void setTexPosition(SimpleVector texPosition) const;
-	virtual void setTexBounds(SimpleVector texBounds) const;
+	virtual void setColor(Color c) const;
+	virtual void setTexPosition(Vector texPosition) const;
+	virtual void setTexBounds(Vector texBounds) const;
 
 	virtual void draw();
 
 };
+
+}
 
 #endif

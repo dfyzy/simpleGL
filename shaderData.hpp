@@ -12,7 +12,9 @@ namespace simpleShaderData {
 	std::string getDefaultFragment();
 	std::string getEmptyFragment();
 	std::string getTextFragment();
+
 	std::string getLightingDefaultFragment();
+	std::string getLightingPow2Fragment();
 
 	std::string getOverlayVertex();
 	std::string getOverlayFragment();
