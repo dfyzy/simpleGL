@@ -14,7 +14,7 @@ protected:
 
 public:
 	/*
-	 * Texture object without texture with width and height equal 100.
+	 * Texture object without creating a texture.
 	 */
 	Texture() {}
 

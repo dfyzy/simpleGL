@@ -1,8 +1,8 @@
-INCPATH = C:/Libs/C++/include
 CPPFLAGS = -std=gnu++11
+INCPATH = C:/Libs/C++/include
 LIBPATH = C:/Libs/C++/lib
 STLIBS = #-static-libgcc -static-libstdc++
-LIBS = -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lpng16 -lz -lm -lfreetype #-lsupc++
+LIBS = -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lpng16 -lz -lm -lfreetype
 
 INCS = simpleGL.hpp texture.hpp sprite.hpp unsortedSprite.hpp color.hpp vector.hpp \
  			simpleMath.hpp font.hpp text.hpp glfw.hpp light.hpp shaderData.hpp

@@ -176,9 +176,9 @@ namespace simpleGL {
 
 			glfwPollEvents();
 
-			glBindVertexArray(vao);
-
 			update();
+
+			glBindVertexArray(vao);
 
 			glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
 
