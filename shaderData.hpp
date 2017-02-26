@@ -6,8 +6,6 @@
 namespace simpleShaderData {
 
 	std::string getVertex();
-	std::string getDefaultGeometry();
-	std::string getLightingGeometry();
 
 	std::string getDefaultFragment();
 	std::string getEmptyFragment();

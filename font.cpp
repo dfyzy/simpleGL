@@ -71,11 +71,9 @@ Font::Font(const char* path, int size) {
 	}
 	width -= TEX_GAP;
 
-	genTexture(GL_LINEAR);
+	genImage(GL_LINEAR, GL_RED);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 
 	unsigned offset = 0;
 	for(int i = FIRST_CHAR; i <= LAST_CHAR; i++) {
@@ -83,8 +81,7 @@ Font::Font(const char* path, int size) {
 
 		FT_Bitmap& bitmap = face->glyph->bitmap;
 
-		glyphData[i - FIRST_CHAR] = GlyphData {offset,
-			bitmap.width, bitmap.rows,
+		glyphData[i - FIRST_CHAR] = GlyphData {Texture(this, Vector(offset, 0), Vector(bitmap.width, bitmap.rows)),
 			Vector(face->glyph->bitmap_left + bitmap.width * 0.5f, face->glyph->bitmap_top - bitmap.rows * 0.5f),
 			face->glyph->advance.x >> 6};
 

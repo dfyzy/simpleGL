@@ -10,8 +10,7 @@ Text::Text(Font* font, std::string caption, Vector position, int z,
 		GlyphData* data;
 		if (!font->getGlyphData(*c, &data)) continue;
 
-		Sprite* sprite = new Sprite(font->getTexture(), Vector(0), z, scale,
-										rotation, color, Vector(data->x, 0), Vector(data->width, data->height));//a bit to the right????
+		Sprite* sprite = new Sprite(data->texture, Vector(0), z, scale, rotation, color);//a bit to the right????
 		simpleUtil::setTextShader(sprite);
 
 		sprites.push_back(sprite);

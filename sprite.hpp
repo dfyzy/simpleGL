@@ -18,35 +18,28 @@ public:
 	 *
 	 * returns: sprite handle.
 	 */
-	Sprite(GLuint texture, Vector position, int z, Vector bounds, float rotation,
- 								Color color, Vector texPosition, Vector texBounds);
+	Sprite(Texture texture, Vector position, int z, Vector scale, float rotation, Color color);
 
 	class Loader {
 	private:
-		const Texture& texture;
+		Texture texture;
 		Vector pposition;
 		int pz{0};
-		Vector pbounds{1};
+		Vector pscale{1};
 		float protation{0};
 		Color pcolor{1};
-		Vector ptexPosition;
-		Vector ptexBounds;
 
 	public:
-		Loader(const Texture& texture) : texture(texture) {}
+		Loader(Texture texture) : texture(texture) {}
 
 		Loader& position(Vector sv) { pposition = sv; return *this; }
 		Loader& z(int i) { pz = i; return *this; }
-		Loader& bounds(Vector sv) { pbounds = sv; return *this; }
+		Loader& scale(Vector sv) { pscale = sv; return *this; }
 		Loader& rotation(float f) { protation = f; return *this; }
 		Loader& color(Color sc) { pcolor = sc; return *this; }
-		Loader& texPosition(Vector sv) { ptexPosition = sv; return *this; }
-		Loader& texBounds(Vector sv) { ptexBounds = sv; return *this; }
 
 		Sprite* load() {
-			if (ptexBounds == Vector())	ptexBounds = Vector(texture.getWidth(), texture.getHeight());
-
-			return new Sprite(texture.getTexture(), pposition, pz, pbounds, protation, pcolor, ptexPosition, ptexBounds);
+			return new Sprite(texture, pposition, pz, pscale, protation, pcolor);
 		}
 	};
 
@@ -55,7 +48,7 @@ public:
 	int getZ() const { return z; }
 	void setZ(int pz);
 
-	void setTextureId(GLuint tex);
+	void setTexture(Texture tex);
 
 	void unload() { delete this; }
 
@@ -66,13 +59,11 @@ public:
 			if (lhs->z != rhs->z)
 				return lhs->z > rhs->z;
 
-			if (lhs->textureId != rhs->textureId)
-				return lhs->textureId < rhs->textureId;
+			if (lhs->texture.getId() != rhs->texture.getId())
+				return lhs->texture.getId() < rhs->texture.getId();
 
 			if (lhs->vertexShader != rhs->vertexShader)
 				return lhs->vertexShader < rhs->vertexShader;
-			if (lhs->geometryShader != rhs->geometryShader)
-				return lhs->geometryShader < rhs->geometryShader;
 			if (lhs->fragmentShader != rhs->fragmentShader)
 				return lhs->fragmentShader < rhs->fragmentShader;
 

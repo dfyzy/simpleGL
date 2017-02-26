@@ -3,31 +3,11 @@
 
 namespace simpleGL {
 
-struct Rgb {
-	float r, g, b;
-
-	Rgb(float r, float g, float b) : r(r), g(g), b(b) {}
-	Rgb(float shade) : Rgb(shade, shade, shade) {}
-
-	const Rgb operator+(const Rgb& c) const {
-
-		return Rgb(r + c.r, g + c.g, b + c.b);
-	}
-
-	const Rgb operator-(const Rgb& c) const {
-
-		return Rgb(r - c.r, g - c.g, b - c.b);
-	}
-
-};
-
 struct Color {
 	float r, g, b, a;
 
 	Color(float r, float g, float b, float a) : r(r), g(g), b(b), a(a) {}
-	Color(Rgb rgb, float a) : Color(rgb.r, rgb.g, rgb.b, a) {}
 	Color(float r, float g, float b) : Color(r, g, b, 1) {}
-	Color(Rgb rgb) : Color(rgb.r, rgb.g, rgb.b) {}
 	Color(float shade) : Color(shade, shade, shade) {}
 	Color() : Color(0, 0, 0, 0) {}
 

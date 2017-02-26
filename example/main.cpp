@@ -39,24 +39,20 @@ int main() {
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetCursorPosCallback(window, cursorPosCallback);
 
-	setTextureFiltering(GL_LINEAR);
+	setDefaultFiltering(GL_LINEAR);
 
-	Texture bodyFront("example/body_front.png");
-	Texture brim("example/brim.png");
-	Texture light("example/light.png");
-	Texture eye("example/eye.png");
+	Image bodyFront("example/body_front.png");
+	Image brim("example/brim.png");
+	Image light("example/light.png");
+	Image eye("example/eye.png");
 
-	Sprite::Loader(bodyFront).load();
-	brimSprite = Sprite::Loader(brim).position({0, 68.6}).load();
-	Sprite* lightSp = Sprite::Loader(light).position({0, 108.8}).z(1).load();
-	Sprite::Loader(eye).position({50.2, 32.1}).z(-1).load();
-	Sprite::Loader(eye).position({-50.2, 32.1}).z(-1).load();
+	brimSprite = Sprite::Loader(Texture(&brim)).position({0, 68.6}).load();
+	Sprite::Loader(Texture(&bodyFront)).load();
+	Sprite::Loader(Texture(&light)).position({0, 108.8}).z(1).load();
+	Sprite::Loader(Texture(&eye)).position({50.2, 32.1}).z(-1).load();
+	Sprite::Loader(Texture(&eye)).position({-50.2, 32.1}).z(-1).load();
 
-	Sprite::Loader({}).z(5).bounds({3}).rotation(0.25f*3.1415927f).load();
-
-	GLuint customShader = loadShaderPath("example/custom.glsl", GL_FRAGMENT_SHADER);
-	lightSp->setFragmentShader(customShader);
-	glProgramUniform4f(customShader, glGetUniformLocation(customShader, "color"), 1, 0, 0, 1);
+	Sprite::Loader(Texture(Vector(300))).z(5).rotation(0.25f*3.1415927f).load();
 
 	Font sans("example/Oranienbaum.ttf", 26);
 

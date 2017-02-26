@@ -6,7 +6,6 @@ TOFIX:
 -The uneven sized texture problem(look circle.exe)
 
 TODO:
--Sprites?
 -Light(shadow)
 -JSON thing
 -Buffer data proper resizing

@@ -34,7 +34,7 @@ void setLightingShaders(simpleGL::UnsortedSprite* sprite);
 void setTextShader(simpleGL::Sprite* sprite);
 
 //calling glUseProgramStages for each stage.
-void useShaders(GLuint vertex, GLuint geometry, GLuint fragment);
+void useShaders(GLuint vertex, GLuint fragment, simpleGL::Color color);
 
 void useOverlayShaders();
 

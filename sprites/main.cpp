@@ -27,15 +27,15 @@ int main() {
 
 	glfwSetKeyCallback(window, keyCallback);
 
-	setTextureFiltering(GL_LINEAR);
+	setDefaultFiltering(GL_LINEAR);
 
-	Texture st("sprites/eye.png");
+	Image st("sprites/eye.png");
 
 	std::uniform_int_distribution<int> positionDist(-500, 500);
 	auto randomPosition = std::bind(positionDist, randEngine);
 
 	for (int i = 0; i < 10000; i++)
-		Sprite::Loader(st).position({(float)randomPosition(), (float)randomPosition()}).color({1, 0, 0, 1}).load();
+		Sprite::Loader(Texture(&st)).position(Vector(randomPosition(), randomPosition())).color({1, 0, 0, 1}).load();
 
 	setUpdate(update);
 

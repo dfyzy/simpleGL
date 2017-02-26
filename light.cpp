@@ -1,24 +1,23 @@
 #include "simpleGL.hpp"
 #include "simpleUtil.hpp"
-
+#include <iostream>
 using namespace simpleUtil;
 using namespace simpleGL;
 
-Light::Source::Source(Light* light, Vector position, Vector bounds, float rotation, Rgb rgb)
-			: UnsortedSprite(0, position - light->position, {1}, rotation, rgb, {}, bounds), light(light) {
+Light::Source::Source(Light* light, Vector position, Vector bounds, float rotation, Color color)
+			: UnsortedSprite(Texture(bounds), position - light->position, {1}, rotation, color), light(light) {
 	simpleUtil::setLightingShaders(this);
 	light->sources.push_back(this);
 	light->toggleDraw();
 }
 
-Light::Light(Vector position, int z, unsigned width, unsigned height, Rgb baseRgb)
-				: Texture(width, height, GL_RGB), Sprite(texture, position, z, {1}, 0, {1}, {}, Vector(width, height)),
-							position(position), baseRgb(baseRgb) {
+Light::Light(Vector position, int z, unsigned width, unsigned height, Color base)
+				: Image(width, height, GL_RGB), Sprite(Texture(this), position, z, {1}, 0, {1}), base(base) {
 	setFiltering(GL_LINEAR);
 
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, texture, 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, Image::id, 0);
 }
 
 Light::~Light() {
@@ -38,7 +37,7 @@ void Light::draw() {
 		glViewport(0, 0, width, height);
 		setResolution(width, height);
 
-		glClearColor(baseRgb.r, baseRgb.g, baseRgb.b, 0);
+		glClearColor(base.r, base.g, base.b, 0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		for (Source* s : sources)

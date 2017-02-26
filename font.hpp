@@ -11,14 +11,13 @@ const int FIRST_CHAR = 33;
 const int LAST_CHAR = 126;
 
 struct GlyphData {
-	unsigned x;
-	unsigned width, height;
+	Texture texture;
 	Vector offset;
 	long advance;
 
 };
 
-class Font : public Texture {
+class Font : public Image {
 private:
 	GlyphData glyphData[LAST_CHAR - FIRST_CHAR + 1];
 

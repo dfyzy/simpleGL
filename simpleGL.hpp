@@ -66,7 +66,7 @@ void setCameraScale(float scale);
  *
  * 'tf': can only be GL_LINEAR or GL_NEAREST.
  */
-void setTextureFiltering(GLenum tf);
+void setDefaultFiltering(GLenum tf);
 
 void setOverlayShader(GLuint sh);
 

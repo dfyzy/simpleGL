@@ -2,8 +2,7 @@
 #define SIMPLE_UNSORTED_SPRITE_H
 
 #include "color.hpp"
-#include "vector.hpp"
-#include "glfw.hpp"
+#include "texture.hpp"
 
 namespace simpleGL {
 
@@ -12,14 +11,24 @@ protected:
 	bool enabled {true};
 	unsigned id;
 
-	GLuint textureId;
+	Texture texture;
+
+	Vector position;
+	Vector scale;
+	float rotation;
+
+	float sinRot;
+	float cosRot;
+
+	Color color;
 
 	GLuint vertexShader;
-	GLuint geometryShader;
 	GLuint fragmentShader;
 
-	UnsortedSprite(GLuint textureId, Vector position, Vector bounds, float rotation,
-								Color color, Vector texPosition, Vector texBounds);
+	void bindVertexData();
+	void bindTextureData();
+
+	UnsortedSprite(Texture texture, Vector position, Vector scale, float rotation, Color color);
 
 	virtual ~UnsortedSprite();
 
@@ -33,25 +42,46 @@ public:
 	bool isEnabled() const { return enabled; }
 	virtual void setEnabled(bool b) { enabled = b; }
 
-	GLuint getTextureId() const { return textureId; }
-	virtual void setTextureId(GLuint tex) { textureId = tex; }
+	Texture getTexture() const { return texture; }
+	virtual void setTexture(Texture tex) {
+		texture = tex;
+
+		bindVertexData();
+		bindTextureData();
+	}
 
 	/*
 	 * Changes shader program for this sprite. When drawing this sprite opengl will use these shaders.
 	 */
 	void setVertexShader(GLuint sh) { vertexShader = sh; }
-	void setGeometryShader(GLuint sh) { geometryShader = sh; }
 	void setFragmentShader(GLuint sh) { fragmentShader = sh; }
 
 	/*
 	 * Changes attributes for this sprite.
 	 */
-	virtual void setPosition(Vector position) const;
-	virtual void setBounds(Vector bounds) const;
-	virtual void setRotation(float rotation) const;
-	virtual void setColor(Color c) const;
-	virtual void setTexPosition(Vector texPosition) const;
-	virtual void setTexBounds(Vector texBounds) const;
+	virtual void setPosition(Vector pposition) {
+		position = pposition;
+
+		bindVertexData();
+	}
+
+	virtual void setScale(Vector pscale) {
+		scale = pscale;
+
+		bindVertexData();
+	}
+
+	virtual void setRotation(float protation) {
+		rotation = protation;
+		sinRot = std::sin(rotation);
+		cosRot = std::cos(rotation);
+
+		bindVertexData();
+	}
+
+	virtual void setColor(Color pcolor) {
+		color = pcolor;
+	}
 
 	virtual void draw();
 

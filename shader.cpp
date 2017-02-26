@@ -11,16 +11,18 @@ using namespace simpleGL;
 
 namespace simpleUtil {
 
+	struct dynUniform {
+		enum E { COLOR, CAM_POSITION, CAM_ROTATION, CAM_SCALE, RESOLUTION, COUNT };
+		static int sizes[COUNT];
+	};
+	int dynUniform::sizes[COUNT] {4, 2, 1, 1, 2};
+
 	GLuint pipeline;
 
 	GLuint currentVertex {0};
-	GLuint currentGeometry {0};
 	GLuint currentFragment {0};
 
 	GLuint vertexShader;
-
-	GLuint defaultGeometryShader;
-	GLuint lightingGeometryShader;
 
 	GLuint defaultFragmentShader;
 	GLuint emptyFragmentShader;
@@ -33,14 +35,12 @@ namespace simpleUtil {
 	void setDefaultShaders(UnsortedSprite* sprite, bool empty) {
 
 		sprite->setVertexShader(vertexShader);
-		sprite->setGeometryShader(defaultGeometryShader);
 		if (empty)	sprite->setFragmentShader(emptyFragmentShader);
 		else			sprite->setFragmentShader(defaultFragmentShader);
 
 	}
 
 	void setLightingShaders(UnsortedSprite* sprite) {
-		sprite->setGeometryShader(lightingGeometryShader);
 		sprite->setFragmentShader(lightingFragmentShader);
 	}
 
@@ -49,16 +49,21 @@ namespace simpleUtil {
 		sprite->setFragmentShader(textFragmentShader);
 	}
 
-	void useShaders(GLuint vertex, GLuint geometry, GLuint fragment) {
+	void setUniform(float* data, dynUniform::E type) {
+		int offset = 0;
+		for (int i = 0; i < type; i++)
+			offset += dynUniform::sizes[i];
+
+		glBufferSubData(GL_UNIFORM_BUFFER, offset*sizeof(float), dynUniform::sizes[type]*sizeof(float), data);
+	}
+
+	void useShaders(GLuint vertex, GLuint fragment, Color color) {
+		float data[] { color.r, color.g, color.b, color.a };
+		setUniform(data, dynUniform::COLOR);
 
 		if (currentVertex != vertex) {
 			glUseProgramStages(pipeline, GL_VERTEX_SHADER_BIT, vertex);
 			currentVertex = vertex;
-		}
-
-		if (currentGeometry != geometry) {
-			glUseProgramStages(pipeline, GL_GEOMETRY_SHADER_BIT, geometry);
-			currentGeometry = geometry;
 		}
 
 		if (currentFragment != fragment) {
@@ -69,13 +74,13 @@ namespace simpleUtil {
 
 	void useOverlayShaders() {
 
-		useShaders(overlayVertexShader, 0, overlayFragmentShader);
+		useShaders(overlayVertexShader, overlayFragmentShader, {});
 	}
 
 	void setResolution(unsigned width, unsigned height) {
 		float data[] {(float)width, (float)height};
 
-		glBufferSubData(GL_UNIFORM_BUFFER, 4*sizeof(float), 2*sizeof(float), data);
+		setUniform(data, dynUniform::RESOLUTION);
 	}
 
 	void setDefaultResolution() {
@@ -98,9 +103,6 @@ namespace simpleUtil {
 
 		vertexShader = simpleGL::loadShaderSource(simpleShaderData::getVertex(), GL_VERTEX_SHADER);
 
-		defaultGeometryShader = simpleGL::loadShaderSource(simpleShaderData::getDefaultGeometry(), GL_GEOMETRY_SHADER);
-		lightingGeometryShader = simpleGL::loadShaderSource(simpleShaderData::getLightingGeometry(), GL_GEOMETRY_SHADER);
-
 		defaultFragmentShader = simpleGL::loadShaderSource(simpleShaderData::getDefaultFragment(), GL_FRAGMENT_SHADER);
 		emptyFragmentShader = simpleGL::loadShaderSource(simpleShaderData::getEmptyFragment(), GL_FRAGMENT_SHADER);
 		textFragmentShader = simpleGL::loadShaderSource(simpleShaderData::getTextFragment(), GL_FRAGMENT_SHADER);
@@ -114,7 +116,9 @@ namespace simpleUtil {
 		glBindBuffer(GL_UNIFORM_BUFFER, dynamic);
 		glBindBufferBase(GL_UNIFORM_BUFFER, 0, dynamic);
 
-		glBufferData(GL_UNIFORM_BUFFER, 6*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+		int size = 0;
+		for (int i = 0; i < dynUniform::COUNT; i++)	size += dynUniform::sizes[i];
+		glBufferData(GL_UNIFORM_BUFFER, size*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 		simpleGL::setCameraScale(1);
 		setDefaultResolution();
 
@@ -127,7 +131,7 @@ using namespace simpleUtil;
 namespace simpleGL {
 
 	GLuint loadShaderSource(std::string source, GLenum type) {
-		if (type != GL_VERTEX_SHADER && type != GL_GEOMETRY_SHADER && type != GL_FRAGMENT_SHADER) {
+		if (type != GL_VERTEX_SHADER && type != GL_FRAGMENT_SHADER) {
 			print("Wrong shader type");
 			return 0;
 		}
@@ -174,17 +178,17 @@ namespace simpleGL {
 	void setCameraPosition(Vector position) {
 		float data[2] {position.x, position.y};
 
-		glBufferSubData(GL_UNIFORM_BUFFER, 0, 2*sizeof(float), data);
+		setUniform(data, dynUniform::CAM_POSITION);
 	}
 
 	void setCameraRotation(float rotation) {
 
-		glBufferSubData(GL_UNIFORM_BUFFER, 2*sizeof(float), sizeof(float), &rotation);
+		setUniform(&rotation, dynUniform::CAM_ROTATION);
 	}
 
 	void setCameraScale(float scale) {
 
-		glBufferSubData(GL_UNIFORM_BUFFER, 3*sizeof(float), sizeof(float), &scale);
+		setUniform(&scale, dynUniform::CAM_SCALE);
 	}
 
 	void setOverlayShader(GLuint sh) {

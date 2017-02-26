@@ -1,50 +1,30 @@
 #ifndef SIMPLE_TEXTURE_H
 #define SIMPLE_TEXTURE_H
 
-#include "glfw.hpp"
+#include "image.hpp"
 
 namespace simpleGL {
 
 class Texture {
 protected:
-	unsigned width = 100, height = 100;
-	GLuint texture = 0;
-
-	void genTexture(GLenum filtering);
+	GLuint id = 0;
+	Vector position;
+	Vector bounds;
 
 public:
-	/*
-	 * Texture object without creating a texture.
-	 */
 	Texture() {}
+	Texture(Vector bounds) : bounds(bounds) {}
 
-	/*
-	 *	Creates empty texture with given resolution.
-	 */
-	Texture(unsigned width, unsigned height, GLenum format);
+	Texture(Image* image, Vector position, Vector bounds) : id(image->getId()), position(position), bounds(bounds) {}
+	Texture(Image* image) : id(image->getId()), bounds(image->getWidth(), image->getHeight()) {}
 
-	/*
-	 * Loads texture from file into opengl texture object. Only works with png images(for now?).
-	 *
-	 * 'path': the path of the image file.
-	 *
-	 * returns: handle to texture object.
-	 */
-	Texture(const char* path);
+	GLuint getId() const { return id; }
 
-	Texture(const Texture& other) =delete;
+	Vector getPosition() const { return position; }
 
-	/*
-	 *	Gets pixel width and height of this texture.
-	 */
-	unsigned getWidth() const { return width; }
-	unsigned getHeight() const { return height; }
+	Vector getBounds() const { return bounds; }
 
-	GLuint getTexture() const { return texture; }
-
-	void setFiltering(GLenum tf) const;
-
-	void unload();
+	void bind();
 
 };
 

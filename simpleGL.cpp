@@ -190,7 +190,7 @@ namespace simpleGL {
 		}
 
 		simpleUtil::closeFonts();
-		glfwTerminate();//raii
+		glfwTerminate();
 	}
 
 }

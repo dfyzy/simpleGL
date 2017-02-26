@@ -16,9 +16,9 @@ int main() {
 
 	//setTextureFiltering(GL_LINEAR); this will fix it
 
-	Texture circle("circle/circle.png");
-	Sprite::Loader(circle).position({-30, 0}).load();//bad
-	Sprite::Loader(circle).position({30.5, 0.5}).load();//good
+	Image circle("circle/circle.png");
+	Sprite::Loader(Texture(&circle)).position({-30, 0}).load();//bad
+	Sprite::Loader(Texture(&circle)).position({30.5, 0.5}).load();//good
 
 	draw();
 }

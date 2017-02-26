@@ -7,14 +7,14 @@
 
 namespace simpleGL {
 
-class Light : public Texture, public Sprite {
+class Light : public Image, public Sprite {
 public:
 	class Source : public UnsortedSprite {
 	public:
 		Light* light;
 
 	public:
-		Source(Light* light, Vector position, Vector bounds, float rotation, Rgb rgb);
+		Source(Light* light, Vector position, Vector bounds, float rotation, Color color);
 
 		Source(const Source& other) =delete;
 		Source(Source&& other) =delete;
@@ -23,31 +23,30 @@ public:
 			light->sources.remove(this);
 		}
 
-		void setPosition(Vector position) const {
+		void setPosition(Vector position) {
 			UnsortedSprite::setPosition(position - light->position);
 			light->toggleDraw();
 		}
 
-		void setBounds(Vector bounds) const {
-			UnsortedSprite::setBounds(bounds);
+		void setScale(Vector scale) {
+			UnsortedSprite::setScale(scale);
 			light->toggleDraw();
 		}
 
-		void setRotation(float rotation) const {
+		void setRotation(float rotation) {
 			UnsortedSprite::setRotation(rotation);
 			light->toggleDraw();
 		}
 
-		void setColor(Rgb c) const {
-			UnsortedSprite::setColor(c);
+		void setColor(Color color) {
+			UnsortedSprite::setColor(color);
 			light->toggleDraw();
 		}
 
 	};
 
 private:
-	Vector position;
-	Rgb baseRgb;
+	Color base;
 
 	GLuint fbo;
 	std::list<Source*> sources;
@@ -57,14 +56,14 @@ private:
 	~Light();
 
 public:
-	Light(Vector position, int z, unsigned width, unsigned height, Rgb baseRgb);
+	Light(Vector position, int z, unsigned width, unsigned height, Color base);
 
 	void toggleDraw() { needToDraw = true; }
 
 	void draw();
 
 	void unload() {
-		Texture::unload();
+		Image::unload();
 		Sprite::unload();
 	}
 
