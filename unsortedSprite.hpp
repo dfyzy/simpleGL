@@ -83,6 +83,10 @@ public:
 		color = pcolor;
 	}
 
+	void translate(Vector v) {
+		position += v.rotate(sinRot, cosRot);
+	}
+
 	virtual void draw();
 
 };
