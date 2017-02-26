@@ -1,6 +1,8 @@
 #ifndef SIMPLE_UNSORTED_SPRITE_H
 #define SIMPLE_UNSORTED_SPRITE_H
 
+#include <list>
+
 #include "color.hpp"
 #include "texture.hpp"
 
@@ -24,6 +26,9 @@ protected:
 
 	GLuint vertexShader;
 	GLuint fragmentShader;
+
+	UnsortedSprite* parent = nullptr;
+	std::list<UnsortedSprite*> children;
 
 	void bindVertexData();
 	void bindTextureData();
@@ -81,6 +86,13 @@ public:
 
 	virtual void setColor(Color pcolor) {
 		color = pcolor;
+	}
+
+	void setParent(UnsortedSprite* us) {
+		parent = us;
+		parent->children.push_back(this);
+
+		bindVertexData();
 	}
 
 	void translate(Vector v) {

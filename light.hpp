@@ -1,7 +1,6 @@
 #ifndef SIMPLE_LIGHT_H
 #define SIMPLE_LIGHT_H
 
-#include <list>
 #include "sprite.hpp"
 #include "texture.hpp"
 

@@ -109,10 +109,17 @@ void UnsortedSprite::bindVertexData() {
 	float data[SPRITE_VERTS];
 	int offset = 0;
 
-	for (int i = 0; i < SPRITE_VERTS; i += 2)
-		loadVector(position + (Vector(quad[i], quad[i + 1]) * texture.getBounds() * scale).rotate(sinRot, cosRot), data, &offset);
+	for (int i = 0; i < SPRITE_VERTS; i += 2) {
+		Vector vec = position + (Vector(quad[i], quad[i + 1]) * texture.getBounds() * scale).rotate(sinRot, cosRot);
+		if (parent)	vec = parent->position + vec.rotate(parent->sinRot, parent->cosRot);
+
+		loadVector(vec, data, &offset);
+	}
 
 	glBufferSubData(GL_ARRAY_BUFFER, id * SPRITE_SIZE, SPRITE_SIZE, data);
+
+	for (UnsortedSprite* child : children)
+		child->bindVertexData();
 }
 
 void UnsortedSprite::bindTextureData() {

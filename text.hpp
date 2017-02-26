@@ -1,7 +1,6 @@
 #ifndef SIMPLE_TEXT_H
 #define SIMPLE_TEXT_H
 
-#include <list>
 #include <string>
 
 #include "sprite.hpp"
