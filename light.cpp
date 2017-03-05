@@ -1,6 +1,6 @@
 #include "simpleGL.hpp"
 #include "simpleUtil.hpp"
-#include <iostream>
+
 using namespace simpleUtil;
 using namespace simpleGL;
 
@@ -9,6 +9,13 @@ Light::Source::Source(Light* light, Vector position, Vector bounds, float rotati
 	simpleUtil::setLightingShaders(this);
 	light->sources.push_back(this);
 	light->toggleDraw();
+}
+
+void Light::Source::draw() {
+	glProgramUniform2f(fragmentShader, centreLoc, position.x + getWindowWidth()*0.5f, position.y + getWindowHeight()*0.5f);
+	glProgramUniform2f(fragmentShader, boundsLoc, texture.getBounds().x, texture.getBounds().y);
+
+	UnsortedSprite::draw();
 }
 
 Light::Light(Vector position, int z, unsigned width, unsigned height, Color base)

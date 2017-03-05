@@ -12,6 +12,9 @@ public:
 	public:
 		Light* light;
 
+		GLint centreLoc;
+		GLint boundsLoc;
+
 	public:
 		Source(Light* light, Vector position, Vector bounds, float rotation, Color color);
 
@@ -20,6 +23,12 @@ public:
 
 		~Source() {
 			light->sources.remove(this);
+		}
+
+		void setFragmentShader(GLuint sh) {
+			UnsortedSprite::setFragmentShader(sh);
+			centreLoc = glGetUniformLocation(sh, "centre");
+			boundsLoc = glGetUniformLocation(sh, "bounds");
 		}
 
 		void setPosition(Vector position) {
@@ -41,6 +50,8 @@ public:
 			UnsortedSprite::setColor(color);
 			light->toggleDraw();
 		}
+
+		void draw();
 
 	};
 

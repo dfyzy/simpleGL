@@ -40,6 +40,11 @@ namespace simpleUtil {
 
 	}
 
+	void setOverlayShaders(simpleGL::UnsortedSprite* sprite) {
+		sprite->setVertexShader(overlayVertexShader);
+		sprite->setFragmentShader(overlayFragmentShader);
+	}
+
 	void setLightingShaders(UnsortedSprite* sprite) {
 		sprite->setFragmentShader(lightingFragmentShader);
 	}
@@ -70,11 +75,6 @@ namespace simpleUtil {
 			glUseProgramStages(pipeline, GL_FRAGMENT_SHADER_BIT, fragment);
 			currentFragment = fragment;
 		}
-	}
-
-	void useOverlayShaders() {
-
-		useShaders(overlayVertexShader, overlayFragmentShader, {});
 	}
 
 	void setResolution(unsigned width, unsigned height) {

@@ -29,14 +29,13 @@ GLuint getMsaaFbo();
 
 //setting default shaders for given sprite.
 void setDefaultShaders(simpleGL::UnsortedSprite* sprite, bool empty);
-void setLightingShaders(simpleGL::UnsortedSprite* sprite);
 
+void setOverlayShaders(simpleGL::UnsortedSprite* sprite);
+void setLightingShaders(simpleGL::UnsortedSprite* sprite);
 void setTextShader(simpleGL::Sprite* sprite);
 
 //calling glUseProgramStages for each stage.
 void useShaders(GLuint vertex, GLuint fragment, simpleGL::Color color);
-
-void useOverlayShaders();
 
 void setResolution(unsigned width, unsigned height);
 void setDefaultResolution();

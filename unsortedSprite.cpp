@@ -37,8 +37,8 @@ namespace simpleUtil {
 			glBufferData(GL_ARRAY_BUFFER, spriteCapacity * SPRITE_SIZE, nullptr, GL_DYNAMIC_DRAW);
 
 			//binding buffers to layout locations in vertex shader.
-			glVertexAttribPointer(i + 1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-			glEnableVertexAttribArray(i + 1);
+			glVertexAttribPointer(i, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+			glEnableVertexAttribArray(i);
 		}
 
 		print("Buffers initialized");

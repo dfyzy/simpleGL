@@ -9,6 +9,8 @@ namespace simpleUtil {
 	GLuint msaaFbo;
 	GLuint rectFbo;
 
+	UnsortedSprite* overlay;
+
 	std::set<Sprite*, Sprite::Comparer> sprites;
 
 	GLuint getMsaaFbo() {
@@ -37,26 +39,14 @@ namespace simpleUtil {
 
 		glActiveTexture(GL_TEXTURE0);
 
-		GLuint fboVbo;
-		glGenBuffers(1, &fboVbo);
-		glBindBuffer(GL_ARRAY_BUFFER, fboVbo);
-
 		float width = getWindowWidth(), height = getWindowHeight();
-		float data[] {-width, height,
-							-width, -height,
-							width, height,
-							width, -height};
-		glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_STATIC_DRAW);
-
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-		glEnableVertexAttribArray(0);
+		overlay = new UnsortedSprite({Vector(width, height)}, {}, {1}, 0, {1});
+		setOverlayShaders(overlay);
 
 		print("Fbos initialized");
 	}
 
 	void drawSprites() {
-		unsigned width = getWindowWidth(), height = getWindowHeight();
-
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, msaaFbo);
 
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -67,14 +57,13 @@ namespace simpleUtil {
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rectFbo);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, msaaFbo);
 
+		unsigned width = getWindowWidth(), height = getWindowHeight();
 		glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-		useOverlayShaders();
-
 		glDisable(GL_BLEND);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		overlay->draw();
 		glEnable(GL_BLEND);
 	}
 

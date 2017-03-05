@@ -33,11 +33,11 @@ protected:
 	void bindVertexData();
 	void bindTextureData();
 
-	UnsortedSprite(Texture texture, Vector position, Vector scale, float rotation, Color color);
-
 	virtual ~UnsortedSprite();
 
 public:
+
+	UnsortedSprite(Texture texture, Vector position, Vector scale, float rotation, Color color);
 
 	unsigned getId() const { return id; }
 
@@ -58,8 +58,8 @@ public:
 	/*
 	 * Changes shader program for this sprite. When drawing this sprite opengl will use these shaders.
 	 */
-	void setVertexShader(GLuint sh) { vertexShader = sh; }
-	void setFragmentShader(GLuint sh) { fragmentShader = sh; }
+	virtual void setVertexShader(GLuint sh) { vertexShader = sh; }
+	virtual void setFragmentShader(GLuint sh) { fragmentShader = sh; }
 
 	/*
 	 * Changes attributes for this sprite.

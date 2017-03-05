@@ -4,8 +4,8 @@ namespace simpleShaderData {
 
 	std::string getVertex() {
 		return std::string("#version 430 core\n"
-		"layout(location=1)	in vec2 inPosition;\n"
-		"layout(location=2)	in vec2 inTexture;\n"
+		"layout(location=0)	in vec2 inPosition;\n"
+		"layout(location=1)	in vec2 inTexture;\n"
 
 		"out vec4 vColor;\n"
 		"out vec2 vTexture;\n"
@@ -112,10 +112,11 @@ namespace simpleShaderData {
 
 		"in vec4 vColor;\n"
 		"in vec2 vTexture;\n"
-		//"in vec2 vCentre;\n"
-		//"in vec2 vBounds;\n"
 
 		"out vec4 fColor;\n"
+
+		"uniform vec2 centre;\n"
+		"uniform vec2 bounds;\n"
 
 		"void main() {\n"
 		"	fColor = vColor;\n"
@@ -127,13 +128,14 @@ namespace simpleShaderData {
 
 		"in vec4 vColor;\n"
 		"in vec2 vTexture;\n"
-		"in vec2 vCentre;\n"
-		"in vec2 vBounds;\n"
 
 		"out vec4 fColor;\n"
 
+		"uniform vec2 centre;\n"
+		"uniform vec2 bounds;\n"
+
 		"void main() {\n"
-		"	fColor = (1 - pow(2*length((vCentre - gl_FragCoord.xy)/vBounds), 2))*vColor;\n"
+		"	fColor = (1 - pow(2*length((centre - gl_FragCoord.xy)/bounds), 2))*vColor;\n"
 		"}");
 	}
 
