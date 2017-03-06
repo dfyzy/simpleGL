@@ -71,7 +71,7 @@ namespace simpleUtil {
 
 using namespace simpleUtil;
 
-Sprite::Sprite(Texture texture, Vector position, int z, Vector scale, float rotation, Color color)
+Sprite::Sprite(Texture texture, Vector position, int z, Vector scale, double rotation, Color color)
 					: UnsortedSprite(texture, position, scale, rotation, color), z(z) {
 	sprites.insert(this);
 }

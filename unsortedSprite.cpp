@@ -48,7 +48,7 @@ namespace simpleUtil {
 
 using namespace simpleUtil;
 
-UnsortedSprite::UnsortedSprite(Texture texture, Vector position, Vector scale, float rotation, Color color)
+UnsortedSprite::UnsortedSprite(Texture texture, Vector position, Vector scale, double rotation, Color color)
 											: texture(texture), position(position), scale(scale), color(color) {
 	print("Adding sprite");
 
@@ -111,7 +111,12 @@ void UnsortedSprite::bindVertexData() {
 
 	for (int i = 0; i < SPRITE_VERTS; i += 2) {
 		Vector vec = position + (Vector(quad[i], quad[i + 1]) * texture.getBounds() * scale).rotate(sinRot, cosRot);
-		if (parent)	vec = parent->position + vec.rotate(parent->sinRot, parent->cosRot);
+
+		UnsortedSprite* nextParent = parent;
+		while (nextParent) {
+			vec = nextParent->position + vec.rotate(nextParent->sinRot, nextParent->cosRot);
+			nextParent = nextParent->parent;
+		}
 
 		loadVector(vec, data, &offset);
 	}

@@ -10,7 +10,6 @@
 #endif
 
 namespace simpleGL {
-	typedef void (*Callback)();
 	typedef std::chrono::high_resolution_clock Clock;
 
 	GLFWwindow* window = nullptr;
@@ -21,7 +20,7 @@ namespace simpleGL {
 	GLuint vao;
 
 	void defaultUpdate() {}
-	Callback update = defaultUpdate;
+	std::function<void()> update = defaultUpdate;
 
 	Clock::time_point previous;
 	double deltaTime = 0;
@@ -144,7 +143,7 @@ namespace simpleGL {
 		return Vector(x/windowWidth, 1 - y/windowHeight);
 	}
 
-	void setUpdate(void func()) {
+	void setUpdate(std::function<void()> func) {
 		update = func;
 	}
 

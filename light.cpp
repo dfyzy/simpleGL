@@ -4,7 +4,7 @@
 using namespace simpleUtil;
 using namespace simpleGL;
 
-Light::Source::Source(Light* light, Vector position, Vector bounds, float rotation, Color color)
+Light::Source::Source(Light* light, Vector position, Vector bounds, double rotation, Color color)
 			: UnsortedSprite(Texture(bounds), position - light->position, {1}, rotation, color), light(light) {
 	simpleUtil::setLightingShaders(this);
 	light->sources.push_back(this);

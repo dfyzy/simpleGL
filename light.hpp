@@ -16,7 +16,7 @@ public:
 		GLint boundsLoc;
 
 	public:
-		Source(Light* light, Vector position, Vector bounds, float rotation, Color color);
+		Source(Light* light, Vector position, Vector bounds, double rotation, Color color);
 
 		Source(const Source& other) =delete;
 		Source(Source&& other) =delete;
@@ -41,7 +41,7 @@ public:
 			light->toggleDraw();
 		}
 
-		void setRotation(float rotation) {
+		void setRotation(double rotation) {
 			UnsortedSprite::setRotation(rotation);
 			light->toggleDraw();
 		}

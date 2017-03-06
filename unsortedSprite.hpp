@@ -17,10 +17,10 @@ protected:
 
 	Vector position;
 	Vector scale;
-	float rotation;
+	double rotation;
 
-	float sinRot;
-	float cosRot;
+	double sinRot;
+	double cosRot;
 
 	Color color;
 
@@ -37,7 +37,7 @@ protected:
 
 public:
 
-	UnsortedSprite(Texture texture, Vector position, Vector scale, float rotation, Color color);
+	UnsortedSprite(Texture texture, Vector position, Vector scale, double rotation, Color color);
 
 	unsigned getId() const { return id; }
 
@@ -61,22 +61,32 @@ public:
 	virtual void setVertexShader(GLuint sh) { vertexShader = sh; }
 	virtual void setFragmentShader(GLuint sh) { fragmentShader = sh; }
 
-	/*
-	 * Changes attributes for this sprite.
-	 */
+	Vector getPosition() { return position; }
+	Vector getRealPosition() {
+		Vector result = position;
+		if (parent)	result = parent->getRealPosition() + position.rotate(parent->sinRot, parent->cosRot);
+		return result;
+	}
 	virtual void setPosition(Vector pposition) {
 		position = pposition;
 
 		bindVertexData();
 	}
 
+	Vector getScale() { return scale; }
 	virtual void setScale(Vector pscale) {
 		scale = pscale;
 
 		bindVertexData();
 	}
 
-	virtual void setRotation(float protation) {
+	double getRotation() { return rotation; }
+	double getRealRotation() {
+		double result = rotation;
+		if (parent)	result += parent->getRealRotation();
+		return result;
+	}
+	virtual void setRotation(double protation) {
 		rotation = protation;
 		sinRot = std::sin(rotation);
 		cosRot = std::cos(rotation);
@@ -84,9 +94,8 @@ public:
 		bindVertexData();
 	}
 
-	virtual void setColor(Color pcolor) {
-		color = pcolor;
-	}
+	Color getColor() { return color; }
+	virtual void setColor(Color pcolor) { color = pcolor; }
 
 	void setParent(UnsortedSprite* us) {
 		parent = us;

@@ -26,12 +26,12 @@ struct Vector {
 		return Vector();
 	}
 
-	Vector rotate(float sinRot, float cosRot) const {
+	Vector rotate(double sinRot, double cosRot) const {
 
 		return Vector(cosRot*x - sinRot*y, sinRot*x + cosRot*y);
 	}
 
-	Vector rotate(float rotation) const {
+	Vector rotate(double rotation) const {
 
 		return rotate(std::sin(rotation), std::cos(rotation));
 	}

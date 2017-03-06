@@ -4,7 +4,7 @@
 using namespace simpleGL;
 
 Text::Text(Font* font, std::string caption, Vector position, int z,
-									float scale, float rotation, Color color, Alignment align, float width)
+									float scale, double rotation, Color color, Alignment align, float width)
  										: font(font), caption(caption) {
 	for (auto c = caption.begin(); c != caption.end(); c++) {
 		GlyphData* data;
@@ -19,10 +19,10 @@ Text::Text(Font* font, std::string caption, Vector position, int z,
 	setLayout(position, scale, rotation, align, width);
 }
 
-void Text::setLayout(Vector position, float scale, float rotation, Alignment align, float width) {
+void Text::setLayout(Vector position, float scale, double rotation, Alignment align, float width) {
 	//init
-	float sinRot = std::sin(rotation);
-	float cosRot = std::cos(rotation);
+	double sinRot = std::sin(rotation);
+	double cosRot = std::cos(rotation);
 
 	Vector newLine = Vector(-sinRot, cosRot) * (font->getLineSpacing()*scale);
 

@@ -1,8 +1,11 @@
 #ifndef SIMPLE_GL_H
 #define SIMPLE_GL_H
 
+#include <functional>
+
 #include "text.hpp"
 #include "light.hpp"
+#include "button.hpp"
 
 namespace simpleGL {
 
@@ -45,7 +48,7 @@ Vector glfwToScreen(double x, double y);
 double getDeltaTime();
 
 
-void setUpdate(void func());
+void setUpdate(std::function<void()> func);
 
 GLuint loadShaderSource(std::string source, GLenum type);
 
@@ -56,6 +59,7 @@ GLuint loadShaderPath(std::string path, GLenum type);
  */
 void draw();
 
+//todo sprite
 void setCameraPosition(Vector position);
 void setCameraRotation(float rotation);
 void setCameraScale(float scale);
