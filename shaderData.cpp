@@ -16,10 +16,10 @@ namespace simpleShaderData {
 
 		"layout(std140) uniform DynamicData {\n"
 		"	uniform vec4 color;\n"
-		"	uniform vec2 cameraPosition;\n"
-		"	uniform float cameraRotation;\n"
-		"	uniform float cameraScale;\n"
 		"	uniform vec2 resolution;\n"
+		"	uniform vec2 cameraPosition;\n"
+		"	uniform vec2 cameraScale;\n"
+		"	uniform float cameraRotation;\n"
 		"} dynamic;\n"
 
 		"void main() {\n"
@@ -31,9 +31,8 @@ namespace simpleShaderData {
 		"	mat2 rot = mat2(cosR,	sinR,"
 								"-sinR,	cosR);\n"
 
-		"	gl_Position = vec4((dynamic.cameraScale * 2/dynamic.resolution.y)"
-										"* rot"
-										"* (inPosition - dynamic.cameraPosition), 0, 1);\n"
+		"	gl_Position = vec4(rot * (inPosition - dynamic.cameraPosition), 0, 1);\n"
+		"	gl_Position.xy *= dynamic.cameraScale * 2/dynamic.resolution.y;"
 		"	gl_Position.x *= dynamic.resolution.y/dynamic.resolution.x;\n"
 		"}");
 	}
@@ -84,7 +83,7 @@ namespace simpleShaderData {
 
 		"out vec4 fColor;\n"
 
-		"layout(binding = 1)uniform sampler2DRect text;\n"
+		"uniform sampler2DRect text;\n"
 
 		"void main() {\n"
 		"	fColor = texture(text, gl_FragCoord.xy);\n"

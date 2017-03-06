@@ -34,6 +34,8 @@ void setOverlayShaders(simpleGL::UnsortedSprite* sprite);
 void setLightingShaders(simpleGL::UnsortedSprite* sprite);
 void setTextShader(simpleGL::Sprite* sprite);
 
+void loadCameraData(simpleGL::Vector position, simpleGL::Vector scale, double rotation);
+
 //calling glUseProgramStages for each stage.
 void useShaders(GLuint vertex, GLuint fragment, simpleGL::Color color);
 

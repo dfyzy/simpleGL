@@ -3,6 +3,7 @@
 
 #include <functional>
 
+#include "camera.hpp"
 #include "text.hpp"
 #include "light.hpp"
 #include "button.hpp"
@@ -59,11 +60,6 @@ GLuint loadShaderPath(std::string path, GLenum type);
  */
 void draw();
 
-//todo sprite
-void setCameraPosition(Vector position);
-void setCameraRotation(float rotation);
-void setCameraScale(float scale);
-
 /*
  * Changes texture filtering on textures that will be loaded from this point.
  * Default value GL_NEAREST.
@@ -72,7 +68,8 @@ void setCameraScale(float scale);
  */
 void setDefaultFiltering(GLenum tf);
 
-void setOverlayShader(GLuint sh);
+void addButton(Sprite* sprite, Button* Button);
+void removeButton();
 
 }
 

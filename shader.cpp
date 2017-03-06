@@ -12,10 +12,10 @@ using namespace simpleGL;
 namespace simpleUtil {
 
 	struct dynUniform {
-		enum E { COLOR, CAM_POSITION, CAM_ROTATION, CAM_SCALE, RESOLUTION, COUNT };
+		enum E { COLOR, RESOLUTION, CAMERA, COUNT };
 		static int sizes[COUNT];
 	};
-	int dynUniform::sizes[COUNT] {4, 2, 1, 1, 2};
+	int dynUniform::sizes[COUNT] {4, 2, 5};
 
 	GLuint pipeline;
 
@@ -87,6 +87,12 @@ namespace simpleUtil {
 		setResolution(simpleGL::getWindowWidth(), simpleGL::getWindowHeight());
 	}
 
+	void loadCameraData(simpleGL::Vector position, simpleGL::Vector scale, double rotation) {
+		float data[] {position.x, position.y, scale.x, scale.y, (float) rotation};
+
+		setUniform(data, dynUniform::CAMERA);
+	}
+
 	inline void printInfoLog(GLuint program) {
 		GLint length;
 		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
@@ -119,7 +125,6 @@ namespace simpleUtil {
 		int size = 0;
 		for (int i = 0; i < dynUniform::COUNT; i++)	size += dynUniform::sizes[i];
 		glBufferData(GL_UNIFORM_BUFFER, size*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-		simpleGL::setCameraScale(1);
 		setDefaultResolution();
 
 		print("Shaders initialized");
@@ -175,23 +180,4 @@ namespace simpleGL {
 		return loadShaderSource(shaderString, type);
 	}
 
-	void setCameraPosition(Vector position) {
-		float data[2] {position.x, position.y};
-
-		setUniform(data, dynUniform::CAM_POSITION);
-	}
-
-	void setCameraRotation(float rotation) {
-
-		setUniform(&rotation, dynUniform::CAM_ROTATION);
-	}
-
-	void setCameraScale(float scale) {
-
-		setUniform(&scale, dynUniform::CAM_SCALE);
-	}
-
-	void setOverlayShader(GLuint sh) {
-		overlayFragmentShader = sh;
-	}
 }

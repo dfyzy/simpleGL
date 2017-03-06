@@ -30,9 +30,6 @@ protected:
 	UnsortedSprite* parent = nullptr;
 	std::list<UnsortedSprite*> children;
 
-	void bindVertexData();
-	void bindTextureData();
-
 	virtual ~UnsortedSprite();
 
 public:
@@ -103,6 +100,9 @@ public:
 
 		bindVertexData();
 	}
+
+	virtual void bindVertexData();
+	virtual void bindTextureData();
 
 	void translate(Vector v) {
 		position += v.rotate(sinRot, cosRot);

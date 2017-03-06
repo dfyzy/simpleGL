@@ -22,12 +22,12 @@ void cursorPosCallback(GLFWwindow* window, double xpos, double ypos) {
 void update() {
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 		rotation += 0.03f;
-		setCameraRotation(rotation);
+		Camera::getInstance()->setRotation(rotation);
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		scale += 0.01f;
-		setCameraScale(scale);
+		Camera::getInstance()->setScale(scale);
 	}
 }
 

@@ -9,8 +9,6 @@ namespace simpleUtil {
 	GLuint msaaFbo;
 	GLuint rectFbo;
 
-	UnsortedSprite* overlay;
-
 	std::set<Sprite*, Sprite::Comparer> sprites;
 
 	GLuint getMsaaFbo() {
@@ -32,16 +30,11 @@ namespace simpleUtil {
 		glGenFramebuffers(1, &rectFbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, rectFbo);
 
-		glActiveTexture(GL_TEXTURE1);
-
 		Image image(getWindowWidth(), getWindowHeight(), GL_RGB);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, image.getId(), 0);
 
-		glActiveTexture(GL_TEXTURE0);
-
-		float width = getWindowWidth(), height = getWindowHeight();
-		overlay = new UnsortedSprite({Vector(width, height)}, {}, {1}, 0, {1});
-		setOverlayShaders(overlay);
+		Camera::init({&image});
+		setOverlayShaders(Camera::getInstance());
 
 		print("Fbos initialized");
 	}
@@ -63,7 +56,7 @@ namespace simpleUtil {
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
 		glDisable(GL_BLEND);
-		overlay->draw();
+		Camera::getInstance()->draw();
 		glEnable(GL_BLEND);
 	}
 

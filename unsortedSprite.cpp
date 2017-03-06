@@ -146,3 +146,36 @@ void UnsortedSprite::draw() {
 
 	glDrawArrays(GL_TRIANGLE_STRIP, id*4, 4);
 }
+
+//camera stuff is here for now
+Camera* Camera::instance;
+
+Camera* Camera::getInstance() {
+	return instance;
+}
+
+void Camera::init(Texture texture) {
+	if (instance == nullptr)
+		instance = new Camera(texture);
+}
+#include <iostream>
+void Camera::bindVertexData() {
+	loadCameraData(getRealPosition(), scale, getRealRotation());
+	
+	for (UnsortedSprite* child : children)
+		child->bindVertexData();
+}
+
+void Camera::bindTextureData() {
+	glBindBuffer(GL_ARRAY_BUFFER, vbos[vboType::VERTEX]);
+
+	float data[SPRITE_VERTS];
+	int offset = 0;
+
+	for (int i = 0; i < SPRITE_VERTS; i += 2)
+		loadVector(Vector(quad[i], quad[i + 1]) * texture.getBounds(), data, &offset);
+
+	glBufferSubData(GL_ARRAY_BUFFER, id * SPRITE_SIZE, SPRITE_SIZE, data);
+
+	UnsortedSprite::bindTextureData();
+}
