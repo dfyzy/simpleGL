@@ -1,4 +1,4 @@
-#include "shaderData.hpp"
+#include "shaderData.h"
 
 namespace simpleShaderData {
 

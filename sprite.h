@@ -1,8 +1,8 @@
 #ifndef SIMPLE_SPRITE_H
 #define SIMPLE_SPRITE_H
 
-#include "unsortedSprite.hpp"
-#include "texture.hpp"
+#include "unsortedSprite.h"
+#include "texture.h"
 
 namespace simpleGL {
 
@@ -18,10 +18,11 @@ public:
 	 *
 	 * returns: sprite handle.
 	 */
-	Sprite(Texture texture, Vector position, int z, Vector scale, double rotation, Color color);
+	Sprite(UnsortedSprite* parent, Texture texture, Vector position, int z, Vector scale, double rotation, Color color);
 
 	class Loader {
 	private:
+		UnsortedSprite* pparent {nullptr};
 		Texture texture;
 		Vector pposition;
 		int pz{0};
@@ -32,6 +33,7 @@ public:
 	public:
 		Loader(Texture texture) : texture(texture) {}
 
+		Loader& parent(UnsortedSprite* us) { pparent = us; return *this; }
 		Loader& position(Vector sv) { pposition = sv; return *this; }
 		Loader& z(int i) { pz = i; return *this; }
 		Loader& scale(Vector sv) { pscale = sv; return *this; }
@@ -39,7 +41,7 @@ public:
 		Loader& color(Color sc) { pcolor = sc; return *this; }
 
 		Sprite* load() {
-			return new Sprite(texture, pposition, pz, pscale, protation, pcolor);
+			return new Sprite(pparent, texture, pposition, pz, pscale, protation, pcolor);
 		}
 	};
 
@@ -54,18 +56,16 @@ public:
 
 	struct Comparer {
 		bool operator()(const Sprite* lhs, const Sprite* rhs) {
-			if (lhs == rhs)	return false;
-
 			if (lhs->z != rhs->z)
 				return lhs->z > rhs->z;
 
 			if (lhs->texture.getId() != rhs->texture.getId())
 				return lhs->texture.getId() < rhs->texture.getId();
 
-			if (lhs->vertexShader != rhs->vertexShader)
+			/*if (lhs->vertexShader != rhs->vertexShader)
 				return lhs->vertexShader < rhs->vertexShader;
 			if (lhs->fragmentShader != rhs->fragmentShader)
-				return lhs->fragmentShader < rhs->fragmentShader;
+				return lhs->fragmentShader < rhs->fragmentShader;*/
 
 			return lhs->id < rhs->id;
 		}

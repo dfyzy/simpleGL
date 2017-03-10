@@ -1,7 +1,7 @@
 #ifndef SIMPLE_TEXTURE_H
 #define SIMPLE_TEXTURE_H
 
-#include "image.hpp"
+#include "image.h"
 
 namespace simpleGL {
 

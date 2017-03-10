@@ -4,11 +4,11 @@ LIBPATH = C:/Libs/C++/lib
 STLIBS = #-static-libgcc -static-libstdc++
 LIBS = -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lpng16 -lz -lm -lfreetype
 
-INCS = simpleGL.hpp image.hpp texture.hpp sprite.hpp unsortedSprite.hpp color.hpp vector.hpp \
- 			simpleMath.hpp glfw.hpp shaderData.hpp font.hpp text.hpp light.hpp button.hpp camera.hpp
-OBJS = simpleGL.o unsortedSprite.o sprite.o image.o texture.o shader.o shaderData.o font.o text.o light.o button.o
+INCS = simpleGL.h shader.h image.h texture.h sprite.h unsortedSprite.h color.h vector.h \
+ 			simpleMath.h glfw.h shaderData.h font.h text.h light.h button.h camera.h
+OBJS = simpleGL.o unsortedSprite.o sprite.o image.o texture.o shader.o shaderData.o font.o text.o light.o button.o camera.o
 
-%.o: %.cpp
+%.o: %.cc
 	g++ -DFPS_COUNTER $(CPPFLAGS) -c $< -I$(INCPATH)
 
 static: $(OBJS)
@@ -23,5 +23,5 @@ install: $(INCS) $(INCPATH)/simpleGL
 
 all: static install
 
-%.exe: static install %/main.cpp
-	g++ $(CPPFLAGS) -o $(*F) $(*F)/main.cpp -I$(INCPATH) $(STLIBS) -L$(LIBPATH) -lsimpleGL $(LIBS)
+%.exe: static install %/main.cc
+	g++ $(CPPFLAGS) -o $(*F) $(*F)/main.cc -I$(INCPATH) $(STLIBS) -L$(LIBPATH) -lsimpleGL $(LIBS)

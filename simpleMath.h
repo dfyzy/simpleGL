@@ -1,7 +1,7 @@
-#ifndef SIMPLE_MATH_HPP
-#define SIMPLE_MATH_HPP
+#ifndef SIMPLE_MATH_h
+#define SIMPLE_MATH_h
 
-#include "vector.hpp"
+#include "vector.h"
 
 namespace simpleMath {
 

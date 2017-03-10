@@ -1,4 +1,4 @@
-#include <simpleGL/simpleGL.hpp>
+#include <simpleGL/simpleGL.h>
 #include <iostream>
 
 using namespace simpleGL;
@@ -39,12 +39,10 @@ int main() {
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetCursorPosCallback(window, cursorPosCallback);
 
-	setDefaultFiltering(GL_LINEAR);
-
-	Image bodyFront("example/body_front.png");
-	Image brim("example/brim.png");
-	Image light("example/light.png");
-	Image eye("example/eye.png");
+	Image bodyFront("example/body_front.png", GL_LINEAR);
+	Image brim("example/brim.png", GL_LINEAR);
+	Image light("example/light.png", GL_LINEAR);
+	Image eye("example/eye.png", GL_LINEAR);
 
 	brimSprite = Sprite::Loader(Texture(&brim)).position({0, 68.6}).load();
 	Sprite::Loader(Texture(&bodyFront)).load();
@@ -59,7 +57,7 @@ int main() {
 	std::string lorem("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
 	Text text(&sans, lorem, Vector(0, -100), -10, 1, 0, Color(0), Text::CENTER, 350);
 
-	Light* dark = new Light({0, -200}, -10, 200, 200, {0});
+	Light* dark = new Light(nullptr, {0, -200}, -10, 200, 200, {0});
 	new Light::Source(dark, Vector(0, -200) + Vector(25), {100}, 0, {0.5f, 0, 0});
 	new Light::Source(dark, Vector(0, -200) + Vector(-25), {100}, 0, {0, 0.5f, 0});
 

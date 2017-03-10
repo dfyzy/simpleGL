@@ -1,4 +1,4 @@
-#include <simpleGL/simpleGL.hpp>
+#include <simpleGL/simpleGL.h>
 
 using namespace simpleGL;
 
@@ -14,9 +14,7 @@ int main() {
 
 	glfwSetKeyCallback(window, keyCallback);
 
-	//setTextureFiltering(GL_LINEAR); this will fix it
-
-	Image circle("circle/circle.png");
+	Image circle("circle/circle.png", GL_NEAREST);//GL_LINEAR this will fix it
 	Sprite::Loader(Texture(&circle)).position({-30, 0}).load();//bad
 	Sprite::Loader(Texture(&circle)).position({30.5, 0.5}).load();//good
 

@@ -40,6 +40,11 @@ struct Vector {
 		return Vector(std::abs(x), std::abs(y));
 	}
 
+	void load(float* array, int* offset) const {
+		array[(*offset)++] = x;
+		array[(*offset)++] = y;
+	}
+
 	const Vector operator+(const Vector& sp) const {
 
 		return Vector(x + sp.x, y + sp.y);

@@ -3,13 +3,16 @@
 
 #include <list>
 
-#include "color.hpp"
-#include "texture.hpp"
+#include "color.h"
+#include "texture.h"
 
 namespace simpleGL {
 
 class UnsortedSprite {
 protected:
+	UnsortedSprite* parent = nullptr;
+	std::list<UnsortedSprite*> children;
+
 	bool enabled {true};
 	unsigned id;
 
@@ -17,24 +20,25 @@ protected:
 
 	Vector position;
 	Vector scale;
-	double rotation;
-
-	double sinRot;
-	double cosRot;
-
+	double rotation, sinRotation, cosRotation;
 	Color color;
 
 	GLuint vertexShader;
 	GLuint fragmentShader;
 
-	UnsortedSprite* parent = nullptr;
-	std::list<UnsortedSprite*> children;
+	virtual void bindVertexData();
+	virtual void bindTextureData();
+
+	void bindChildData() {
+		for (UnsortedSprite* child : children)
+			child->bindVertexData();
+	}
 
 	virtual ~UnsortedSprite();
 
 public:
 
-	UnsortedSprite(Texture texture, Vector position, Vector scale, double rotation, Color color);
+	UnsortedSprite(UnsortedSprite* parent, Texture texture, Vector position, Vector scale, double rotation, Color color);
 
 	unsigned getId() const { return id; }
 
@@ -61,7 +65,13 @@ public:
 	Vector getPosition() { return position; }
 	Vector getRealPosition() {
 		Vector result = position;
-		if (parent)	result = parent->getRealPosition() + position.rotate(parent->sinRot, parent->cosRot);
+
+		UnsortedSprite* nextParent = parent;
+		while (nextParent) {
+			result = nextParent->position + result.rotate(nextParent->sinRotation, nextParent->cosRotation);
+			nextParent = nextParent->parent;
+		}
+
 		return result;
 	}
 	virtual void setPosition(Vector pposition) {
@@ -85,8 +95,8 @@ public:
 	}
 	virtual void setRotation(double protation) {
 		rotation = protation;
-		sinRot = std::sin(rotation);
-		cosRot = std::cos(rotation);
+		sinRotation = std::sin(rotation);
+		cosRotation = std::cos(rotation);
 
 		bindVertexData();
 	}
@@ -96,16 +106,13 @@ public:
 
 	void setParent(UnsortedSprite* us) {
 		parent = us;
-		parent->children.push_back(this);
+		if (parent)	parent->children.push_back(this);
 
 		bindVertexData();
 	}
 
-	virtual void bindVertexData();
-	virtual void bindTextureData();
-
 	void translate(Vector v) {
-		position += v.rotate(sinRot, cosRot);
+		position += v.rotate(sinRotation, cosRotation);
 	}
 
 	virtual void draw();

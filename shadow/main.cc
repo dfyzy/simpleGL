@@ -1,5 +1,5 @@
-#include <simpleGL/simpleGL.hpp>
-#include <simpleGL/shaderData.hpp>
+#include <simpleGL/simpleGL.h>
+#include <simpleGL/shaderData.h>
 #include <iostream>
 
 using namespace simpleGL;
@@ -23,8 +23,6 @@ int main() {
 
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetCursorPosCallback(window, cursorPosCallback);
-
-	setDefaultFiltering(GL_LINEAR);
 
 	Light* light = new Light({}, -1, getWindowWidth(), getWindowHeight(), {0});
 	lamp = new Light::Source(light, {}, {1000}, 0, {0.65f, 0.65f, 0.5f});

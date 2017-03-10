@@ -4,65 +4,49 @@
 #include <list>
 #include <memory>
 
-#include "simpleGL.hpp"
-#include "simpleUtil.hpp"
+#include "image.h"
+#include "util.h"
 
-namespace simpleUtil {
-	GLenum defaultFiltering = GL_NEAREST;
+namespace simpleGL {
 
+Image::Image(unsigned width, unsigned height, GLenum format, GLenum filtering) : width(width), height(height) {
+	genImage(format, filtering);
 }
 
-using namespace simpleUtil;
-using namespace simpleGL;
-
-Image::Image(unsigned width, unsigned height, GLenum format) : width(width), height(height) {
-	genImage(defaultFiltering, format);
-}
-
-void simpleGL::setDefaultFiltering(GLenum tf) {
-	if ((tf != GL_LINEAR) && (tf != GL_NEAREST)) {
-		print("Wrong filtering type");
-		return;
-	}
-
-	defaultFiltering = tf;
-}
-
-
-Image::Image(const char* path) {
-	print("Loading image");
+Image::Image(const char* path, GLenum filtering) {
+	util::print("Loading image");
 
 	FILE *file = fopen(path, "rb");
 	if (!file) {
-		print("Error opening texture");
+		util::print("Error opening texture");
 		return;
 	}
 
 	png_byte header[8];
 	fread(header, 1, 8, file);
 	if (png_sig_cmp(header, 0, 8)) {
-		print("Not a png");
+		util::print("Not a png");
 		fclose(file);
 		return;
 	}
 
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	if (!png_ptr) {
-		print("Failed to create read struct");
+		util::print("Failed to create read struct");
 		fclose(file);
 		return;
 	}
 
 	png_infop info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr) {
-		print("Failed to create info struct");
+		util::print("Failed to create info struct");
 		png_destroy_read_struct(&png_ptr, nullptr, nullptr);
 		fclose(file);
 		return;
 	}
 
 	if (setjmp(png_jmpbuf(png_ptr))) {
-		print("Libpng error");
+		util::print("Libpng error");
 		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 		fclose(file);
 		return;
@@ -76,7 +60,7 @@ Image::Image(const char* path) {
 
 	png_get_IHDR(png_ptr, info_ptr, &width, &height, nullptr, nullptr, nullptr, nullptr, nullptr);
 
-	genImage(defaultFiltering, GL_RGBA);
+	genImage(GL_RGBA, filtering);
 
 	std::unique_ptr<png_byte[]> row(new png_byte[4*width]);
 
@@ -92,7 +76,7 @@ Image::Image(const char* path) {
 
 void Image::setFiltering(GLenum filtering) const {
 	if ((filtering != GL_LINEAR) && (filtering != GL_NEAREST)) {
-		print("Wrong filtering type");
+		util::print("Wrong filtering type");
 		return;
 	}
 
@@ -102,7 +86,17 @@ void Image::setFiltering(GLenum filtering) const {
 	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, filtering);
 }
 
-void Image::genImage(GLenum filtering, GLenum format) {
+void Image::genImage(GLenum format, GLenum filtering) {
+	if ((format != GL_RED) && (format != GL_RG) && (format != GL_RGB) && (format != GL_RGBA)) {
+		util::print("Wrong format");
+		return;
+	}
+
+	if ((filtering != GL_LINEAR) && (filtering != GL_NEAREST)) {
+		util::print("Wrong filtering type");
+		return;
+	}
+
 	glGenTextures(1, &id);
 
 	setFiltering(filtering);
@@ -115,8 +109,10 @@ void Image::genImage(GLenum filtering, GLenum format) {
 
 void Image::unload() {
 	if (id != 0) {
-		print("Unloading texture");
+		util::print("Unloading texture");
 
 		glDeleteTextures(1, &id);
 	}
+}
+
 }

@@ -1,7 +1,7 @@
 #ifndef SIMPLE_CAMERA_H
 #define SIMPLE_CAMERA_H
 
-#include "unsortedSprite.hpp"
+#include "unsortedSprite.h"
 
 namespace simpleGL {
 
@@ -12,7 +12,7 @@ private:
 	void bindVertexData();
 	void bindTextureData();
 
-	Camera(Texture texture) : UnsortedSprite(texture, {}, {1}, 0, {1}) {
+	Camera(Texture texture) : UnsortedSprite(nullptr, texture, {}, {1}, 0, {1}) {
 		bindVertexData();
 		bindTextureData();
 	}

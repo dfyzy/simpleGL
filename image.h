@@ -1,8 +1,8 @@
 #ifndef SIMPLE_IMAGE_H
 #define SIMPLE_IMAGE_H
 
-#include "glfw.hpp"
-#include "vector.hpp"
+#include "glfw.h"
+#include "vector.h"
 
 namespace simpleGL {
 
@@ -11,7 +11,7 @@ protected:
 	unsigned width, height;
 	GLuint id;
 
-	void genImage(GLenum filtering, GLenum format);
+	void genImage(GLenum format, GLenum filtering);
 
 	Image() {}
 
@@ -19,14 +19,14 @@ public:
 	/*
 	 *	Creates empty image with given resolution.
 	 */
-	Image(unsigned width, unsigned height, GLenum format);
+	Image(unsigned width, unsigned height, GLenum format, GLenum filtering);
 
 	/*
 	 * Loads image from file into opengl texture object. Only works with png images(for now?).
 	 *
 	 * 'path': the path of the image file.
 	 */
-	Image(const char* path);
+	Image(const char* path, GLenum filtering);
 
 	Image(const Image& other) =delete;
 

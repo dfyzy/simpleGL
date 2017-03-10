@@ -1,8 +1,8 @@
 #ifndef SIMPLE_LIGHT_H
 #define SIMPLE_LIGHT_H
 
-#include "sprite.hpp"
-#include "texture.hpp"
+#include "sprite.h"
+#include "texture.h"
 
 namespace simpleGL {
 
@@ -32,7 +32,7 @@ public:
 		}
 
 		void setPosition(Vector position) {
-			UnsortedSprite::setPosition(position - light->position);
+			UnsortedSprite::setPosition(position);
 			light->toggleDraw();
 		}
 
@@ -66,7 +66,7 @@ private:
 	~Light();
 
 public:
-	Light(Vector position, int z, unsigned width, unsigned height, Color base);
+	Light(UnsortedSprite* parent, Vector position, int z, unsigned width, unsigned height, Color base);
 
 	void toggleDraw() { needToDraw = true; }
 

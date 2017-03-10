@@ -3,10 +3,11 @@
 
 #include <functional>
 
-#include "camera.hpp"
-#include "text.hpp"
-#include "light.hpp"
-#include "button.hpp"
+#include "shader.h"
+#include "camera.h"
+#include "button.h"
+#include "text.h"
+#include "light.h"
 
 namespace simpleGL {
 
@@ -48,28 +49,15 @@ Vector glfwToScreen(double x, double y);
 //microseconds
 double getDeltaTime();
 
-
 void setUpdate(std::function<void()> func);
-
-GLuint loadShaderSource(std::string source, GLenum type);
-
-GLuint loadShaderPath(std::string path, GLenum type);
 
 /*
  *	Starts draw loop
  */
 void draw();
 
-/*
- * Changes texture filtering on textures that will be loaded from this point.
- * Default value GL_NEAREST.
- *
- * 'tf': can only be GL_LINEAR or GL_NEAREST.
- */
-void setDefaultFiltering(GLenum tf);
-
-void addButton(Sprite* sprite, Button* Button);
-void removeButton();
+//void addButton(Sprite* sprite, Button* Button);
+//void removeButton(Sprite* sprite);
 
 }
 

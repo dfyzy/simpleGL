@@ -6,8 +6,9 @@ TOFIX:
 -The uneven sized texture problem(look circle.exe)
 
 TODO:
+-Buttons
+-Text parent
 -Light(shadow)
--JSON thing
 -Buffer data proper resizing
 -Window resizability
 -Particles(if there is a need for further optimization)

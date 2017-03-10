@@ -5,51 +5,51 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include "font.hpp"
-#include "simpleUtil.hpp"
+#include "font.h"
+#include "util.h"
 
-const unsigned TEX_GAP = 1;
+namespace {
 
-namespace simpleUtil {
-	FT_Library ftLib;
-	int dpiX = 0, dpiY = 0;
+constexpr unsigned TEX_GAP = 1;
 
-	void initFonts() {
-		if (FT_Init_FreeType(&ftLib)) {
-			print("Failed to init FreeType Library");
-		}
-
-		HDC screen = GetDC(0);//win32
-
-		dpiX = GetDeviceCaps(screen, LOGPIXELSX);
-		dpiY = GetDeviceCaps(screen, LOGPIXELSY);
-
-		ReleaseDC(0, screen);
-
-		print("Fonts initialized");
-	}
-
-	void closeFonts() {
-		FT_Done_FreeType(ftLib);
-	}
+FT_Library ftLib;
+int dpiX = 0, dpiY = 0;
 
 }
 
-using namespace simpleUtil;
-using namespace simpleGL;
+namespace simpleGL {
+
+void util::initFonts() {
+	if (FT_Init_FreeType(&ftLib)) {
+		util::print("Failed to init FreeType Library");
+	}
+
+	HDC screen = GetDC(0);//win32
+
+	dpiX = GetDeviceCaps(screen, LOGPIXELSX);
+	dpiY = GetDeviceCaps(screen, LOGPIXELSY);
+
+	ReleaseDC(0, screen);
+
+	util::print("Fonts initialized");
+}
+
+void util::closeFonts() {
+	FT_Done_FreeType(ftLib);
+}
 
 Font::Font(const char* path, int size) {
-	print("Loading font");
+	util::print("Loading font");
 
 	FT_Face face;
 
 	if (FT_New_Face(ftLib, path, 0, &face)) {
-		print("Failed to load the font");
+		util::print("Failed to load the font");
 		return;
 	}
 
 	if (FT_Set_Pixel_Sizes(face, 0, size)) {
-		print("Failed to change size");
+		util::print("Failed to change size");
 		return;
 	}
 
@@ -62,7 +62,7 @@ Font::Font(const char* path, int size) {
 	height = 0;
 	for (int i = FIRST_CHAR; i <= LAST_CHAR; i++) {
 		if(FT_Load_Char(face, i, FT_LOAD_RENDER)) {
-			print("Failed loading char");
+			util::print("Failed loading char");
 			return;
 		}
 
@@ -71,7 +71,7 @@ Font::Font(const char* path, int size) {
 	}
 	width -= TEX_GAP;
 
-	genImage(GL_LINEAR, GL_RED);
+	genImage(GL_RED, GL_LINEAR);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -97,4 +97,6 @@ Font::Font(const char* path, int size) {
 	}
 
 	FT_Done_Face(face);
+}
+
 }

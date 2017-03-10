@@ -1,17 +1,30 @@
-#include "simpleGL.hpp"
-#include "simpleUtil.hpp"
+#include "shader.h"
+#include "text.h"
+#include "util.h"
+#include "shaderData.h"
 
-using namespace simpleGL;
+namespace {
 
-Text::Text(Font* font, std::string caption, Vector position, int z,
-									float scale, double rotation, Color color, Alignment align, float width)
+GLuint textFragmentShader;
+
+}
+
+namespace simpleGL {
+
+void util::initTexts() {
+
+	textFragmentShader = loadShaderSource(simpleShaderData::getTextFragment(), GL_FRAGMENT_SHADER);
+
+}
+
+Text::Text(Font* font, std::string caption, Vector position, int z, float scale, double rotation, Color color, Alignment align, float width)
  										: font(font), caption(caption) {
 	for (auto c = caption.begin(); c != caption.end(); c++) {
 		GlyphData* data;
 		if (!font->getGlyphData(*c, &data)) continue;
 
-		Sprite* sprite = new Sprite(data->texture, Vector(0), z, scale, rotation, color);//a bit to the right????
-		simpleUtil::setTextShader(sprite);
+		Sprite* sprite = new Sprite(nullptr, data->texture, Vector(0), z, scale, rotation, color);//a bit to the right????
+		sprite->setFragmentShader(textFragmentShader);
 
 		sprites.push_back(sprite);
 	}
@@ -115,4 +128,6 @@ void Text::setLayout(Vector position, float scale, double rotation, Alignment al
 
 		position = lastPosition - newLine;
 	}
+}
+
 }

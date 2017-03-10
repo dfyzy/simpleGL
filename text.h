@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "sprite.hpp"
-#include "font.hpp"
+#include "sprite.h"
+#include "font.h"
 
 namespace simpleGL {
 

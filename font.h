@@ -1,14 +1,14 @@
 #ifndef SIMPLE_FONT_H
 #define SIMPLE_FONT_H
 
-#include "vector.hpp"
-#include "color.hpp"
-#include "texture.hpp"
+#include "vector.h"
+#include "color.h"
+#include "texture.h"
 
 namespace simpleGL {
 
-const int FIRST_CHAR = 33;
-const int LAST_CHAR = 126;
+constexpr int FIRST_CHAR = 33;
+constexpr int LAST_CHAR = 126;
 
 struct GlyphData {
 	Texture texture;

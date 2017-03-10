@@ -1,12 +1,22 @@
-#include "simpleGL.hpp"
-#include "simpleUtil.hpp"
+#include "simpleGL.h"
+#include "util.h"
+#include "shaderData.h"
 
-using namespace simpleUtil;
-using namespace simpleGL;
+namespace {
+
+GLuint lightingFragmentShader;
+
+}
+
+namespace simpleGL {
+
+void util::initLights() {
+	lightingFragmentShader = loadShaderSource(simpleShaderData::getLightingDefaultFragment(), GL_FRAGMENT_SHADER);
+}
 
 Light::Source::Source(Light* light, Vector position, Vector bounds, double rotation, Color color)
-			: UnsortedSprite(Texture(bounds), position - light->position, {1}, rotation, color), light(light) {
-	simpleUtil::setLightingShaders(this);
+			: UnsortedSprite(light, Texture(bounds), position, {1}, rotation, color), light(light) {
+	fragmentShader = lightingFragmentShader;
 	light->sources.push_back(this);
 	light->toggleDraw();
 }
@@ -18,9 +28,8 @@ void Light::Source::draw() {
 	UnsortedSprite::draw();
 }
 
-Light::Light(Vector position, int z, unsigned width, unsigned height, Color base)
-				: Image(width, height, GL_RGB), Sprite(Texture(this), position, z, {1}, 0, {1}), base(base) {
-	setFiltering(GL_LINEAR);
+Light::Light(UnsortedSprite* parent, Vector position, int z, unsigned width, unsigned height, Color base)
+				: Image(width, height, GL_RGB, GL_LINEAR), Sprite(parent, Texture(this), position, z, {1}, 0, {1}), base(base) {
 
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -42,7 +51,7 @@ void Light::draw() {
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
 		glViewport(0, 0, width, height);
-		setResolution(width, height);
+		util::setResolution(width, height);
 
 		glClearColor(base.r, base.g, base.b, 0);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -50,9 +59,9 @@ void Light::draw() {
 		for (Source* s : sources)
 			if (s->isEnabled())	s->draw();
 
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, getMsaaFbo());
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, util::getMsaaFbo());
 		glViewport(0, 0, simpleGL::getWindowWidth(), simpleGL::getWindowHeight());
-		setDefaultResolution();
+		util::setDefaultResolution();
 
 		//glBlendEquation(GL_FUNC_ADD);
 	}
@@ -62,4 +71,6 @@ void Light::draw() {
 	Sprite::draw();
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
 }

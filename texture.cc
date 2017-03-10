@@ -1,10 +1,8 @@
-#include "texture.hpp"
+#include "texture.h"
 
-namespace simpleUtil {
+namespace {
 	GLuint currentTexture {0};
 }
-
-using namespace simpleUtil;
 
 void simpleGL::Texture::bind() {
 	if (id != currentTexture) {
