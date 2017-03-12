@@ -20,7 +20,7 @@ private:
 
 public:
 	Text(Font* font, std::string caption, Vector position, int z,
-						float scale, double rotation, Color color, Alignment align, float width);
+						float scale, Angle rotation, Color color, Alignment align, float width);
 
 	Text(Font* font, std::string caption, Vector position, int z,
 						float scale, Color color, Alignment align, float width)
@@ -28,7 +28,7 @@ public:
 	Text(Font* font, std::string caption, Vector position, int z, Color color, Alignment align, float width)
 					: Text(font, caption, position, z, 1, color, align, width) {}
 
-	void setLayout(Vector position, float scale, double rotation, Alignment align, float width);
+	void setLayout(Vector position, float scale, Angle rotation, Alignment align, float width);
 
 };
 

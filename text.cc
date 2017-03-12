@@ -17,7 +17,7 @@ void util::initTexts() {
 
 }
 
-Text::Text(Font* font, std::string caption, Vector position, int z, float scale, double rotation, Color color, Alignment align, float width)
+Text::Text(Font* font, std::string caption, Vector position, int z, float scale, Angle rotation, Color color, Alignment align, float width)
  										: font(font), caption(caption) {
 	for (auto c = caption.begin(); c != caption.end(); c++) {
 		GlyphData* data;
@@ -32,12 +32,9 @@ Text::Text(Font* font, std::string caption, Vector position, int z, float scale,
 	setLayout(position, scale, rotation, align, width);
 }
 
-void Text::setLayout(Vector position, float scale, double rotation, Alignment align, float width) {
+void Text::setLayout(Vector position, float scale, Angle rotation, Alignment align, float width) {
 	//init
-	double sinRot = std::sin(rotation);
-	double cosRot = std::cos(rotation);
-
-	Vector newLine = Vector(-sinRot, cosRot) * (font->getLineSpacing()*scale);
+	Vector newLine = Vector(-rotation.sin(), rotation.cos()) * (font->getLineSpacing()*scale);
 
 	//position is our cursor
 	position -= newLine;
@@ -100,16 +97,16 @@ void Text::setLayout(Vector position, float scale, double rotation, Alignment al
 				lineWidth = width;
 			} else {
 				align = LEFT;//this will depend on language default alignment.
-				position -= Vector(cosRot, sinRot) * (width/2);//will in the general meaning of intention, not like i have time to do this
+				position -= Vector(rotation.cos(), rotation.sin()) * (width/2);//will in the general meaning of intention, not like i have time to do this
 			}
 		}
 
 		if (align != LEFT) {
-			position -= Vector(cosRot, sinRot) * (lineWidth/(2 - (align == RIGHT)));
+			position -= Vector(rotation.cos(), rotation.sin()) * (lineWidth/(2 - (align == RIGHT)));
 		}
 
 		//actually setting position
-		Vector space = Vector(cosRot, sinRot) * spaceWidth;
+		Vector space = Vector(rotation.cos(), rotation.sin()) * spaceWidth;
 		if (lineEnd != caption.end())	lineEnd++;
 		for (; lineStart != lineEnd; lineStart++) {
 			GlyphData* data;
@@ -120,10 +117,10 @@ void Text::setLayout(Vector position, float scale, double rotation, Alignment al
 				continue;
 			}
 
-			Vector offset(cosRot*data->offset.x - sinRot*data->offset.y, sinRot*data->offset.x + cosRot*data->offset.y);
+			Vector offset = data->offset.rotate(rotation);
 			(*(sprite++))->setPosition(position + offset*scale);
 
-			position += Vector(cosRot, sinRot) * (data->advance*scale);
+			position += Vector(rotation.cos(), rotation.sin()) * (data->advance*scale);
 		}
 
 		position = lastPosition - newLine;

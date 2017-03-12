@@ -27,8 +27,8 @@ private:
 public:
 	Font(const char* path, int size);
 
-	float getLineSpacing() { return lineSpacing; }
-	unsigned getSpaceWidth() { return spaceWidth; }
+	float getLineSpacing() const { return lineSpacing; }
+	unsigned getSpaceWidth() const { return spaceWidth; }
 
 	bool getGlyphData(char c, GlyphData** data) {
 		if ((c > LAST_CHAR) || (c < FIRST_CHAR))	return false;

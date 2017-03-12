@@ -1,7 +1,7 @@
 #ifndef SIMPLE_VECTOR_H
 #define SIMPLE_VECTOR_H
 
-#include <cmath>
+#include "angle.h"
 
 namespace simpleGL {
 
@@ -20,23 +20,28 @@ struct Vector {
 		return std::sqrt(std::pow(x, 2) + std::pow(y, 2));
 	}
 
-	Vector normalize() const {
+	const Vector normalize() const {
 		if (x || y)	return operator/(length());
 
 		return Vector();
 	}
 
-	Vector rotate(double sinRot, double cosRot) const {
+	const Vector rotate(double sinRot, double cosRot) const {
 
 		return Vector(cosRot*x - sinRot*y, sinRot*x + cosRot*y);
 	}
 
-	Vector rotate(double rotation) const {
+	const Vector rotate(double rotation) const {
 
 		return rotate(std::sin(rotation), std::cos(rotation));
 	}
 
-	Vector abs() const {
+	const Vector rotate(Angle rotation) const {
+
+		return rotate(rotation.sin(), rotation.cos());
+	}
+
+	const Vector abs() const {
 		return Vector(std::abs(x), std::abs(y));
 	}
 
@@ -45,47 +50,47 @@ struct Vector {
 		array[(*offset)++] = y;
 	}
 
-	const Vector operator+(const Vector& sp) const {
+	const Vector operator+(const Vector& v) const {
 
-		return Vector(x + sp.x, y + sp.y);
+		return Vector(x + v.x, y + v.y);
 	}
 
-	const Vector operator-(const Vector& sp) const {
+	const Vector operator-(const Vector& v) const {
 
-		return Vector(x - sp.x, y - sp.y);
+		return Vector(x - v.x, y - v.y);
 	}
 
-	Vector& operator+=(const Vector& sp) {
-		x += sp.x;
-		y += sp.y;
+	Vector& operator+=(const Vector& v) {
+		x += v.x;
+		y += v.y;
 		return *this;
 	}
 
-	Vector& operator-=(const Vector& sp) {
-		x -= sp.x;
-		y -= sp.y;
+	Vector& operator-=(const Vector& v) {
+		x -= v.x;
+		y -= v.y;
 		return *this;
 	}
 
-	const Vector operator*(const Vector& sp) const {
+	const Vector operator*(const Vector& v) const {
 
-		return Vector(x * sp.x, y * sp.y);
+		return Vector(x * v.x, y * v.y);
 	}
 
-	const Vector operator/(const Vector& sp) const {
+	const Vector operator/(const Vector& v) const {
 
-		return Vector(x / sp.x, y / sp.y);
+		return Vector(x / v.x, y / v.y);
 	}
 
-	Vector& operator*=(const Vector& sp) {
-		x *= sp.x;
-		y *= sp.y;
+	Vector& operator*=(const Vector& v) {
+		x *= v.x;
+		y *= v.y;
 		return *this;
 	}
 
-	Vector& operator/=(const Vector& sp) {
-		x /= sp.x;
-		y /= sp.y;
+	Vector& operator/=(const Vector& v) {
+		x /= v.x;
+		y /= v.y;
 		return *this;
 	}
 
@@ -109,18 +114,18 @@ struct Vector {
 		return operator*=(1/f);
 	}
 
-	bool operator==(const Vector& sv) const {
-		return x == sv.x && y == sv.y;
+	bool operator==(const Vector& v) const {
+		return x == v.x && y == v.y;
 	}
 
-	bool operator!=(const Vector& sv) const {
-		return !operator==(sv);
+	bool operator!=(const Vector& v) const {
+		return !operator==(v);
 	}
 
-	bool operator<(const Vector& sv) const {
-		if (x == sv.x)	return y < sv.y;
+	bool operator<(const Vector& v) const {
+		if (x == v.x)	return y < v.y;
 
-		return x < sv.x;
+		return x < v.x;
 	}
 
 };

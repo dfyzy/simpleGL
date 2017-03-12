@@ -15,13 +15,11 @@ void Camera::init(Texture texture) {
 }
 
 void Camera::bindVertexData() {
-	util::setCameraData(getRealPosition(), scale, getRealRotation());
-
-	bindChildData();
+	util::setCameraData(getRealPosition(), scale, getRealRotation().get());
 }
 
 void Camera::bindTextureData() {
-	util::bindData(id, vboType::VERTEX, {}, texture.getBounds(), 0, 1);
+	util::bindData(id, vboType::VERTEX, {}, texture.getBounds(), {});
 
 	UnsortedSprite::bindTextureData();
 }

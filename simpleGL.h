@@ -5,6 +5,7 @@
 
 #include "shader.h"
 #include "camera.h"
+#include "cursor.h"
 #include "button.h"
 #include "text.h"
 #include "light.h"
@@ -43,8 +44,6 @@ unsigned getWindowWidth();
  * Returns height of the created window.
  */
 unsigned getWindowHeight();
-
-Vector glfwToScreen(double x, double y);
 
 //microseconds
 double getDeltaTime();

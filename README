@@ -6,6 +6,7 @@ TOFIX:
 -The uneven sized texture problem(look circle.exe)
 
 TODO:
+-Cursor object
 -Buttons
 -Text parent
 -Light(shadow)

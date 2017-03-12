@@ -65,7 +65,7 @@ void util::drawSprites() {
 	glEnable(GL_BLEND);
 }
 
-Sprite::Sprite(UnsortedSprite* parent, Texture texture, Vector position, int z, Vector scale, double rotation, Color color)
+Sprite::Sprite(UnsortedSprite* parent, Texture texture, Vector position, int z, Vector scale, Angle rotation, Color color)
 					: UnsortedSprite(parent, texture, position, scale, rotation, color), z(z) {
 	sprites.insert(this);
 }

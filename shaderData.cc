@@ -63,6 +63,21 @@ namespace simpleShaderData {
 		"}");
 	}
 
+	std::string getTextFragment() {
+		return std::string("#version 430 core\n"
+
+		"in vec4 vColor;\n"
+		"in vec2 vTexture;\n"
+
+		"out vec4 fColor;\n"
+
+		"uniform sampler2DRect text;\n"
+
+		"void main() {\n"
+		"	fColor = vColor;\n"
+		"	fColor.a *= texture(text, vTexture).r;\n"
+		"}");
+	}
 
 	std::string getOverlayVertex() {
 		return std::string("#version 430 core\n"
@@ -87,22 +102,6 @@ namespace simpleShaderData {
 
 		"void main() {\n"
 		"	fColor = texture(text, gl_FragCoord.xy);\n"
-		"}");
-	}
-
-	std::string getTextFragment() {
-		return std::string("#version 430 core\n"
-
-		"in vec4 vColor;\n"
-		"in vec2 vTexture;\n"
-
-		"out vec4 fColor;\n"
-
-		"uniform sampler2DRect text;\n"
-
-		"void main() {\n"
-		"	fColor = vColor;\n"
-		"	fColor.a *= texture(text, vTexture).r;\n"
 		"}");
 	}
 

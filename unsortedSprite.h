@@ -20,7 +20,7 @@ protected:
 
 	Vector position;
 	Vector scale;
-	double rotation, sinRotation, cosRotation;
+	Angle rotation;
 	Color color;
 
 	GLuint vertexShader;
@@ -38,7 +38,7 @@ protected:
 
 public:
 
-	UnsortedSprite(UnsortedSprite* parent, Texture texture, Vector position, Vector scale, double rotation, Color color);
+	UnsortedSprite(UnsortedSprite* parent, Texture texture, Vector position, Vector scale, Angle rotation, Color color);
 
 	unsigned getId() const { return id; }
 
@@ -62,13 +62,13 @@ public:
 	virtual void setVertexShader(GLuint sh) { vertexShader = sh; }
 	virtual void setFragmentShader(GLuint sh) { fragmentShader = sh; }
 
-	Vector getPosition() { return position; }
-	Vector getRealPosition() {
+	Vector getPosition() const { return position; }
+	Vector getRealPosition() const {
 		Vector result = position;
 
 		UnsortedSprite* nextParent = parent;
 		while (nextParent) {
-			result = nextParent->position + result.rotate(nextParent->sinRotation, nextParent->cosRotation);
+			result = nextParent->position + result.rotate(nextParent->rotation);
 			nextParent = nextParent->parent;
 		}
 
@@ -78,30 +78,30 @@ public:
 		position = pposition;
 
 		bindVertexData();
+		bindChildData();
 	}
 
-	Vector getScale() { return scale; }
+	Vector getScale() const { return scale; }
 	virtual void setScale(Vector pscale) {
 		scale = pscale;
 
 		bindVertexData();
 	}
 
-	double getRotation() { return rotation; }
-	double getRealRotation() {
-		double result = rotation;
+	Angle getRotation() const { return rotation; }
+	Angle getRealRotation() const {
+		Angle result = rotation;
 		if (parent)	result += parent->getRealRotation();
 		return result;
 	}
-	virtual void setRotation(double protation) {
+	virtual void setRotation(Angle protation) {
 		rotation = protation;
-		sinRotation = std::sin(rotation);
-		cosRotation = std::cos(rotation);
 
 		bindVertexData();
+		bindChildData();
 	}
 
-	Color getColor() { return color; }
+	Color getColor() const { return color; }
 	virtual void setColor(Color pcolor) { color = pcolor; }
 
 	void setParent(UnsortedSprite* us) {
@@ -109,10 +109,11 @@ public:
 		if (parent)	parent->children.push_back(this);
 
 		bindVertexData();
+		bindChildData();
 	}
 
 	void translate(Vector v) {
-		position += v.rotate(sinRotation, cosRotation);
+		position += v.rotate(rotation);
 	}
 
 	virtual void draw();

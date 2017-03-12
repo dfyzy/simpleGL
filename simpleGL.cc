@@ -138,16 +138,16 @@ GLFWwindow* createWindowedWindow(const char* title, unsigned width, unsigned hei
 	return window;
 }
 
+GLFWwindow* util::getWindow() {
+	return window;
+}
+
 unsigned getWindowWidth() {
 	return windowWidth;
 }
 
 unsigned getWindowHeight() {
 	return windowHeight;
-}
-
-Vector glfwToScreen(double x, double y) {
-	return Vector(x/windowWidth, 1 - y/windowHeight);
 }
 
 void setUpdate(std::function<void()> func) {
@@ -186,7 +186,6 @@ void draw() {
 		#endif
 
 		glfwPollEvents();
-		util::pollButtons(window);
 
 		update();
 

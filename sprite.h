@@ -18,7 +18,7 @@ public:
 	 *
 	 * returns: sprite handle.
 	 */
-	Sprite(UnsortedSprite* parent, Texture texture, Vector position, int z, Vector scale, double rotation, Color color);
+	Sprite(UnsortedSprite* parent, Texture texture, Vector position, int z, Vector scale, Angle rotation, Color color);
 
 	class Loader {
 	private:
@@ -27,7 +27,7 @@ public:
 		Vector pposition;
 		int pz{0};
 		Vector pscale{1};
-		double protation{0};
+		Angle protation;
 		Color pcolor{1};
 
 	public:
@@ -37,7 +37,7 @@ public:
 		Loader& position(Vector sv) { pposition = sv; return *this; }
 		Loader& z(int i) { pz = i; return *this; }
 		Loader& scale(Vector sv) { pscale = sv; return *this; }
-		Loader& rotation(double f) { protation = f; return *this; }
+		Loader& rotation(Angle f) { protation = f; return *this; }
 		Loader& color(Color sc) { pcolor = sc; return *this; }
 
 		Sprite* load() {

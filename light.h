@@ -15,8 +15,14 @@ public:
 		GLint centreLoc;
 		GLint boundsLoc;
 
+		void bindVertexData() {
+			UnsortedSprite::bindVertexData();
+
+			light->toggleDraw();
+		}
+
 	public:
-		Source(Light* light, Vector position, Vector bounds, double rotation, Color color);
+		Source(Light* light, UnsortedSprite* parent, Vector position, Vector bounds, Angle rotation, Color color);
 
 		Source(const Source& other) =delete;
 		Source(Source&& other) =delete;
@@ -29,21 +35,6 @@ public:
 			UnsortedSprite::setFragmentShader(sh);
 			centreLoc = glGetUniformLocation(sh, "centre");
 			boundsLoc = glGetUniformLocation(sh, "bounds");
-		}
-
-		void setPosition(Vector position) {
-			UnsortedSprite::setPosition(position);
-			light->toggleDraw();
-		}
-
-		void setScale(Vector scale) {
-			UnsortedSprite::setScale(scale);
-			light->toggleDraw();
-		}
-
-		void setRotation(double rotation) {
-			UnsortedSprite::setRotation(rotation);
-			light->toggleDraw();
 		}
 
 		void setColor(Color color) {

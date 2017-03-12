@@ -30,14 +30,14 @@ GLuint emptyFragmentShader;
 
 namespace simpleGL {
 
-void util::bindData(unsigned id, vboType::E type, Vector centre, Vector bounds, double sinRot, double cosRot) {
+void util::bindData(unsigned id, vboType::E type, Vector centre, Vector bounds, Angle rotation) {
 	glBindBuffer(GL_ARRAY_BUFFER, vbos[type]);
 
 	float data[SPRITE_VERTS];
 	int offset = 0;
 
 	for (int i = 0; i < SPRITE_VERTS; i += 2)
-		(centre + (bounds*Vector(SPRITE_QUAD[i], SPRITE_QUAD[i + 1])).rotate(sinRot, cosRot)).load(data, &offset);
+		(centre + (bounds*Vector(SPRITE_QUAD[i], SPRITE_QUAD[i + 1])).rotate(rotation)).load(data, &offset);
 
 	glBufferSubData(GL_ARRAY_BUFFER, id * SPRITE_SIZE, SPRITE_SIZE, data);
 }
@@ -64,8 +64,8 @@ void util::initSprites() {
 	util::print("Sprites initialized");
 }
 
-UnsortedSprite::UnsortedSprite(UnsortedSprite* parent, Texture texture, Vector position, Vector scale, double rotation, Color color)
-											: parent(parent), texture(texture), position(position), scale(scale), color(color) {
+UnsortedSprite::UnsortedSprite(UnsortedSprite* parent, Texture texture, Vector position, Vector scale, Angle rotation, Color color)
+											: parent(parent), texture(texture), position(position), scale(scale), rotation(rotation), color(color) {
 	util::print("Adding sprite");
 
 	if (parent) parent->children.push_back(this);
@@ -106,7 +106,7 @@ UnsortedSprite::UnsortedSprite(UnsortedSprite* parent, Texture texture, Vector p
 		spriteCapacity *= 2;
 	}
 
-	setRotation(rotation);
+	bindVertexData();
 	bindTextureData();
 
 	vertexShader = defaultVertexShader;
@@ -127,25 +127,21 @@ void UnsortedSprite::bindVertexData() {
 	Vector pos = position;
 
 	UnsortedSprite* nextParent = parent;
-	double sinRot = sinRotation, cosRot = cosRotation;
+	Angle angle = rotation;
 	while (nextParent) {
-		pos = nextParent->position + pos.rotate(nextParent->sinRotation, nextParent->cosRotation);
+		pos = nextParent->position + pos.rotate(nextParent->rotation);
 
-		double newsinRot = sinRot*nextParent->cosRotation + cosRot*nextParent->sinRotation;
-		cosRot = cosRot*nextParent->cosRotation - sinRot*nextParent->sinRotation;
-		sinRot = newsinRot;
+		angle += nextParent->rotation;
 
 		nextParent = nextParent->parent;
 	}
 
-	util::bindData(id, vboType::VERTEX, pos, texture.getBounds() * scale, sinRot, cosRot);
-
-	bindChildData();
+	util::bindData(id, vboType::VERTEX, pos, texture.getBounds() * scale, angle);
 }
 
 void UnsortedSprite::bindTextureData() {
 
-	util::bindData(id, vboType::TEXTURE, texture.getPosition() + texture.getBounds()*0.5f, texture.getBounds(), 0, 1);
+	util::bindData(id, vboType::TEXTURE, texture.getPosition() + texture.getBounds()*0.5f, texture.getBounds(), {});
 }
 
 void UnsortedSprite::draw() {
