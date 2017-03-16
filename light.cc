@@ -16,14 +16,15 @@ void util::initLights() {
 
 Light::Source::Source(Light* light, UnsortedSprite* parent, Vector position, Vector bounds, Angle rotation, Color color)
 			: UnsortedSprite(parent, Texture(bounds), position, {1}, rotation, color), light(light) {
-	fragmentShader = lightingFragmentShader;
+	setFragmentShader(lightingFragmentShader);
 	light->sources.push_back(this);
 	light->toggleDraw();
 }
 
 void Light::Source::draw() {
-	glProgramUniform2f(fragmentShader, centreLoc, position.x + getWindowWidth()*0.5f, position.y + getWindowHeight()*0.5f);
-	glProgramUniform2f(fragmentShader, boundsLoc, texture.getBounds().x, texture.getBounds().y);
+	Vector pos = getRealPosition();
+	glProgramUniform2f(getFragmentShader(), centreLoc, pos.x + getWindowWidth()*0.5f, pos.y + getWindowHeight()*0.5f);
+	glProgramUniform2f(getFragmentShader(), boundsLoc, getTexture().getBounds().x, getTexture().getBounds().y);
 
 	UnsortedSprite::draw();
 }
@@ -37,7 +38,8 @@ Light::Light(UnsortedSprite* parent, Vector position, int z, unsigned width, uns
 }
 
 Light::~Light() {
-	//TODO: delete fbo
+	glDeleteFramebuffers(1, &fbo);
+
 	for (Source* s : sources)
 		delete s;
 }
@@ -60,14 +62,19 @@ void Light::draw() {
 		Vector camPos = cam->getPosition();
 		Angle camRot = cam->getRotation();
 
-		cam->setPosition(position);
-		cam->setRotation(rotation);
+		//TODO: setREALPostion
+		cam->setPosition(getRealPosition());
+		cam->setRotation(getRealRotation());
+
+		cam->bindData();
 
 		for (Source* s : sources)
-			if (s->isEnabled())	s->draw();
+			s->draw();
 
 		cam->setPosition(camPos);
 		cam->setRotation(camRot);
+
+		cam->bindData();
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, util::getMsaaFbo());
 		glViewport(0, 0, simpleGL::getWindowWidth(), simpleGL::getWindowHeight());

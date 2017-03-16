@@ -26,19 +26,9 @@ struct Vector {
 		return Vector();
 	}
 
-	const Vector rotate(double sinRot, double cosRot) const {
+	const Vector rotate(Angle a) const {
 
-		return Vector(cosRot*x - sinRot*y, sinRot*x + cosRot*y);
-	}
-
-	const Vector rotate(double rotation) const {
-
-		return rotate(std::sin(rotation), std::cos(rotation));
-	}
-
-	const Vector rotate(Angle rotation) const {
-
-		return rotate(rotation.sin(), rotation.cos());
+		return Vector(a.cos()*x - a.sin()*y, a.sin()*x + a.cos()*y);
 	}
 
 	const Vector abs() const {

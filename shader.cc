@@ -57,8 +57,8 @@ void util::setDefaultResolution() {
 	setResolution(getWindowWidth(), getWindowHeight());
 }
 
-void util::setCameraData(Vector position, Vector scale, double rotation) {
-	float data[] {position.x, position.y, scale.x, scale.y, (float) rotation};
+void util::setCameraData(Vector position, Vector scale, float rotation) {
+	float data[] {position.x, position.y, scale.x, scale.y, rotation};
 
 	setUniform(data, dynUniform::CAMERA);
 }

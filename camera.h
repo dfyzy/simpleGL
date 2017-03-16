@@ -9,13 +9,10 @@ class Camera : public UnsortedSprite {
 private:
 	static Camera* instance;
 
-	void bindVertexData();
-	void bindTextureData();
+	void bindVertices();
+	void bindTexture();
 
-	Camera(Texture texture) : UnsortedSprite(nullptr, texture, {}, {1}, 0, {1}) {
-		bindVertexData();
-		bindTextureData();
-	}
+	Camera(Texture texture) : UnsortedSprite(nullptr, texture, {}, {1}, 0, {1}) {}
 
 public:
 	static void init(Texture texture);

@@ -7,9 +7,10 @@
 namespace simpleGL {
 
 class Sprite : public UnsortedSprite {
-protected:
+private:
 	int z;
 
+protected:
 	~Sprite();
 
 public:
@@ -23,7 +24,7 @@ public:
 	class Loader {
 	private:
 		UnsortedSprite* pparent {nullptr};
-		Texture texture;
+		Texture ptexture;
 		Vector pposition;
 		int pz{0};
 		Vector pscale{1};
@@ -31,7 +32,7 @@ public:
 		Color pcolor{1};
 
 	public:
-		Loader(Texture texture) : texture(texture) {}
+		Loader(Texture texture) : ptexture(texture) {}
 
 		Loader& parent(UnsortedSprite* us) { pparent = us; return *this; }
 		Loader& position(Vector sv) { pposition = sv; return *this; }
@@ -41,7 +42,7 @@ public:
 		Loader& color(Color sc) { pcolor = sc; return *this; }
 
 		Sprite* load() {
-			return new Sprite(pparent, texture, pposition, pz, pscale, protation, pcolor);
+			return new Sprite(pparent, ptexture, pposition, pz, pscale, protation, pcolor);
 		}
 	};
 
@@ -59,15 +60,15 @@ public:
 			if (lhs->z != rhs->z)
 				return lhs->z > rhs->z;
 
-			if (lhs->texture.getId() != rhs->texture.getId())
-				return lhs->texture.getId() < rhs->texture.getId();
+			if (lhs->getTexture().getId() != rhs->getTexture().getId())
+				return lhs->getTexture().getId() < rhs->getTexture().getId();
 
 			/*if (lhs->vertexShader != rhs->vertexShader)
 				return lhs->vertexShader < rhs->vertexShader;
 			if (lhs->fragmentShader != rhs->fragmentShader)
 				return lhs->fragmentShader < rhs->fragmentShader;*/
 
-			return lhs->id < rhs->id;
+			return lhs->getId() < rhs->getId();
 		}
 	};
 };

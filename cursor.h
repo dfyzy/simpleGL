@@ -1,7 +1,10 @@
 #ifndef SIMPLE_CURSOR_H
 #define SIMPLE_CURSOR_H
 
+#include <functional>
+
 #include "unsortedSprite.h"
+#include "button.h"
 
 namespace simpleGL {
 
@@ -12,14 +15,19 @@ public:
 private:
 	static Cursor* instance;
 
+	static void update();
+
 	static void positionCallback(GLFWwindow* window, double xpos, double ypos);
 	static void buttonCallback(GLFWwindow* window, int button, int action, int mods);
 
-	bool buttons[BUTTONS_MAX];
+	bool mouseButtons[BUTTONS_MAX];
+
+	std::function<void(Cursor*)> posCallback;
+	std::function<void(Cursor*, int)> buttCallback;
 
 	//TODO: custom cursor images
-	void bindVertexData() {}
-	void bindTextureData() {}
+	void bindVertices() {}
+	void bindTexture() {}
 
 	Cursor();
 
@@ -27,7 +35,13 @@ public:
 	static Cursor* getInstance();
 
 	//0 = left; 1 = right; 2 = middle;
-	bool getButton(int button) const;
+	bool getMouseButton(int button) const;
+
+	void setPositionCallback(std::function<void(Cursor*)> func) { posCallback = func; }
+	void setMouseButtonCallback(std::function<void(Cursor*, int)> func) { buttCallback = func; }
+
+	void addButton(Sprite* sprite, Button* button);
+	void removeButton(Sprite* sprite);
 
 };
 

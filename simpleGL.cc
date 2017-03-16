@@ -20,11 +20,12 @@ simpleGL::Color clearColor;
 
 GLuint vao;
 
-void defaultUpdate() {}
-std::function<void()> update = defaultUpdate;
-
 Clock::time_point previous;
 double deltaTime = 0;
+
+std::function<void()> update;
+
+std::list<std::function<void()>> utilUpdates;
 
 }
 
@@ -138,10 +139,6 @@ GLFWwindow* createWindowedWindow(const char* title, unsigned width, unsigned hei
 	return window;
 }
 
-GLFWwindow* util::getWindow() {
-	return window;
-}
-
 unsigned getWindowWidth() {
 	return windowWidth;
 }
@@ -150,12 +147,20 @@ unsigned getWindowHeight() {
 	return windowHeight;
 }
 
+double getDeltaTime() {
+	return deltaTime;
+}
+
+GLFWwindow* util::getWindow() {
+	return window;
+}
+
 void setUpdate(std::function<void()> func) {
 	update = func;
 }
 
-double getDeltaTime() {
-	return deltaTime;
+void util::addUpdate(std::function<void()> updt) {
+	utilUpdates.push_back(updt);
 }
 
 void draw() {
@@ -187,7 +192,12 @@ void draw() {
 
 		glfwPollEvents();
 
-		update();
+		if (update)	update();
+
+		for (auto uu : utilUpdates)
+			uu();
+
+		util::bindSprites();
 
 		glBindVertexArray(vao);
 

@@ -14,14 +14,14 @@ void Camera::init(Texture texture) {
 		instance = new Camera(texture);
 }
 
-void Camera::bindVertexData() {
-	util::setCameraData(getRealPosition(), scale, getRealRotation().get());
+void Camera::bindVertices() {
+	util::setCameraData(getRealPosition(), getScale(), getRealRotation().get());
 }
 
-void Camera::bindTextureData() {
-	util::bindData(id, vboType::VERTEX, {}, texture.getBounds(), {});
+void Camera::bindTexture() {
+	util::bindData(getId(), vboType::VERTEX, Matrix::scale(getTexture().getBounds()));
 
-	UnsortedSprite::bindTextureData();
+	UnsortedSprite::bindTexture();
 }
 
 }

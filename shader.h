@@ -7,9 +7,9 @@
 
 namespace simpleGL {
 
-	GLuint loadShaderSource(std::string source, GLenum type);
+GLuint loadShaderSource(std::string source, GLenum type);
 
-	GLuint loadShaderPath(std::string path, GLenum type);
+GLuint loadShaderPath(std::string path, GLenum type);
 
 }
 

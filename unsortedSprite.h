@@ -4,17 +4,18 @@
 #include <list>
 
 #include "color.h"
+#include "matrix.h"
 #include "texture.h"
 
 namespace simpleGL {
 
 class UnsortedSprite {
-protected:
-	UnsortedSprite* parent = nullptr;
-	std::list<UnsortedSprite*> children;
-
+private:
 	bool enabled {true};
 	unsigned id;
+
+	UnsortedSprite* parent = nullptr;
+	std::list<UnsortedSprite*> children;
 
 	Texture texture;
 
@@ -23,21 +24,31 @@ protected:
 	Angle rotation;
 	Color color;
 
+	Matrix model;
+
+	bool needUpdtModel;
+	bool needUpdtVertices;
+	bool needUpdtTexture;
+
 	GLuint vertexShader;
 	GLuint fragmentShader;
 
-	virtual void bindVertexData();
-	virtual void bindTextureData();
+protected:
+	void updateVertices() {
+		needUpdtModel = true;
+		needUpdtVertices = true;
 
-	void bindChildData() {
-		for (UnsortedSprite* child : children)
-			child->bindVertexData();
+		for (UnsortedSprite* us : children)
+			us->updateVertices();
 	}
+	void updateTexture() { needUpdtTexture = true; }
+
+	virtual void bindVertices();
+	virtual void bindTexture();
 
 	virtual ~UnsortedSprite();
 
 public:
-
 	UnsortedSprite(UnsortedSprite* parent, Texture texture, Vector position, Vector scale, Angle rotation, Color color);
 
 	unsigned getId() const { return id; }
@@ -52,40 +63,37 @@ public:
 	virtual void setTexture(Texture tex) {
 		texture = tex;
 
-		bindVertexData();
-		bindTextureData();
+		updateTexture();
 	}
 
 	/*
 	 * Changes shader program for this sprite. When drawing this sprite opengl will use these shaders.
 	 */
+	GLuint getVertexShader() const { return vertexShader; }
 	virtual void setVertexShader(GLuint sh) { vertexShader = sh; }
+
+	GLuint getFragmentShader() const { return fragmentShader; }
 	virtual void setFragmentShader(GLuint sh) { fragmentShader = sh; }
 
 	Vector getPosition() const { return position; }
 	Vector getRealPosition() const {
 		Vector result = position;
 
-		UnsortedSprite* nextParent = parent;
-		while (nextParent) {
-			result = nextParent->position + result.rotate(nextParent->rotation);
-			nextParent = nextParent->parent;
-		}
+		if (parent)	result = parent->model * result;
 
 		return result;
 	}
 	virtual void setPosition(Vector pposition) {
 		position = pposition;
 
-		bindVertexData();
-		bindChildData();
+		updateVertices();
 	}
 
 	Vector getScale() const { return scale; }
 	virtual void setScale(Vector pscale) {
 		scale = pscale;
 
-		bindVertexData();
+		updateVertices();
 	}
 
 	Angle getRotation() const { return rotation; }
@@ -97,24 +105,61 @@ public:
 	virtual void setRotation(Angle protation) {
 		rotation = protation;
 
-		bindVertexData();
-		bindChildData();
+		updateVertices();
 	}
 
 	Color getColor() const { return color; }
 	virtual void setColor(Color pcolor) { color = pcolor; }
 
+	Matrix getModelMatrix() {
+		if (needUpdtModel) {
+			model = Matrix::translate(position) * Matrix::rotate(rotation) * Matrix::scale(scale);
+			if (parent)	model = parent->getModelMatrix() * model;
+
+			needUpdtModel = false;
+		}
+
+		return model;
+	}
+
 	void setParent(UnsortedSprite* us) {
 		parent = us;
 		if (parent)	parent->children.push_back(this);
 
-		bindVertexData();
-		bindChildData();
+		updateVertices();
+	}
+
+	bool isBindingVertices() const { return needUpdtVertices; }
+
+	void bindData() {
+		if (needUpdtTexture) {
+			bindTexture();
+			if (!needUpdtVertices)	bindVertices();
+
+			needUpdtTexture = false;
+		}
+
+		if (needUpdtVertices) {
+			bindVertices();
+
+			needUpdtVertices = false;
+		}
 	}
 
 	void translate(Vector v) {
 		position += v.rotate(rotation);
+
+		updateVertices();
 	}
+
+	bool inBounds(Vector pos) {
+		Vector dist = (getModelMatrix().inv() * pos).abs();
+		Vector bounds = texture.getBounds()/2;
+
+		return (dist.x < bounds.x) && (dist.y < bounds.y);
+	}
+
+	bool inBounds(UnsortedSprite* us);
 
 	virtual void draw();
 

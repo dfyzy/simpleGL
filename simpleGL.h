@@ -1,12 +1,9 @@
 #ifndef SIMPLE_GL_H
 #define SIMPLE_GL_H
 
-#include <functional>
-
 #include "shader.h"
 #include "camera.h"
 #include "cursor.h"
-#include "button.h"
 #include "text.h"
 #include "light.h"
 
@@ -54,9 +51,6 @@ void setUpdate(std::function<void()> func);
  *	Starts draw loop
  */
 void draw();
-
-//void addButton(Sprite* sprite, Button* Button);
-//void removeButton(Sprite* sprite);
 
 }
 

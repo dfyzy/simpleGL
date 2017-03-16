@@ -15,8 +15,8 @@ public:
 		GLint centreLoc;
 		GLint boundsLoc;
 
-		void bindVertexData() {
-			UnsortedSprite::bindVertexData();
+		void bindVertices() {
+			UnsortedSprite::bindVertices();
 
 			light->toggleDraw();
 		}

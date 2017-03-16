@@ -5,6 +5,8 @@
 	#include <iostream>
 #endif
 
+#include <functional>
+
 #include "sprite.h"
 
 namespace simpleGL {
@@ -22,27 +24,32 @@ inline void print(const char* str) {
 void initShaders();
 void initSprites();
 void initFbos();
+
+//TODO: inits
 void initLights();
 void initFonts();
 void initTexts();
+
 void closeFonts();
+
+void addUpdate(std::function<void()> updt);
 
 GLFWwindow* getWindow();
 
 GLuint getMsaaFbo();
 
-void bindData(unsigned id, vboType::E type, Vector centre, Vector bounds, Angle rotation);
+void bindData(unsigned id, vboType::E type, Matrix model);
 
 //calling glUseProgramStages for each stage.
 void useShaders(GLuint vertex, GLuint fragment, simpleGL::Color color);
 
-void setCameraData(simpleGL::Vector position, simpleGL::Vector scale, double rotation);
+//TODO: mat
+void setCameraData(simpleGL::Vector position, simpleGL::Vector scale, float rotation);
 
 void setResolution(unsigned width, unsigned height);
 void setDefaultResolution();
 
-void clickButtons(int button);
-void moveButtons();
+void bindSprites();
 
 //draw sprites for each texture
 void drawSprites();

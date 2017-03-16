@@ -12,9 +12,11 @@ constexpr float SPRITE_QUAD[] = {-0.5, 0.5,
 											0.5, -0.5};
 
 constexpr int SPRITE_SIZE = sizeof(SPRITE_QUAD);
-constexpr int SPRITE_VERTS = SPRITE_SIZE/sizeof(float);
+constexpr int SPRITE_VERTS = 4;
 
 GLuint vbos[simpleGL::vboType::COUNT];
+
+std::list<simpleGL::UnsortedSprite*> unsortedSprites;
 
 std::queue<unsigned> deletedQueue;
 
@@ -30,14 +32,19 @@ GLuint emptyFragmentShader;
 
 namespace simpleGL {
 
-void util::bindData(unsigned id, vboType::E type, Vector centre, Vector bounds, Angle rotation) {
+Vector quadVertex(int i) {
+
+	return Vector(SPRITE_QUAD[i*2], SPRITE_QUAD[i*2 + 1]);
+}
+
+void util::bindData(unsigned id, vboType::E type, Matrix model) {
 	glBindBuffer(GL_ARRAY_BUFFER, vbos[type]);
 
-	float data[SPRITE_VERTS];
+	float data[SPRITE_VERTS*2];
 	int offset = 0;
 
-	for (int i = 0; i < SPRITE_VERTS; i += 2)
-		(centre + (bounds*Vector(SPRITE_QUAD[i], SPRITE_QUAD[i + 1])).rotate(rotation)).load(data, &offset);
+	for (int i = 0; i < SPRITE_VERTS; i++)
+		(model*quadVertex(i)).load(data, &offset);
 
 	glBufferSubData(GL_ARRAY_BUFFER, id * SPRITE_SIZE, SPRITE_SIZE, data);
 }
@@ -64,11 +71,20 @@ void util::initSprites() {
 	util::print("Sprites initialized");
 }
 
+void util::bindSprites() {
+	for (UnsortedSprite* us : unsortedSprites)
+		us->bindData();
+}
+
 UnsortedSprite::UnsortedSprite(UnsortedSprite* parent, Texture texture, Vector position, Vector scale, Angle rotation, Color color)
 											: parent(parent), texture(texture), position(position), scale(scale), rotation(rotation), color(color) {
 	util::print("Adding sprite");
 
 	if (parent) parent->children.push_back(this);
+
+	vertexShader = defaultVertexShader;
+	if (texture.getId() == 0)	fragmentShader = emptyFragmentShader;
+	else								fragmentShader = defaultFragmentShader;
 
 	if (!deletedQueue.empty()) {
 		id = deletedQueue.front();
@@ -96,22 +112,20 @@ UnsortedSprite::UnsortedSprite(UnsortedSprite* parent, Texture texture, Vector p
 			glCopyBufferSubData(GL_COPY_WRITE_BUFFER, GL_COPY_READ_BUFFER, 0, 0, oldSize);
 		}
 
-		// TODO: check if one copy/attribpointer is faster than copy/copy
-		// GLuint t = vbos;
-		// vbos = tempVbo;
-		// tempVbo = t;
+		//TOTRY: check if one copy/attribpointer is faster than copy/copy
+		//GLuint t = vbos;
+		//vbos = tempVbo;
+		//tempVbo = t;
 
 		glDeleteBuffers(1, &tempVbo);
 
 		spriteCapacity *= 2;
 	}
 
-	bindVertexData();
-	bindTextureData();
+	updateVertices();
+	updateTexture();
 
-	vertexShader = defaultVertexShader;
-	if (texture.getId() == 0)	fragmentShader = emptyFragmentShader;
-	else								fragmentShader = defaultFragmentShader;
+	unsortedSprites.push_back(this);
 }
 
 UnsortedSprite::~UnsortedSprite() {
@@ -121,30 +135,39 @@ UnsortedSprite::~UnsortedSprite() {
 		deletedQueue.push(id);
 	else
 		spriteCount--;
+	//TOTRY: check for redundant members of the queue.
+
+	unsortedSprites.remove(this);
 }
 
-void UnsortedSprite::bindVertexData() {
-	Vector pos = position;
+void UnsortedSprite::bindVertices() {
+	Matrix m = getModelMatrix() * Matrix::scale(texture.getBounds());
 
-	UnsortedSprite* nextParent = parent;
-	Angle angle = rotation;
-	while (nextParent) {
-		pos = nextParent->position + pos.rotate(nextParent->rotation);
-
-		angle += nextParent->rotation;
-
-		nextParent = nextParent->parent;
-	}
-
-	util::bindData(id, vboType::VERTEX, pos, texture.getBounds() * scale, angle);
+	util::bindData(id, vboType::VERTEX, m);
 }
 
-void UnsortedSprite::bindTextureData() {
+void UnsortedSprite::bindTexture() {
 
-	util::bindData(id, vboType::TEXTURE, texture.getPosition() + texture.getBounds()*0.5f, texture.getBounds(), {});
+	util::bindData(id, vboType::TEXTURE,
+			Matrix::translate(texture.getPosition() + texture.getBounds()*0.5f) * Matrix::scale(texture.getBounds()));
+}
+
+//TODO: sleep on this
+bool UnsortedSprite::inBounds(UnsortedSprite* other) {
+	Matrix mat = other->getModelMatrix();
+	for (int i = 0; i < SPRITE_VERTS; i++)
+		if (inBounds(mat * quadVertex(i)))	return true;
+
+	mat = getModelMatrix();
+	for (int i = 0; i < SPRITE_VERTS; i++)
+		if (other->inBounds(mat * quadVertex(i)))	return true;
+
+	return false;
 }
 
 void UnsortedSprite::draw() {
+	if (!enabled)	return;
+
 	texture.bind();
 
 	util::useShaders(vertexShader, fragmentShader, color);

@@ -75,10 +75,10 @@ Sprite::~Sprite() {
 }
 
 void Sprite::setEnabled(bool b) {
-	if (!b && enabled)		sprites.erase(this);
-	else if (b && !enabled)	sprites.insert(this);
+	if (!b && UnsortedSprite::isEnabled())		sprites.erase(this);
+	else if (b && !UnsortedSprite::isEnabled())	sprites.insert(this);
 
-	enabled = b;
+	UnsortedSprite::setEnabled(b);
 }
 
 void Sprite::setZ(int pz) {
@@ -89,7 +89,7 @@ void Sprite::setZ(int pz) {
 
 void Sprite::setTexture(Texture tex) {
 	sprites.erase(this);
-	texture = tex;
+	setTexture(tex);
 	sprites.insert(this);
 }
 
