@@ -1,6 +1,9 @@
 #ifndef SIMPLE_FONT_H
 #define SIMPLE_FONT_H
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include "vector.h"
 #include "color.h"
 #include "texture.h"
@@ -19,12 +22,17 @@ struct GlyphData {
 
 class Font : public Image {
 private:
+	static FT_Library ftLibrary;
+	static int dpiX, dpiY;
+
 	GlyphData glyphData[LAST_CHAR - FIRST_CHAR + 1];
 
 	float lineSpacing;
 	unsigned spaceWidth;
 
 public:
+	static FT_Library getFTLibrary();
+
 	Font(const char* path, int size);
 
 	float getLineSpacing() const { return lineSpacing; }

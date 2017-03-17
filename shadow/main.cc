@@ -1,5 +1,6 @@
 #include <simpleGL/simpleGL.h>
 #include <simpleGL/shaderData.h>
+#include <simpleGL/light.h>
 #include <iostream>
 
 using namespace simpleGL;
@@ -24,8 +25,8 @@ int main() {
 	glfwSetKeyCallback(window, keyCallback);
 	glfwSetCursorPosCallback(window, cursorPosCallback);
 
-	Light* light = new Light({}, -1, getWindowWidth(), getWindowHeight(), {0});
-	lamp = new Light::Source(light, {}, {1000}, 0, {0.65f, 0.65f, 0.5f});
+	Light* light = new Light(nullptr, {}, -1, getWindowWidth(), getWindowHeight(), {0});
+	lamp = new Light::Source(light, nullptr, {}, {1000}, 0, {0.65f, 0.65f, 0.5f});
 	lamp->setFragmentShader(loadShaderSource(simpleShaderData::getLightingPow2Fragment(), GL_FRAGMENT_SHADER));
 
 	draw();

@@ -1,4 +1,5 @@
 #include <simpleGL/simpleGL.h>
+#include <simpleGL/cursor.h>
 #include <iostream>
 
 using namespace simpleGL;

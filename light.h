@@ -9,7 +9,9 @@ namespace simpleGL {
 class Light : public Image, public Sprite {
 public:
 	class Source : public UnsortedSprite {
-	public:
+	private:
+		static GLuint lightingFragmentShader;
+
 		Light* light;
 
 		GLint centreLoc;
@@ -22,6 +24,8 @@ public:
 		}
 
 	public:
+		static GLuint getDefaultFragment();
+
 		Source(Light* light, UnsortedSprite* parent, Vector position, Vector bounds, Angle rotation, Color color);
 
 		Source(const Source& other) =delete;

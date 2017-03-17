@@ -3,18 +3,15 @@
 #include "util.h"
 #include "shaderData.h"
 
-namespace {
-
-GLuint textFragmentShader;
-
-}
-
 namespace simpleGL {
 
-void util::initTexts() {
+GLuint Text::textFragmentShader = 0;
 
-	textFragmentShader = loadShaderSource(simpleShaderData::getTextFragment(), GL_FRAGMENT_SHADER);
+GLuint Text::getDefaultFragment() {
+	if (textFragmentShader == 0)
+		textFragmentShader = loadShaderSource(simpleShaderData::getTextFragment(), GL_FRAGMENT_SHADER);
 
+	return textFragmentShader;
 }
 
 Text::Text(Font* font, std::string caption, Vector position, int z, float scale, Angle rotation, Color color, Alignment align, float width)
@@ -24,7 +21,7 @@ Text::Text(Font* font, std::string caption, Vector position, int z, float scale,
 		if (!font->getGlyphData(*c, &data)) continue;
 
 		Sprite* sprite = new Sprite(nullptr, data->texture, Vector(0), z, scale, rotation, color);//a bit to the right????
-		sprite->setFragmentShader(textFragmentShader);
+		sprite->setFragmentShader(getDefaultFragment());
 
 		sprites.push_back(sprite);
 	}

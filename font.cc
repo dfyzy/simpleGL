@@ -2,9 +2,6 @@
 
 #include <memory>
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
 #include "font.h"
 #include "util.h"
 
@@ -12,38 +9,43 @@ namespace {
 
 constexpr unsigned TEX_GAP = 1;
 
-FT_Library ftLib;
-int dpiX = 0, dpiY = 0;
-
 }
 
 namespace simpleGL {
 
-void util::initFonts() {
-	if (FT_Init_FreeType(&ftLib)) {
-		util::print("Failed to init FreeType Library");
+FT_Library Font::ftLibrary = nullptr;
+int Font::dpiX, Font::dpiY;
+
+FT_Library Font::getFTLibrary() {
+	if (ftLibrary == nullptr) {
+		if (FT_Init_FreeType(&ftLibrary)) {
+			util::print("Failed to init FreeType Library");
+			return nullptr;
+		}
+
+		HDC screen = GetDC(0);//win32
+
+		dpiX = GetDeviceCaps(screen, LOGPIXELSX);
+		dpiY = GetDeviceCaps(screen, LOGPIXELSY);
+
+		ReleaseDC(0, screen);
+
+		util::print("FreeType Library initialized");
 	}
 
-	HDC screen = GetDC(0);//win32
-
-	dpiX = GetDeviceCaps(screen, LOGPIXELSX);
-	dpiY = GetDeviceCaps(screen, LOGPIXELSY);
-
-	ReleaseDC(0, screen);
-
-	util::print("Fonts initialized");
+	return ftLibrary;
 }
 
-void util::closeFonts() {
-	FT_Done_FreeType(ftLib);
-}
+//void util::closeFonts() {
+//	FT_Done_FreeType(ftLibrary);
+//}
 
 Font::Font(const char* path, int size) {
 	util::print("Loading font");
 
 	FT_Face face;
 
-	if (FT_New_Face(ftLib, path, 0, &face)) {
+	if (FT_New_Face(getFTLibrary(), path, 0, &face)) {
 		util::print("Failed to load the font");
 		return;
 	}

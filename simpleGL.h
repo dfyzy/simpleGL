@@ -1,11 +1,11 @@
 #ifndef SIMPLE_GL_H
 #define SIMPLE_GL_H
 
+#include <functional>
+
 #include "shader.h"
+#include "sprite.h"
 #include "camera.h"
-#include "cursor.h"
-#include "text.h"
-#include "light.h"
 
 namespace simpleGL {
 

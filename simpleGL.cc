@@ -93,10 +93,6 @@ inline void createWindow(const char* title, GLFWmonitor* monitor, Color backgrou
 	glBindVertexArray(vao);
 
 	util::initSprites();
-	util::initFbos();
-	util::initLights();
-	util::initFonts();
-	util::initTexts();
 }
 
 GLFWwindow* createFullscreenWindow(const char* title, bool borderless, Color background) {
@@ -210,7 +206,6 @@ void draw() {
 		glfwSwapBuffers(window);
 	}
 
-	util::closeFonts();
 	glfwTerminate();
 }
 

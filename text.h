@@ -13,12 +13,16 @@ public:
 	enum Alignment { LEFT, CENTER, RIGHT, JUSTIFIED };
 
 private:
+	static GLuint textFragmentShader;
+
 	Font* font;
 
 	std::list<Sprite*> sprites;
 	std::string caption;
 
 public:
+	static GLuint getDefaultFragment();
+
 	Text(Font* font, std::string caption, Vector position, int z,
 						float scale, Angle rotation, Color color, Alignment align, float width);
 

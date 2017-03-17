@@ -8,6 +8,8 @@ namespace simpleGL {
 class Camera : public UnsortedSprite {
 private:
 	static Camera* instance;
+	static GLuint msaaFbo;
+	static GLuint rectFbo;
 
 	void bindVertices();
 	void bindTexture();
@@ -15,9 +17,10 @@ private:
 	Camera(Texture texture) : UnsortedSprite(nullptr, texture, {}, {1}, 0, {1}) {}
 
 public:
-	static void init(Texture texture);
-
 	static Camera* getInstance();
+
+	static GLuint getMSAAFbo();
+	static GLuint getRectFbo();
 
 };
 

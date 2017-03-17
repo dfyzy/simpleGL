@@ -23,20 +23,10 @@ inline void print(const char* str) {
 
 void initShaders();
 void initSprites();
-void initFbos();
-
-//TODO: inits
-void initLights();
-void initFonts();
-void initTexts();
-
-void closeFonts();
 
 void addUpdate(std::function<void()> updt);
 
 GLFWwindow* getWindow();
-
-GLuint getMsaaFbo();
 
 void bindData(unsigned id, vboType::E type, Matrix model);
 

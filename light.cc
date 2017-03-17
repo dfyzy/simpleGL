@@ -1,24 +1,27 @@
+#include "light.h"
 #include "simpleGL.h"
 #include "util.h"
 #include "shaderData.h"
 
-namespace {
-
-GLuint lightingFragmentShader;
-
-}
-
 namespace simpleGL {
 
-void util::initLights() {
-	lightingFragmentShader = loadShaderSource(simpleShaderData::getLightingDefaultFragment(), GL_FRAGMENT_SHADER);
+GLuint Light::Source::lightingFragmentShader = 0;
+
+GLuint Light::Source::getDefaultFragment() {
+	if (lightingFragmentShader == 0)
+		lightingFragmentShader = loadShaderSource(simpleShaderData::getLightingDefaultFragment(), GL_FRAGMENT_SHADER);
+
+	return lightingFragmentShader;
 }
 
 Light::Source::Source(Light* light, UnsortedSprite* parent, Vector position, Vector bounds, Angle rotation, Color color)
 			: UnsortedSprite(parent, Texture(bounds), position, {1}, rotation, color), light(light) {
-	setFragmentShader(lightingFragmentShader);
-	light->sources.push_back(this);
-	light->toggleDraw();
+	setFragmentShader(getDefaultFragment());
+
+	if (light) {
+		light->sources.push_back(this);
+		light->toggleDraw();
+	}
 }
 
 void Light::Source::draw() {
@@ -31,7 +34,6 @@ void Light::Source::draw() {
 
 Light::Light(UnsortedSprite* parent, Vector position, int z, unsigned width, unsigned height, Color base)
 				: Image(width, height, GL_RGB, GL_LINEAR), Sprite(parent, Texture(this), position, z, {1}, {}, {1}), base(base) {
-
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, Image::id, 0);
@@ -76,7 +78,7 @@ void Light::draw() {
 
 		cam->bindData();
 
-		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, util::getMsaaFbo());
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, Camera::getInstance()->getMSAAFbo());
 		glViewport(0, 0, simpleGL::getWindowWidth(), simpleGL::getWindowHeight());
 		util::setDefaultResolution();
 

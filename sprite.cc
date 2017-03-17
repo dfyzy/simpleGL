@@ -2,12 +2,8 @@
 
 #include "simpleGL.h"
 #include "util.h"
-#include "shaderData.h"
 
 namespace {
-
-GLuint msaaFbo;
-GLuint rectFbo;
 
 std::set<simpleGL::Sprite*, simpleGL::Sprite::Comparer> sprites;
 
@@ -15,45 +11,18 @@ std::set<simpleGL::Sprite*, simpleGL::Sprite::Comparer> sprites;
 
 namespace simpleGL {
 
-GLuint util::getMsaaFbo() {
-	return msaaFbo;
-}
-
-void util::initFbos() {
-	glGenFramebuffers(1, &msaaFbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo);
-
-	GLuint renderbuffer;
-	glGenRenderbuffers(1, &renderbuffer);
-	glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
-
-	glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_RGB, getWindowWidth(), getWindowHeight());
-
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderbuffer);
-
-	glGenFramebuffers(1, &rectFbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, rectFbo);
-
-	Image image(getWindowWidth(), getWindowHeight(), GL_RGB, GL_NEAREST);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, image.getId(), 0);
-
-	Camera::init({&image});
-	Camera::getInstance()->setVertexShader(loadShaderSource(simpleShaderData::getOverlayVertex(), GL_VERTEX_SHADER));
-	Camera::getInstance()->setFragmentShader(loadShaderSource(simpleShaderData::getOverlayFragment(), GL_FRAGMENT_SHADER));
-
-	util::print("Fbos initialized");
-}
-
 void util::drawSprites() {
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, msaaFbo);
+	Camera* cam = Camera::getInstance();
+
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, cam->getMSAAFbo());
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	for (Sprite* cs : sprites)
 		cs->draw();
 
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rectFbo);
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, msaaFbo);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, cam->getRectFbo());
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, cam->getMSAAFbo());
 
 	unsigned width = getWindowWidth(), height = getWindowHeight();
 	glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);

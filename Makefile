@@ -5,7 +5,7 @@ STLIBS = #-static-libgcc -static-libstdc++
 LIBS = -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lpng16 -lz -lm -lfreetype
 
 INCS = simpleGL.h shader.h image.h texture.h sprite.h unsortedSprite.h color.h angle.h vector.h \
- 			simpleMath.h glfw.h shaderData.h font.h text.h light.h button.h camera.h cursor.h matrix.h
+ 			simpleMath.h glfw.h shaderData.h font.h text.h light.h camera.h cursor.h matrix.h
 OBJS = simpleGL.o unsortedSprite.o sprite.o image.o texture.o shader.o shaderData.o font.o text.o \
 			light.o camera.o cursor.o matrix.o
 

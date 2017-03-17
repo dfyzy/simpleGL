@@ -1,5 +1,7 @@
 #include <map>
 
+#include "cursor.h"
+
 #include "simpleGL.h"
 #include "util.h"
 
