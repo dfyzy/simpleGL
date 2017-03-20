@@ -26,7 +26,7 @@ Light::Source::Source(Light* light, UnsortedSprite* parent, Vector position, Vec
 
 void Light::Source::draw() {
 	Vector pos = getRealPosition();
-	glProgramUniform2f(getFragmentShader(), centreLoc, pos.x + getWindowWidth()*0.5f, pos.y + getWindowHeight()*0.5f);
+	glProgramUniform2f(getFragmentShader(), centreLoc, pos.x, pos.y);
 	glProgramUniform2f(getFragmentShader(), boundsLoc, getTexture().getBounds().x, getTexture().getBounds().y);
 
 	UnsortedSprite::draw();
@@ -60,23 +60,12 @@ void Light::draw() {
 		glClearColor(base.r, base.g, base.b, 0);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		Camera* cam = Camera::getInstance();
-		Vector camPos = cam->getPosition();
-		Angle camRot = cam->getRotation();
-
-		//TODO: setREALPostion
-		cam->setPosition(getRealPosition());
-		cam->setRotation(getRealRotation());
-
-		cam->bindData();
+		util::setCameraData(getModelMatrix());
 
 		for (Source* s : sources)
 			s->draw();
 
-		cam->setPosition(camPos);
-		cam->setRotation(camRot);
-
-		cam->bindData();
+		util::setCameraData(Camera::getInstance()->getModelMatrix());
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, Camera::getInstance()->getMSAAFbo());
 		glViewport(0, 0, simpleGL::getWindowWidth(), simpleGL::getWindowHeight());

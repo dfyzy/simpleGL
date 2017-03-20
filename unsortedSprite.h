@@ -163,6 +163,8 @@ public:
 
 	virtual void draw();
 
+	virtual void unload() { delete this; }
+
 };
 
 }

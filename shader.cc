@@ -10,10 +10,10 @@
 namespace {
 
 struct dynUniform {
-	enum E { COLOR, RESOLUTION, CAMERA, COUNT };
+	enum E { COLOR, CAMERA, RESOLUTION, COUNT };
 	static int sizes[COUNT];
 };
-int dynUniform::sizes[COUNT] {4, 2, 5};
+int dynUniform::sizes[COUNT] {4, 12, 2};//if adding new - change 2 to 4.
 
 GLuint pipeline;
 
@@ -57,8 +57,12 @@ void util::setDefaultResolution() {
 	setResolution(getWindowWidth(), getWindowHeight());
 }
 
-void util::setCameraData(Vector position, Vector scale, float rotation) {
-	float data[] {position.x, position.y, scale.x, scale.y, rotation};
+void util::setCameraData(Matrix view) {
+	Matrix m = view.inv();
+	//transposing and padding
+	float data[] {m.get(0, 0),		m.get(1, 0),	m.get(2, 0), 0,
+						m.get(0, 1),	m.get(1, 1),	m.get(2, 1), 0,
+						m.get(0, 2),	m.get(1, 2),	m.get(2, 2), 0};
 
 	setUniform(data, dynUniform::CAMERA);
 }

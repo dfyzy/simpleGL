@@ -49,7 +49,7 @@ GLuint Camera::getRectFbo() {
 }
 
 void Camera::bindVertices() {
-	util::setCameraData(getRealPosition(), getScale(), getRealRotation().get());
+	util::setCameraData(getModelMatrix());
 }
 
 void Camera::bindTexture() {

@@ -16,6 +16,9 @@ private:
 
 	Camera(Texture texture) : UnsortedSprite(nullptr, texture, {}, {1}, 0, {1}) {}
 
+protected:
+	~Camera() {}
+
 public:
 	static Camera* getInstance();
 

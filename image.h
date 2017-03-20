@@ -40,7 +40,7 @@ public:
 
 	void setFiltering(GLenum tf) const;
 
-	void unload();
+	virtual void unload();
 
 };
 

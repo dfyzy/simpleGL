@@ -31,10 +31,10 @@ GLFWwindow* getWindow();
 void bindData(unsigned id, vboType::E type, Matrix model);
 
 //calling glUseProgramStages for each stage.
-void useShaders(GLuint vertex, GLuint fragment, simpleGL::Color color);
+void useShaders(GLuint vertex, GLuint fragment, Color color);
 
 //TODO: mat
-void setCameraData(simpleGL::Vector position, simpleGL::Vector scale, float rotation);
+void setCameraData(Matrix view);
 
 void setResolution(unsigned width, unsigned height);
 void setDefaultResolution();

@@ -53,8 +53,6 @@ public:
 
 	void setTexture(Texture tex);
 
-	void unload() { delete this; }
-
 	struct Comparer {
 		bool operator()(const Sprite* lhs, const Sprite* rhs) {
 			if (lhs->z != rhs->z)

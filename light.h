@@ -58,6 +58,7 @@ private:
 
 	bool needToDraw = true;
 
+protected:
 	~Light();
 
 public:
@@ -69,7 +70,7 @@ public:
 
 	void unload() {
 		Image::unload();
-		Sprite::unload();
+		UnsortedSprite::unload();
 	}
 
 };

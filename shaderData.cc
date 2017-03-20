@@ -8,6 +8,7 @@ std::string getVertex() {
 	"layout(location=1)	in vec2 inTexture;\n"
 
 	"out vec4 vColor;\n"
+	"out vec2 vPosition;\n"
 	"out vec2 vTexture;\n"
 
 	"out gl_PerVertex {\n"
@@ -15,31 +16,27 @@ std::string getVertex() {
 	"};\n"
 
 	"layout(std140) uniform DynamicData {\n"
-	"	uniform vec4 color;\n"
-	"	uniform vec2 resolution;\n"
-	"	uniform vec2 cameraPosition;\n"
-	"	uniform vec2 cameraScale;\n"
-	"	uniform float cameraRotation;\n"
+	"	vec4 color;\n"
+	"	mat3 view;\n"
+	"	vec2 resolution;\n"
 	"} dynamic;\n"
 
 	"void main() {\n"
-	"	vTexture = inTexture;\n"
 	"	vColor = dynamic.color;\n"
+	"	vPosition = inPosition;\n"
+	"	vTexture = inTexture;\n"
 
-	"	float sinR = sin(dynamic.cameraRotation);\n"
-	"	float cosR = cos(dynamic.cameraRotation);\n"
-	"	mat2 rot = mat2(cosR,	-sinR,"
-							"sinR,	cosR);\n"
-
-	"	gl_Position = vec4(rot * (inPosition - dynamic.cameraPosition), 0, 1);\n"
-	"	gl_Position.xy /= dynamic.cameraScale * dynamic.resolution.y/2;"
+	"	gl_Position = vec4(dynamic.view * vec3(inPosition, 1), 1);\n"
+	"	gl_Position.xy /= dynamic.resolution.y/2;"
 	"	gl_Position.x *= dynamic.resolution.y/dynamic.resolution.x;\n"
 	"}");
 }
 
 std::string getDefaultFragment() {
 	return std::string("#version 430 core\n"
+
 	"in vec4 vColor;\n"
+	"in vec2 vPosition;\n"
 	"in vec2 vTexture;\n"
 
 	"out vec4 fColor;\n"
@@ -53,7 +50,9 @@ std::string getDefaultFragment() {
 
 std::string getEmptyFragment() {
 	return std::string("#version 430 core\n"
+
 	"in vec4 vColor;\n"
+	"in vec2 vPosition;\n"
 	"in vec2 vTexture;\n"
 
 	"out vec4 fColor;\n"
@@ -67,6 +66,7 @@ std::string getTextFragment() {
 	return std::string("#version 430 core\n"
 
 	"in vec4 vColor;\n"
+	"in vec2 vPosition;\n"
 	"in vec2 vTexture;\n"
 
 	"out vec4 fColor;\n"
@@ -109,6 +109,7 @@ std::string getLightingDefaultFragment() {
 	return std::string("#version 430 core\n"
 
 	"in vec4 vColor;\n"
+	"in vec2 vPosition;\n"
 	"in vec2 vTexture;\n"
 
 	"out vec4 fColor;\n"
@@ -125,6 +126,7 @@ std::string getLightingPow2Fragment() {
 	return std::string("#version 430 core\n"
 
 	"in vec4 vColor;\n"
+	"in vec2 vPosition;\n"
 	"in vec2 vTexture;\n"
 
 	"out vec4 fColor;\n"
@@ -133,7 +135,7 @@ std::string getLightingPow2Fragment() {
 	"uniform vec2 bounds;\n"
 
 	"void main() {\n"
-	"	fColor = (1 - pow(2*length((centre - gl_FragCoord.xy)/bounds), 2))*vColor;\n"
+	"	fColor = (1 - pow(2*length((centre - vPosition)/bounds), 2))*vColor;\n"
 	"}");
 }
 
