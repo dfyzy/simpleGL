@@ -8,9 +8,9 @@ namespace simpleGL {
 struct Vector {
 	float x, y;
 
-	Vector(float px, float py) : x(px), y(py) {}
-	Vector(float scale) : Vector(scale, scale) {}
-	Vector() : Vector(0, 0) {}
+	constexpr Vector(float px, float py) : x(px), y(py) {}
+	constexpr Vector(float scale) : Vector(scale, scale) {}
+	constexpr Vector() : Vector(0, 0) {}
 
 	void set(float px, float py) {
 		x = px;	y = py;

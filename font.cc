@@ -40,7 +40,7 @@ FT_Library Font::getFTLibrary() {
 //	FT_Done_FreeType(ftLibrary);
 //}
 
-Font::Font(const char* path, int size) {
+Font::Font(const char* path, int size) : Image(GL_LINEAR) {
 	util::print("Loading font");
 
 	FT_Face face;
@@ -60,8 +60,8 @@ Font::Font(const char* path, int size) {
 	FT_Load_Char(face, 32, FT_LOAD_RENDER);//space
 	spaceWidth = face->glyph->advance.x >> 6;
 
-	width = 0;
-	height = 0;
+	unsigned width = 0;
+	unsigned height = 0;
 	for (int i = FIRST_CHAR; i <= LAST_CHAR; i++) {
 		if(FT_Load_Char(face, i, FT_LOAD_RENDER)) {
 			util::print("Failed loading char");
@@ -73,7 +73,7 @@ Font::Font(const char* path, int size) {
 	}
 	width -= TEX_GAP;
 
-	genImage(GL_RED, GL_LINEAR);
+	resize(width, height, GL_RED);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 

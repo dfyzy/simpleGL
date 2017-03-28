@@ -58,13 +58,8 @@ public:
 			if (lhs->z != rhs->z)
 				return lhs->z > rhs->z;
 
-			if (lhs->getTexture().getId() != rhs->getTexture().getId())
-				return lhs->getTexture().getId() < rhs->getTexture().getId();
-
-			/*if (lhs->vertexShader != rhs->vertexShader)
-				return lhs->vertexShader < rhs->vertexShader;
-			if (lhs->fragmentShader != rhs->fragmentShader)
-				return lhs->fragmentShader < rhs->fragmentShader;*/
+			if (lhs->getTexture().getImage() != rhs->getTexture().getImage())
+				return lhs->getTexture().getImage() < rhs->getTexture().getImage();
 
 			return lhs->getId() < rhs->getId();
 		}

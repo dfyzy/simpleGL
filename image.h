@@ -7,13 +7,18 @@
 namespace simpleGL {
 
 class Image {
-protected:
+private:
+	GLuint id {0};
+	GLenum filtering;
+	GLenum format;
 	unsigned width, height;
-	GLuint id;
 
-	void genImage(GLenum format, GLenum filtering);
+protected:
+	void resize(unsigned newWidth, unsigned newHeight, GLenum newFormat);
 
-	Image() {}
+	Image(GLenum filtering);
+
+	virtual ~Image();
 
 public:
 	/*
@@ -28,7 +33,10 @@ public:
 	 */
 	Image(const char* path, GLenum filtering);
 
-	Image(const Image& other) =delete;
+	GLuint getId() const { return id; }
+
+	GLenum getFiltering() const {	return filtering; }
+	GLenum getFormat() const {	return format; }
 
 	/*
 	 *	Gets pixel width and height of this texture.
@@ -36,11 +44,9 @@ public:
 	unsigned getWidth() const { return width; }
 	unsigned getHeight() const { return height; }
 
-	GLuint getId() const { return id; }
+	void setFiltering(GLenum newFiltering);
 
-	void setFiltering(GLenum tf) const;
-
-	virtual void unload();
+	virtual void unload() { delete this; }
 
 };
 

@@ -36,7 +36,7 @@ Light::Light(UnsortedSprite* parent, Vector position, int z, unsigned width, uns
 				: Image(width, height, GL_RGB, GL_LINEAR), Sprite(parent, Texture(this), position, z, {1}, {}, {1}), base(base) {
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, Image::id, 0);
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, Image::getId(), 0);
 }
 
 Light::~Light() {
@@ -54,8 +54,8 @@ void Light::draw() {
 		//glBlendEquation(GL_MAX);
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
-		glViewport(0, 0, width, height);
-		util::setResolution(width, height);
+		glViewport(0, 0, getWidth(), getHeight());
+		util::setResolution(getWidth(), getHeight());
 
 		glClearColor(base.r, base.g, base.b, 0);
 		glClear(GL_COLOR_BUFFER_BIT);

@@ -1,13 +1,15 @@
 #include "texture.h"
 
 namespace {
-	GLuint currentTexture {0};
+
+simpleGL::Image* currentImage;
+
 }
 
 void simpleGL::Texture::bind() {
-	if (id != currentTexture) {
+	if (image != currentImage) {
 
-		glBindTexture(GL_TEXTURE_RECTANGLE, id);
-		currentTexture = id;
+		glBindTexture(GL_TEXTURE_RECTANGLE, image == nullptr ? 0 : image->getId());
+		currentImage = image;
 	}
 }

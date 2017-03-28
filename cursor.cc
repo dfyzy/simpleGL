@@ -71,12 +71,11 @@ void Cursor::update() {
 
 void Cursor::positionCallback(GLFWwindow* window, double xpos, double ypos) {
 	instance->setPosition(glfwToSimple(xpos, ypos));
-
-	//cursorPossUpdate();
 }
 
 void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mods) {
-	instance->mouseButtons[mButton] = action == GLFW_PRESS;
+	bool pressed = action == GLFW_PRESS;
+	instance->mouseButtons[mButton] = pressed;
 
 	double xpos, ypos;
 	glfwGetCursorPos(util::getWindow(), &xpos, &ypos);
@@ -88,7 +87,7 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 		if (it->first->inBounds(pos)) {
 			//TODO:alpha stuff
 
-			if (instance->getMouseButton(mButton)) {
+			if (pressed) {
 				it->second->onPress(mButton);
 				clicked[mButton] = *it;
 			} else {
@@ -96,12 +95,15 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 
 				if (clicked[mButton].first == it->first)
 					it->second->onClick(mButton);
-
-				clicked[mButton] = std::pair<Sprite*, Button*>();
 			}
 
-			return;
+			break;
 		}
+	}
+
+	if (!pressed) {
+		if (clicked[mButton].second)	clicked[mButton].second->onDragEnd(mButton);//TOTHINK: ondragend after ondrag
+		clicked[mButton] = std::pair<Sprite*, Button*>();
 	}
 
 	if (instance->buttCallback)	instance->buttCallback(instance, mButton);

@@ -9,11 +9,20 @@
 
 namespace simpleGL {
 
-Image::Image(unsigned width, unsigned height, GLenum format, GLenum filtering) : width(width), height(height) {
-	genImage(format, filtering);
+Image::Image(GLenum filtering) {
+	glGenTextures(1, &id);
+
+	setFiltering(filtering);
+
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
-Image::Image(const char* path, GLenum filtering) {
+Image::Image(unsigned width, unsigned height, GLenum format, GLenum filtering) : Image(filtering) {
+	resize(width, height, format);
+}
+
+Image::Image(const char* path, GLenum filtering) : Image(filtering) {
 	util::print("Loading image");
 
 	FILE *file = fopen(path, "rb");
@@ -60,7 +69,7 @@ Image::Image(const char* path, GLenum filtering) {
 
 	png_get_IHDR(png_ptr, info_ptr, &width, &height, nullptr, nullptr, nullptr, nullptr, nullptr);
 
-	genImage(GL_RGBA, filtering);
+	resize(width, height, GL_RGBA);
 
 	std::unique_ptr<png_byte[]> row(new png_byte[4*width]);
 
@@ -74,11 +83,13 @@ Image::Image(const char* path, GLenum filtering) {
 	fclose(file);
 }
 
-void Image::setFiltering(GLenum filtering) const {
-	if ((filtering != GL_LINEAR) && (filtering != GL_NEAREST)) {
+void Image::setFiltering(GLenum newFiltering) {
+	if ((newFiltering != GL_LINEAR) && (newFiltering != GL_NEAREST)) {
 		util::print("Wrong filtering type");
 		return;
 	}
+
+	filtering = newFiltering;
 
 	glBindTexture(GL_TEXTURE_RECTANGLE, id);
 
@@ -86,33 +97,18 @@ void Image::setFiltering(GLenum filtering) const {
 	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, filtering);
 }
 
-void Image::genImage(GLenum format, GLenum filtering) {
-	if ((format != GL_RED) && (format != GL_RG) && (format != GL_RGB) && (format != GL_RGBA)) {
-		util::print("Wrong format");
-		return;
-	}
-
-	if ((filtering != GL_LINEAR) && (filtering != GL_NEAREST)) {
-		util::print("Wrong filtering type");
-		return;
-	}
-
-	glGenTextures(1, &id);
-
-	setFiltering(filtering);
-
-	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+void Image::resize(unsigned newWidth, unsigned newHeight, GLenum newFormat) {
+	width = newWidth;
+	height = newHeight;
+	format = newFormat;
 
 	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
 }
 
-void Image::unload() {
-	if (id != 0) {
-		util::print("Unloading texture");
+Image::~Image() {
+	util::print("Unloading texture");
 
-		glDeleteTextures(1, &id);
-	}
+	glDeleteTextures(1, &id);
 }
 
 }

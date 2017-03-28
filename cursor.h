@@ -15,6 +15,7 @@ public:
 	virtual void onClick(int mouseButton) {}
 
 	virtual void onDrag(int mouseButton) {}
+	virtual void onDragEnd(int mouseButton) {}
 
 	virtual void onEnter() {}
 	virtual void onExit() {}

@@ -83,8 +83,8 @@ UnsortedSprite::UnsortedSprite(UnsortedSprite* parent, Texture texture, Vector p
 	if (parent) parent->children.push_back(this);
 
 	vertexShader = defaultVertexShader;
-	if (texture.getId() == 0)	fragmentShader = emptyFragmentShader;
-	else								fragmentShader = defaultFragmentShader;
+	if (texture.getImage() == nullptr)	fragmentShader = emptyFragmentShader;
+	else											fragmentShader = defaultFragmentShader;
 
 	if (!deletedQueue.empty()) {
 		id = deletedQueue.front();
@@ -154,6 +154,8 @@ void UnsortedSprite::bindTexture() {
 
 //TODO: sleep on this
 bool UnsortedSprite::inBounds(UnsortedSprite* other) {
+	if (!enabled || !other->isEnabled())	return false;
+
 	Matrix mat = other->getModelMatrix();
 	for (int i = 0; i < SPRITE_VERTS; i++)
 		if (inBounds(mat * quadVertex(i)))	return true;

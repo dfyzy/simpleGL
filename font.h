@@ -30,6 +30,9 @@ private:
 	float lineSpacing;
 	unsigned spaceWidth;
 
+protected:
+	~Font() {}
+
 public:
 	static FT_Library getFTLibrary();
 

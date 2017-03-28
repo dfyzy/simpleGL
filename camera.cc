@@ -25,10 +25,10 @@ Camera* Camera::getInstance() {
 		glGenFramebuffers(1, &rectFbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, rectFbo);
 
-		Image image(getWindowWidth(), getWindowHeight(), GL_RGB, GL_NEAREST);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, image.getId(), 0);
+		Image* image = new Image(getWindowWidth(), getWindowHeight(), GL_RGB, GL_NEAREST);//DEST
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, image->getId(), 0);
 
-		instance = new Camera(&image);
+		instance = new Camera(image);
 		instance->setVertexShader(loadShaderSource(simpleShaderData::getOverlayVertex(), GL_VERTEX_SHADER));
 		instance->setFragmentShader(loadShaderSource(simpleShaderData::getOverlayFragment(), GL_FRAGMENT_SHADER));
 

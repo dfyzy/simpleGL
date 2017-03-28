@@ -152,7 +152,9 @@ public:
 		updateVertices();
 	}
 
-	bool inBounds(Vector pos) {
+	virtual bool inBounds(Vector pos) {
+		if (!enabled)	return false;
+
 		Vector dist = (getModelMatrix().inv() * pos).abs();
 		Vector bounds = texture.getBounds()/2;
 

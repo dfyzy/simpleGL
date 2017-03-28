@@ -7,7 +7,7 @@ namespace simpleGL {
 
 class Texture {
 protected:
-	GLuint id = 0;
+	Image* image = nullptr;
 	Vector position;
 	Vector bounds;
 
@@ -15,10 +15,10 @@ public:
 	Texture() {}
 	Texture(Vector bounds) : bounds(bounds) {}
 
-	Texture(Image* image, Vector position, Vector bounds) : id(image->getId()), position(position), bounds(bounds) {}
-	Texture(Image* image) : id(image->getId()), bounds(image->getWidth(), image->getHeight()) {}
+	Texture(Image* image, Vector position, Vector bounds) : image(image), position(position), bounds(bounds) {}
+	Texture(Image* image) : image(image), bounds(image->getWidth(), image->getHeight()) {}
 
-	GLuint getId() const { return id; }
+	Image* getImage() const { return image; }
 
 	Vector getPosition() const { return position; }
 

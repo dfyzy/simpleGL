@@ -44,7 +44,7 @@ Sprite::~Sprite() {
 }
 
 void Sprite::setEnabled(bool b) {
-	if (!b && UnsortedSprite::isEnabled())		sprites.erase(this);
+	if (!b && UnsortedSprite::isEnabled())			sprites.erase(this);
 	else if (b && !UnsortedSprite::isEnabled())	sprites.insert(this);
 
 	UnsortedSprite::setEnabled(b);

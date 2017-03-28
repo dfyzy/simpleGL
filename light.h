@@ -69,7 +69,6 @@ public:
 	void draw();
 
 	void unload() {
-		Image::unload();
 		UnsortedSprite::unload();
 	}
 
