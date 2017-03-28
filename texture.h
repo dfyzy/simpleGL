@@ -7,7 +7,7 @@ namespace simpleGL {
 
 class Texture {
 protected:
-	Image* image = nullptr;
+	Image* image {nullptr};
 	Vector position;
 	Vector bounds;
 
@@ -16,7 +16,7 @@ public:
 	Texture(Vector bounds) : bounds(bounds) {}
 
 	Texture(Image* image, Vector position, Vector bounds) : image(image), position(position), bounds(bounds) {}
-	Texture(Image* image) : image(image), bounds(image->getWidth(), image->getHeight()) {}
+	Texture(Image* image) : image(image), bounds(image != nullptr ? Vector(image->getWidth(), image->getHeight()) : 0) {}
 
 	Image* getImage() const { return image; }
 

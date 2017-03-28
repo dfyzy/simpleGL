@@ -14,34 +14,33 @@ GLuint Text::getDefaultFragment() {
 	return textFragmentShader;
 }
 
-Text::Text(Font* font, std::string caption, Vector position, int z, float scale, Angle rotation, Color color, Alignment align, float width)
- 										: font(font), caption(caption) {
+Text::Text(Font* font, std::string caption, Alignment alignment, float width,
+					UnsortedSprite* parent, Vector position, int z, Vector scale, Angle rotation, Color color)
+						: UnsortedSprite(parent, nullptr, position, scale, rotation, {}),
+								font(font), caption(caption), alignment(alignment), width(width) {
 	for (auto c = caption.begin(); c != caption.end(); c++) {
-		GlyphData* data;
-		if (!font->getGlyphData(*c, &data)) continue;
+		Glyph* glyph;
+		if (!font->getGlyph(*c, &glyph)) continue;
 
-		Sprite* sprite = new Sprite(nullptr, data->texture, Vector(0), z, scale, rotation, color);//a bit to the right????
+		Sprite* sprite = new Sprite(Sprite::Data(glyph->texture).parent(this).z(z).color(color));//a bit to the right????
 		sprite->setFragmentShader(getDefaultFragment());
-
-		sprites.push_back(sprite);
 	}
 
-	setLayout(position, scale, rotation, align, width);
+	align();
 }
 
-void Text::setLayout(Vector position, float scale, Angle rotation, Alignment align, float width) {
+void Text::align() {
 	//init
-	Vector newLine = Vector(-rotation.sin(), rotation.cos()) * (font->getLineSpacing()*scale);
+	Vector newLine(0, -font->getLineSpacing());
 
-	//position is our cursor
-	position -= newLine;
+	Vector cursor = newLine;
 
-	auto sprite = sprites.begin();
+	auto sprite = getChildren().begin();
 	auto lineStart = caption.begin();
 
 	//for each line
 	while (lineStart != caption.end()) {
-		auto lineEnd = caption.end();
+		auto lineEnd = lineStart;
 		float lineWidth = 0;
 		int spaces = 0;
 
@@ -52,8 +51,8 @@ void Text::setLayout(Vector position, float scale, Angle rotation, Alignment ali
 				break;
 			}
 
-			GlyphData* data;
-			if (!font->getGlyphData(*c, &data)) {
+			Glyph* glyph;
+			if (!font->getGlyph(*c, &glyph)) {
 				lineEnd = c;
 
 				if (*c == ' ')			spaces++;
@@ -61,66 +60,60 @@ void Text::setLayout(Vector position, float scale, Angle rotation, Alignment ali
 				continue;
 			}
 
-			lineWidth += data->advance*scale;
+			lineWidth += glyph->advance;
 
-			if ((width != 0) && (lineWidth > width) && (lineEnd != caption.end())) {//hard way(overflow)
+			if ((width != 0) && (lineWidth > width) && (lineEnd != lineStart)) {//hard way(overflow)
 				//substracting width of overflowing word
 				for (auto s = lineEnd; s != c;) {
 					s++;
 
-					if (!font->getGlyphData(*s, &data) && *s == ' ') 			spaces--;
+					if (!font->getGlyph(*s, &glyph) && *s == ' ') 			spaces--;
 
-					lineWidth -= data->advance*scale;
+					lineWidth -= glyph->advance;
 				}
 
 				//substracting all needless spaces
 				c = lineEnd;
-				while (!font->getGlyphData(*c, &data))	if (*(c--) == ' ')	spaces--;
+				while (!font->getGlyph(*c, &glyph))	if (*(c--) == ' ')	spaces--;
 
 				break;
 			}
 			if (*c == '-')	lineEnd = c;
 		}
 
-		lineWidth += font->getSpaceWidth()*spaces*scale;
+		float spaceWidth = font->getSpaceWidth();
 
-		float spaceWidth = font->getSpaceWidth()*scale;
+		lineWidth += spaceWidth*spaces;
 
 		//alignment
-		Vector lastPosition = position;
-		if (align == JUSTIFIED) {
+		Vector lastPosition = cursor;
+
+		if (alignment == JUSTIFIED) {
 			if (lineEnd != caption.end()) {
 				spaceWidth += (width - lineWidth)/spaces;
 				lineWidth = width;
-			} else {
-				align = LEFT;//this will depend on language default alignment.
-				position -= Vector(rotation.cos(), rotation.sin()) * (width/2);//will in the general meaning of intention, not like i have time to do this
-			}
-		}
+			} else
+				cursor -= Vector(width/2, 0);//this will depend on language default alignment.
+		} else if (alignment != LEFT)
+			cursor -= Vector((lineWidth/(2 - (alignment == RIGHT))), 0);
 
-		if (align != LEFT) {
-			position -= Vector(rotation.cos(), rotation.sin()) * (lineWidth/(2 - (align == RIGHT)));
-		}
-
-		//actually setting position
-		Vector space = Vector(rotation.cos(), rotation.sin()) * spaceWidth;
+		//actually setting sprite position
 		if (lineEnd != caption.end())	lineEnd++;
 		for (; lineStart != lineEnd; lineStart++) {
-			GlyphData* data;
+			Glyph* glyph;
 
-			if (!font->getGlyphData(*lineStart, &data)) {
-				if (*lineStart == ' ')	position += space;
+			if (!font->getGlyph(*lineStart, &glyph)) {
+				if (*lineStart == ' ')	cursor += Vector(spaceWidth, 0);
 
 				continue;
 			}
 
-			Vector offset = data->offset.rotate(rotation);
-			(*(sprite++))->setPosition(position + offset*scale);
+			(*(sprite++))->setPosition(cursor + glyph->offset);
 
-			position += Vector(rotation.cos(), rotation.sin()) * (data->advance*scale);
+			cursor += Vector(glyph->advance, 0);
 		}
 
-		position = lastPosition - newLine;
+		cursor = lastPosition + newLine;
 	}
 }
 

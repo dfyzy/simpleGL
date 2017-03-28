@@ -36,11 +36,12 @@ FT_Library Font::getFTLibrary() {
 	return ftLibrary;
 }
 
+//TODO: ???
 //void util::closeFonts() {
 //	FT_Done_FreeType(ftLibrary);
 //}
 
-Font::Font(const char* path, int size) : Image(GL_LINEAR) {
+Font::Font(const char* path, int size) {
 	util::print("Loading font");
 
 	FT_Face face;
@@ -73,7 +74,7 @@ Font::Font(const char* path, int size) : Image(GL_LINEAR) {
 	}
 	width -= TEX_GAP;
 
-	resize(width, height, GL_RED);
+	image = new Image(width, height, GL_RED, GL_LINEAR);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -83,7 +84,7 @@ Font::Font(const char* path, int size) : Image(GL_LINEAR) {
 
 		FT_Bitmap& bitmap = face->glyph->bitmap;
 
-		glyphData[i - FIRST_CHAR] = GlyphData {Texture(this, Vector(offset, 0), Vector(bitmap.width, bitmap.rows)),
+		glyphs[i - FIRST_CHAR] = Glyph {Texture(image, Vector(offset, 0), Vector(bitmap.width, bitmap.rows)),
 			Vector(face->glyph->bitmap_left + bitmap.width * 0.5f, face->glyph->bitmap_top - bitmap.rows * 0.5f),
 			face->glyph->advance.x >> 6};
 
@@ -92,8 +93,7 @@ Font::Font(const char* path, int size) : Image(GL_LINEAR) {
 			for (unsigned x = 0; x < bitmap.width; x++)
 				data[y*bitmap.width + x] = bitmap.buffer[(bitmap.rows - 1 - y)*bitmap.width + x];
 
-		glTexSubImage2D(GL_TEXTURE_RECTANGLE, 0, offset, 0, bitmap.width, bitmap.rows,
-															GL_RED, GL_UNSIGNED_BYTE, data.get());
+		glTexSubImage2D(GL_TEXTURE_RECTANGLE, 0, offset, 0, bitmap.width, bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, data.get());
 
 		offset += bitmap.width + TEX_GAP;
 	}

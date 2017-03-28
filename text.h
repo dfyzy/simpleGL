@@ -8,7 +8,7 @@
 
 namespace simpleGL {
 
-class Text {
+class Text : public UnsortedSprite {
 public:
 	enum Alignment { LEFT, CENTER, RIGHT, JUSTIFIED };
 
@@ -17,22 +17,29 @@ private:
 
 	Font* font;
 
-	std::list<Sprite*> sprites;
 	std::string caption;
+	Alignment alignment;
+
+	float width;
+
+	void align();
+
+protected:
+	~Text() {}
 
 public:
 	static GLuint getDefaultFragment();
 
-	Text(Font* font, std::string caption, Vector position, int z,
-						float scale, Angle rotation, Color color, Alignment align, float width);
+	Text(Font* font, std::string caption, Alignment alignment, float width,
+				UnsortedSprite* parent, Vector position, int z, Vector scale, Angle rotation, Color color);
 
-	Text(Font* font, std::string caption, Vector position, int z,
-						float scale, Color color, Alignment align, float width)
-							: Text(font, caption, position, z, scale, 0, color, align, width) {}
-	Text(Font* font, std::string caption, Vector position, int z, Color color, Alignment align, float width)
-					: Text(font, caption, position, z, 1, color, align, width) {}
+	Font* getFont() const { return font; }
 
-	void setLayout(Vector position, float scale, Angle rotation, Alignment align, float width);
+	std::string getCaption() const { return caption; }
+
+	Alignment getAlignment() const { return alignment; }
+
+	float getWidth() const { return width; }
 
 };
 

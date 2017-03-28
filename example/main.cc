@@ -57,18 +57,18 @@ int main() {
 	Image* light = new Image("example/light.png", GL_LINEAR);
 	Image* eye = new Image("example/eye.png", GL_LINEAR);
 
-	brimSprite = Sprite::Loader(Texture(brim)).position({0, 68.6}).load();
-	Cursor::getInstance()->addButton(Sprite::Loader(Texture(bodyFront)).load(), new CustomButton(0));
-	Cursor::getInstance()->addButton(Sprite::Loader(Texture(light)).position({0, 108.8}).z(1).load(), new CustomButton(1));
-	Cursor::getInstance()->addButton(Sprite::Loader(Texture(eye)).position({50.2, 32.1}).z(-1).load(), new CustomButton(2));
-	Cursor::getInstance()->addButton(Sprite::Loader(Texture(eye)).position({-50.2, 32.1}).z(-1).load(), new CustomButton(3));
+	brimSprite = new Sprite(Sprite::Data(Texture(brim)).position({0, 68.6}));
+	Cursor::getInstance()->addButton(new Sprite(Sprite::Data(Texture(bodyFront))), new CustomButton(0));
+	Cursor::getInstance()->addButton(new Sprite(Sprite::Data(Texture(light)).position({0, 108.8}).z(1)), new CustomButton(1));
+	Cursor::getInstance()->addButton(new Sprite(Sprite::Data(Texture(eye)).position({50.2, 32.1}).z(-1)), new CustomButton(2));
+	Cursor::getInstance()->addButton(new Sprite(Sprite::Data(Texture(eye)).position({-50.2, 32.1}).z(-1)), new CustomButton(3));
 
-	Cursor::getInstance()->addButton(Sprite::Loader(Texture(Vector(300))).z(5).rotation(0.25f*3.1415927f).load(), new CustomButton(5));
+	Cursor::getInstance()->addButton(new Sprite(Sprite::Data(Texture(Vector(300))).z(5).rotation(0.25f*3.1415927f)), new CustomButton(5));
 
 	Font* sans = new Font("example/Oranienbaum.ttf", 26);
 
 	std::string lorem("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
-	Text text(sans, lorem, Vector(0, -100), -10, 1, 0, Color(0), Text::CENTER, 350);
+	new Text(sans, lorem, Text::CENTER, 350, nullptr, Vector(0, -100), -10, 1, 0, Color(0));
 
 	Light* dark = new Light(nullptr, {0, -200}, -10, 200, 200, {0});
 	new Light::Source(dark, nullptr, Vector(0, -200) + Vector(25), {100}, 0, {0.5f, 0, 0});
@@ -77,7 +77,7 @@ int main() {
 	setUpdate(update);
 
 	Cursor::getInstance()->setPositionCallback(cursorPosCallback);
-	Sprite::Loader({50}).parent(Cursor::getInstance()).z(-10).color({1, 0, 0}).load();
+	new Sprite(Sprite::Data({50}).parent(Cursor::getInstance()).z(-10).color({1, 0, 0}));
 
 	draw();
 }

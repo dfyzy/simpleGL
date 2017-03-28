@@ -21,8 +21,7 @@ public:
 	 */
 	Sprite(UnsortedSprite* parent, Texture texture, Vector position, int z, Vector scale, Angle rotation, Color color);
 
-	class Loader {
-	private:
+	struct Data {
 		UnsortedSprite* pparent {nullptr};
 		Texture ptexture;
 		Vector pposition;
@@ -31,20 +30,17 @@ public:
 		Angle protation;
 		Color pcolor{1};
 
-	public:
-		Loader(Texture texture) : ptexture(texture) {}
+		Data(Texture texture) : ptexture(texture) {}
 
-		Loader& parent(UnsortedSprite* us) { pparent = us; return *this; }
-		Loader& position(Vector sv) { pposition = sv; return *this; }
-		Loader& z(int i) { pz = i; return *this; }
-		Loader& scale(Vector sv) { pscale = sv; return *this; }
-		Loader& rotation(Angle f) { protation = f; return *this; }
-		Loader& color(Color sc) { pcolor = sc; return *this; }
-
-		Sprite* load() {
-			return new Sprite(pparent, ptexture, pposition, pz, pscale, protation, pcolor);
-		}
+		Data& parent(UnsortedSprite* us) { pparent = us; return *this; }
+		Data& position(Vector sv) { pposition = sv; return *this; }
+		Data& z(int i) { pz = i; return *this; }
+		Data& scale(Vector sv) { pscale = sv; return *this; }
+		Data& rotation(Angle f) { protation = f; return *this; }
+		Data& color(Color sc) { pcolor = sc; return *this; }
 	};
+
+	Sprite(Data d) : Sprite(d.pparent, d.ptexture, d.pposition, d.pz, d.pscale, d.protation, d.pcolor) {}
 
 	void setEnabled(bool b);
 

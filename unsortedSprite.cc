@@ -138,6 +138,9 @@ UnsortedSprite::~UnsortedSprite() {
 	//TOTRY: check for redundant members of the queue.
 
 	unsortedSprites.remove(this);
+
+	for (UnsortedSprite* child : children)
+		child->setParent(parent);
 }
 
 void UnsortedSprite::bindVertices() {

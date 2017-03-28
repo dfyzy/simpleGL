@@ -13,40 +13,46 @@ namespace simpleGL {
 constexpr int FIRST_CHAR = 33;
 constexpr int LAST_CHAR = 126;
 
-struct GlyphData {
+struct Glyph {
 	Texture texture;
 	Vector offset;
 	long advance;
 
 };
 
-class Font : public Image {
+class Font {
 private:
 	static FT_Library ftLibrary;
 	static int dpiX, dpiY;
 
-	GlyphData glyphData[LAST_CHAR - FIRST_CHAR + 1];
+	Image* image;
+
+	Glyph glyphs[LAST_CHAR - FIRST_CHAR + 1];
 
 	float lineSpacing;
 	unsigned spaceWidth;
 
 protected:
-	~Font() {}
+	virtual ~Font() { image->unload(); }
 
 public:
 	static FT_Library getFTLibrary();
 
 	Font(const char* path, int size);
 
+	Image* getImage() const { return image; }
+
 	float getLineSpacing() const { return lineSpacing; }
 	unsigned getSpaceWidth() const { return spaceWidth; }
 
-	bool getGlyphData(char c, GlyphData** data) {
+	bool getGlyph(char c, Glyph** data) {
 		if ((c > LAST_CHAR) || (c < FIRST_CHAR))	return false;
 
-		*data = glyphData + (c - FIRST_CHAR);
+		*data = glyphs + (c - FIRST_CHAR);
 		return true;
 	}
+
+	virtual void unload() { delete this; }
 
 };
 

@@ -122,12 +122,15 @@ public:
 		return model;
 	}
 
+	UnsortedSprite* getParent() const { return parent; }
 	void setParent(UnsortedSprite* us) {
 		parent = us;
 		if (parent)	parent->children.push_back(this);
 
 		updateVertices();
 	}
+
+	std::list<UnsortedSprite*> getChildren() const { return children; }
 
 	bool isBindingVertices() const { return needUpdtVertices; }
 
