@@ -2,6 +2,8 @@
 #include <simpleGL/light.h>
 #include <simpleGL/text.h>
 #include <simpleGL/cursor.h>
+#include <simpleGL/timer.h>
+
 #include <iostream>
 
 using namespace simpleGL;
@@ -23,6 +25,8 @@ GLFWwindow* window;
 float rotation = 0;
 float scale = 1;
 
+LerpTimer<Sprite, Vector>* timer;
+
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
 	if ((action == GLFW_PRESS) && (key == GLFW_KEY_ESCAPE))
 			glfwSetWindowShouldClose(window, GL_TRUE);
@@ -31,6 +35,10 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 void cursorPosCallback(Cursor* instance) {
 	Vector v = instance->getPosition()/Vector(getWindowWidth(), getWindowHeight()) + Vector(0.5);
 	brimSprite->setColor({v.x, v.y, 0, 1});
+}
+
+void mouseButtonCallback(Cursor* instance, int button, bool pressed) {
+	if (pressed)	timer->play();
 }
 
 void update() {
@@ -77,7 +85,15 @@ int main() {
 	setUpdate(update);
 
 	Cursor::getInstance()->setPositionCallback(cursorPosCallback);
-	new Sprite(Sprite::Data({50}).parent(Cursor::getInstance()).z(-10).color({1, 0, 0}));
+	Cursor::getInstance()->setMouseButtonCallback(mouseButtonCallback);
+
+	Sprite* red = new Sprite(Sprite::Data({50}).parent(Cursor::getInstance()).z(-10).color({1, 0, 0}));
+	timer = new LerpTimer<Sprite, Vector>(red, Sprite::setPosition, {});
+	timer->add(100000, {50, 0});
+	timer->add(100000, {0, 50});
+	timer->add(100000, {0, -50});
+	timer->add(100000, {-50, 0});
+	timer->add(100000, {});
 
 	draw();
 }

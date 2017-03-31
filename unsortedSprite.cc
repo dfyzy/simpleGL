@@ -157,7 +157,7 @@ void UnsortedSprite::bindTexture() {
 
 //TODO: sleep on this
 bool UnsortedSprite::inBounds(UnsortedSprite* other) {
-	if (!enabled || !other->isEnabled())	return false;
+	if (!isEnabled() || !other->isEnabled())	return false;
 
 	Matrix mat = other->getModelMatrix();
 	for (int i = 0; i < SPRITE_VERTS; i++)
@@ -171,7 +171,7 @@ bool UnsortedSprite::inBounds(UnsortedSprite* other) {
 }
 
 void UnsortedSprite::draw() {
-	if (!enabled)	return;
+	if (!isEnabled())	return;
 
 	texture.bind();
 

@@ -43,13 +43,6 @@ Sprite::~Sprite() {
 	sprites.erase(this);
 }
 
-void Sprite::setEnabled(bool b) {
-	if (!b && UnsortedSprite::isEnabled())			sprites.erase(this);
-	else if (b && !UnsortedSprite::isEnabled())	sprites.insert(this);
-
-	UnsortedSprite::setEnabled(b);
-}
-
 void Sprite::setZ(int pz) {
 	sprites.erase(this);
 	z = pz;

@@ -23,7 +23,7 @@ struct Color {
 
 	const Color operator*(const float& f) const {
 
-		return Color(r*f, g*f, b*f, a);
+		return Color(r*f, g*f, b*f, a*f);
 	}
 
 	const Color operator/(const float& f) const {

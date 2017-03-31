@@ -42,8 +42,6 @@ public:
 
 	Sprite(Data d) : Sprite(d.pparent, d.ptexture, d.pposition, d.pz, d.pscale, d.protation, d.pcolor) {}
 
-	void setEnabled(bool b);
-
 	int getZ() const { return z; }
 	void setZ(int pz);
 

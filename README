@@ -6,7 +6,7 @@ TOFIX:
 -The uneven sized texture problem(look circle.exe)
 
 TODO:
--Animations
+-Trigger sprites
 -Shadow object(light)
 -Window resizability
 -Particles(if there is a need for further optimization)

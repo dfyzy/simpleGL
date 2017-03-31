@@ -51,7 +51,7 @@ public:
 		return *this = *this - a;
 	}
 
-	const Angle operator*(int i) const {//const int& i
+	const Angle operator*(int i) const {
 		Angle a {*this};
 
 		if (i < 0) {

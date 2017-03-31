@@ -5,9 +5,9 @@ STLIBS = #-static-libgcc -static-libstdc++
 LIBS = -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lpng16 -lz -lm -lfreetype
 
 INCS = simpleGL.h shader.h image.h texture.h sprite.h unsortedSprite.h color.h angle.h vector.h \
- 			simpleMath.h glfw.h shaderData.h font.h text.h light.h camera.h cursor.h matrix.h
+ 			math.h glfw.h shaderData.h font.h text.h light.h camera.h cursor.h matrix.h timer.h
 OBJS = simpleGL.o unsortedSprite.o sprite.o image.o texture.o shader.o shaderData.o font.o text.o \
-			light.o camera.o cursor.o matrix.o
+			light.o camera.o cursor.o matrix.o timer.o
 
 %.o: %.cc
 	g++ -DFPS_COUNTER $(CPPFLAGS) -c $< -I$(INCPATH)

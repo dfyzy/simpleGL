@@ -34,6 +34,14 @@ private:
 	GLuint fragmentShader;
 
 protected:
+	virtual void bindVertices();
+	virtual void bindTexture();
+
+	virtual ~UnsortedSprite();
+
+public:
+	UnsortedSprite(UnsortedSprite* parent, Texture texture, Vector position, Vector scale, Angle rotation, Color color);
+
 	void updateVertices() {
 		needUpdtModel = true;
 		needUpdtVertices = true;
@@ -43,21 +51,17 @@ protected:
 	}
 	void updateTexture() { needUpdtTexture = true; }
 
-	virtual void bindVertices();
-	virtual void bindTexture();
-
-	virtual ~UnsortedSprite();
-
-public:
-	UnsortedSprite(UnsortedSprite* parent, Texture texture, Vector position, Vector scale, Angle rotation, Color color);
-
 	unsigned getId() const { return id; }
 
 	/*
 	 * If enabled is false the sprite won't be used.
 	 */
-	bool isEnabled() const { return enabled; }
-	virtual void setEnabled(bool b) { enabled = b; }
+	bool isEnabled() const {
+		bool res = enabled;
+		if (parent)	res &= parent->isEnabled();
+		return res;
+	}
+	void setEnabled(bool b) { enabled = b; }
 
 	Texture getTexture() const { return texture; }
 	virtual void setTexture(Texture tex) {

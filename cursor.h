@@ -37,7 +37,7 @@ private:
 	bool mouseButtons[BUTTONS_MAX];
 
 	std::function<void(Cursor*)> posCallback;
-	std::function<void(Cursor*, int)> buttCallback;
+	std::function<void(Cursor*, int, bool)> buttCallback;
 
 	//TODO: custom cursor images
 	void bindVertices() {}
@@ -52,7 +52,7 @@ public:
 	bool getMouseButton(int button) const;
 
 	void setPositionCallback(std::function<void(Cursor*)> func) { posCallback = func; }
-	void setMouseButtonCallback(std::function<void(Cursor*, int)> func) { buttCallback = func; }
+	void setMouseButtonCallback(std::function<void(Cursor*, int, bool)> func) { buttCallback = func; }//int button, bool pressed
 
 	void addButton(Sprite* sprite, Button* button);
 	void removeButton(Sprite* sprite);

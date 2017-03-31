@@ -106,7 +106,7 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 		clicked[mButton] = std::pair<Sprite*, Button*>();
 	}
 
-	if (instance->buttCallback)	instance->buttCallback(instance, mButton);
+	if (instance->buttCallback)	instance->buttCallback(instance, mButton, pressed);
 }
 
 Cursor::Cursor() : UnsortedSprite(Camera::getInstance(), {}, {}, {1}, 0, {1}) {
