@@ -3,6 +3,12 @@
 #include "util.h"
 #include "shaderData.h"
 
+namespace {
+
+constexpr float MIN_JUSTIFIED_SPACE = 0.25f;
+
+}
+
 namespace simpleGL {
 
 GLuint Text::textFragmentShader = 0;
@@ -44,6 +50,8 @@ void Text::align() {
 		float lineWidth = 0;
 		int spaces = 0;
 
+		float spaceWidth = font->getSpaceWidth();
+
 		//incrementing until end of line is found
 		for (auto c = lineStart; ; c++) {
 			if (c == caption.end()) {
@@ -62,7 +70,8 @@ void Text::align() {
 
 			lineWidth += glyph->advance;
 
-			if ((width != 0) && (lineWidth > width) && (lineEnd != lineStart)) {//hard way(overflow)
+			float spss = spaces*spaceWidth*(alignment == JUSTIFIED ? MIN_JUSTIFIED_SPACE : 1);
+			if ((width != 0) && (lineEnd != lineStart) && (lineWidth + spss > width)) {//hard way(overflow)
 				//substracting width of overflowing word
 				for (auto s = lineEnd; s != c;) {
 					s++;
@@ -81,8 +90,6 @@ void Text::align() {
 			if (*c == '-')	lineEnd = c;
 		}
 
-		float spaceWidth = font->getSpaceWidth();
-
 		lineWidth += spaceWidth*spaces;
 
 		//alignment
@@ -93,8 +100,10 @@ void Text::align() {
 				spaceWidth += (width - lineWidth)/spaces;
 				lineWidth = width;
 			} else
-				cursor -= Vector(width/2, 0);//this will depend on language default alignment.
-		} else if (alignment != LEFT)
+				cursor -= Vector((width - lineWidth)/2, 0);//this will depend on language default alignment.
+		}
+
+		if (alignment != LEFT)
 			cursor -= Vector((lineWidth/(2 - (alignment == RIGHT))), 0);
 
 		//actually setting sprite position
