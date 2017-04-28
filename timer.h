@@ -79,7 +79,7 @@ protected:
 
 	Interval* first;
 	Interval* last {nullptr};
-	Iterator* iterator;
+	Iterator* iterator {nullptr};
 
 	double cursor {0};
 	bool inverted {false};
@@ -117,7 +117,7 @@ public:
 		playing = true;
 		inverted = invert;
 
-		if (iterator != nullptr)	delete iterator;
+		if (iterator != nullptr)	delete iterator;//TOTHINK: delete on end.
 		iterator = invert ? new InvertedIterator(last) : new Iterator(first);
 
 		(object->*set)(iterator->getPast()->value);

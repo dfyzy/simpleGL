@@ -21,9 +21,8 @@ GLuint Text::getDefaultFragment() {
 }
 
 Text::Text(Font* font, std::string caption, Alignment alignment, float width,
-					UnsortedSprite* parent, Vector position, int z, Vector scale, Angle rotation, Color color)
-						: UnsortedSprite(parent, nullptr, position, scale, rotation, {}),
-								font(font), caption(caption), alignment(alignment), width(width) {
+					Point* parent, Vector position, int z, Vector scale, Angle rotation, Color color)
+						: Point(parent, position, scale, rotation), font(font), caption(caption), alignment(alignment), width(width) {
 	for (auto c = caption.begin(); c != caption.end(); c++) {
 		Glyph* glyph;
 		if (!font->getGlyph(*c, &glyph)) continue;

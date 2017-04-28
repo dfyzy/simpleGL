@@ -89,11 +89,11 @@ int main() {
 
 	Sprite* red = new Sprite(Sprite::Data({50}).parent(Cursor::getInstance()).z(-10).color({1, 0, 0}));
 	timer = new LerpTimer<Sprite, Vector>(red, Sprite::setPosition, {});
-	timer->add(100000, {50, 0});
-	timer->add(100000, {0, 50});
-	timer->add(100000, {0, -50});
-	timer->add(100000, {-50, 0});
-	timer->add(100000, {});
+	timer->add(0.1, {50, 0});
+	timer->add(0.1, {0, 50});
+	timer->add(0.1, {0, -50});
+	timer->add(0.1, {-50, 0});
+	timer->add(0.1, {});
 
 	draw();
 }

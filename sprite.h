@@ -19,10 +19,10 @@ public:
 	 *
 	 * returns: sprite handle.
 	 */
-	Sprite(UnsortedSprite* parent, Texture texture, Vector position, int z, Vector scale, Angle rotation, Color color);
+	Sprite(Point* parent, Texture texture, Vector position, int z, Vector scale, Angle rotation, Color color);
 
 	struct Data {
-		UnsortedSprite* pparent {nullptr};
+		Point* pparent {nullptr};
 		Texture ptexture;
 		Vector pposition;
 		int pz{0};
@@ -32,7 +32,7 @@ public:
 
 		Data(Texture texture) : ptexture(texture) {}
 
-		Data& parent(UnsortedSprite* us) { pparent = us; return *this; }
+		Data& parent(Point* p) { pparent = p; return *this; }
 		Data& position(Vector sv) { pposition = sv; return *this; }
 		Data& z(int i) { pz = i; return *this; }
 		Data& scale(Vector sv) { pscale = sv; return *this; }

@@ -76,11 +76,9 @@ void util::bindSprites() {
 		us->bindData();
 }
 
-UnsortedSprite::UnsortedSprite(UnsortedSprite* parent, Texture texture, Vector position, Vector scale, Angle rotation, Color color)
-											: parent(parent), texture(texture), position(position), scale(scale), rotation(rotation), color(color) {
+UnsortedSprite::UnsortedSprite(Point* parent, Texture texture, Vector position, Vector scale, Angle rotation, Color color)
+											: Point(parent, position, scale, rotation), texture(texture), color(color) {
 	util::print("Adding sprite");
-
-	if (parent) parent->children.push_back(this);
 
 	vertexShader = defaultVertexShader;
 	if (texture.getImage() == nullptr)	fragmentShader = emptyFragmentShader;
@@ -122,9 +120,6 @@ UnsortedSprite::UnsortedSprite(UnsortedSprite* parent, Texture texture, Vector p
 		spriteCapacity *= 2;
 	}
 
-	updateVertices();
-	updateTexture();
-
 	unsortedSprites.push_back(this);
 }
 
@@ -138,9 +133,6 @@ UnsortedSprite::~UnsortedSprite() {
 	//TOTRY: check for redundant members of the queue.
 
 	unsortedSprites.remove(this);
-
-	for (UnsortedSprite* child : children)
-		child->setParent(parent);
 }
 
 void UnsortedSprite::bindVertices() {

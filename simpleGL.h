@@ -42,7 +42,6 @@ unsigned getWindowWidth();
  */
 unsigned getWindowHeight();
 
-//microseconds
 double getDeltaTime();
 
 void setUpdate(std::function<void()> func);

@@ -1,4 +1,4 @@
-#include <libpng/png.h>
+#include <libpng16/png.h>
 #include <zlib.h>
 
 #include <list>

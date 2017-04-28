@@ -173,14 +173,14 @@ void draw() {
 	#endif
 	while (!glfwWindowShouldClose(window)) {
 		Clock::time_point now = Clock::now();
-		deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(now - previous).count();
+		deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(now - previous).count() * 0.000001;
 		previous = now;
 
 		#ifdef FPS_COUNTER
 			fpsTime += deltaTime;
 			frames++;
-			if (fpsTime >= 1000000) {
-				std::cout << "fps: " << frames << "; spf: " << fpsTime/1000000/frames << ";" << std::endl;
+			if (fpsTime >= 1) {
+				std::cout << "fps: " << frames << "; spf: " << fpsTime/frames << ";" << std::endl;
 				fpsTime = 0;
 				frames = 0;
 			}
