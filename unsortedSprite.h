@@ -21,6 +21,10 @@ private:
 	GLuint vertexShader;
 	GLuint fragmentShader;
 
+	GLenum stencilFunc {GL_ALWAYS};
+	GLenum stencilOp {GL_KEEP};
+	GLint stencilRef {0};
+
 protected:
 	virtual void bindVertices();
 	virtual void bindTexture();
@@ -55,6 +59,10 @@ public:
 	virtual void setColor(Color pcolor) { color = pcolor; }
 
 	bool isBindingVertices() const { return needUpdtVertices; }
+
+	void mask() { stencilFunc = GL_ALWAYS; stencilOp = GL_REPLACE; stencilRef = id; }
+	void setMask(UnsortedSprite* spr) { stencilFunc = GL_EQUAL; stencilRef = spr->id; }
+	void unmask() { stencilFunc = GL_ALWAYS; stencilOp = GL_KEEP; }
 
 	void bindData() {
 		if (needUpdtTexture) {

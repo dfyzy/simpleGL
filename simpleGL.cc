@@ -87,6 +87,8 @@ inline void createWindow(const char* title, GLFWmonitor* monitor, Color backgrou
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	glEnable(GL_STENCIL_TEST);
+
 	util::initShaders();
 
 	glGenVertexArrays(1, &vao);

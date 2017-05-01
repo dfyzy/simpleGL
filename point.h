@@ -31,9 +31,9 @@ protected:
 
 public:
 	Point(Point* parent, Vector position, Vector scale, Angle rotation)
-			: parent(parent), position(position), scale(scale), rotation(rotation) {
-				if (parent) parent->children.push_back(this);
-			}
+		: parent(parent), position(position), scale(scale), rotation(rotation) {
+			if (parent) parent->children.push_back(this);
+		}
 
 	virtual void updateVertices() {
 		needUpdtModel = true;

@@ -71,7 +71,9 @@ int main() {
 	Cursor::getInstance()->addButton(new Sprite(Sprite::Data(Texture(eye)).position({50.2, 32.1}).z(-1)), new CustomButton(2));
 	Cursor::getInstance()->addButton(new Sprite(Sprite::Data(Texture(eye)).position({-50.2, 32.1}).z(-1)), new CustomButton(3));
 
-	Cursor::getInstance()->addButton(new Sprite(Sprite::Data(Texture(Vector(300))).z(5).rotation(0.25f*3.1415927f)), new CustomButton(5));
+	Sprite* back = new Sprite(Sprite::Data(Texture(Vector(300))).z(5).rotation(0.25f*3.1415927f));
+	back->mask();
+	Cursor::getInstance()->addButton(back, new CustomButton(5));
 
 	Font* sans = new Font("example/Oranienbaum.ttf", 26);
 
@@ -88,6 +90,7 @@ int main() {
 	Cursor::getInstance()->setMouseButtonCallback(mouseButtonCallback);
 
 	Sprite* red = new Sprite(Sprite::Data({50}).parent(Cursor::getInstance()).z(-10).color({1, 0, 0}));
+	red->setMask(back);
 	timer = new LerpTimer<Sprite, Vector>(red, Sprite::setPosition, {});
 	timer->add(0.1, {50, 0});
 	timer->add(0.1, {0, 50});

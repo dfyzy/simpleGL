@@ -14,13 +14,22 @@ Camera* Camera::getInstance() {
 		glGenFramebuffers(1, &msaaFbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo);
 
-		GLuint renderbuffer;
-		glGenRenderbuffers(1, &renderbuffer);
-		glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
+		GLuint rendRGB;
+		glGenRenderbuffers(1, &rendRGB);
+		glBindRenderbuffer(GL_RENDERBUFFER, rendRGB);
 
+		//TODO: proper internal formats.
 		glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_RGB, getWindowWidth(), getWindowHeight());
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rendRGB);
 
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderbuffer);
+
+		GLuint rendStenc;
+		glGenRenderbuffers(1, &rendStenc);
+		glBindRenderbuffer(GL_RENDERBUFFER, rendStenc);
+
+		//NOTE:	GL_STENCIL_INDEX8 isn't supported on OpenGL less than 4.3 or without ARB_ES3_compatibility or ARB_texture_stencil8 extensions.
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_STENCIL_INDEX8, getWindowWidth(), getWindowHeight());
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rendStenc);
 
 		glGenFramebuffers(1, &rectFbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, rectFbo);

@@ -167,6 +167,9 @@ void UnsortedSprite::draw() {
 
 	texture.bind();
 
+	glStencilFunc(stencilFunc, stencilRef, 0xFF);
+	glStencilOp(GL_KEEP, GL_KEEP, stencilOp);
+
 	util::useShaders(vertexShader, fragmentShader, color);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, id*4, 4);

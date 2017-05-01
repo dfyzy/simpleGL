@@ -58,7 +58,7 @@ void Light::draw() {
 		util::setResolution(getWidth(), getHeight());
 
 		glClearColor(base.r, base.g, base.b, 0);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		util::setCameraData(getModelMatrix());
 
