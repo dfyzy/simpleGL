@@ -21,6 +21,7 @@ private:
 	Alignment alignment;
 
 	float width;
+	int lines {0};
 
 	int z;
 	Color color;
@@ -43,7 +44,7 @@ public:
 
 	Alignment getAlignment() const { return alignment; }
 
-	float getWidth() const { return width; }
+	Vector getBounds() const { return {width, lines*font->getLineSpacing()}; }
 
 };
 

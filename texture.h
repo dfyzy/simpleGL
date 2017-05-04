@@ -9,7 +9,7 @@ class Texture {
 protected:
 	Image* image {nullptr};
 	Vector position;
-	Vector bounds;
+	Vector bounds {1};
 
 public:
 	Texture() {}

@@ -1,5 +1,5 @@
-#ifndef SIMPLE_MATH_h
-#define SIMPLE_MATH_h
+#ifndef SIMPLE_MATH_H
+#define SIMPLE_MATH_H
 
 #include <cmath>
 
@@ -32,6 +32,10 @@ struct Vector {
 
 	const Vector abs() const {
 		return Vector(std::abs(x), std::abs(y));
+	}
+
+	const Vector round() const {
+		return Vector(std::round(x), std::round(y));
 	}
 
 	void load(float* array, int* offset) const {

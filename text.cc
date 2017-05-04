@@ -52,6 +52,8 @@ void Text::align() {
 
 	//for each line
 	while (lineStart != caption.end()) {
+		++lines;
+
 		auto lineEnd = lineStart;
 		float lineWidth = 0;
 		int spaces = 0;

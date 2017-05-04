@@ -21,6 +21,9 @@ private:
 	GLuint vertexShader;
 	GLuint fragmentShader;
 
+	Vector bounds;
+	bool customBounds {false};
+
 	GLenum stencilFunc {GL_ALWAYS};
 	GLenum stencilOp {GL_KEEP};
 	GLint stencilRef {0};
@@ -45,6 +48,8 @@ public:
 	Texture getTexture() const { return texture; }
 	virtual void setTexture(Texture tex) {
 		texture = tex;
+		if (!customBounds)
+			bounds = texture.getBounds();
 
 		updateTexture();
 	}
@@ -57,6 +62,10 @@ public:
 
 	Color getColor() const { return color; }
 	virtual void setColor(Color pcolor) { color = pcolor; }
+
+	Vector getBounds() const { return bounds; }
+	void setBounds(Vector vec) { bounds = vec; customBounds = true; }
+	void setTextureBounds() { bounds = texture.getBounds(); customBounds = false; }
 
 	bool isBindingVertices() const { return needUpdtVertices; }
 
@@ -83,9 +92,9 @@ public:
 		if (!isEnabled())	return false;
 
 		Vector dist = (getModelMatrix().inv() * pos).abs();
-		Vector bounds = texture.getBounds()/2;
+		Vector hBounds = bounds/2;
 
-		return (dist.x < bounds.x) && (dist.y < bounds.y);
+		return (dist.x < hBounds.x) && (dist.y < hBounds.y);
 	}
 
 	bool inBounds(UnsortedSprite* us);

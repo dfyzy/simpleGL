@@ -66,10 +66,10 @@ int main() {
 
 	glfwSetKeyCallback(window, keyCallback);
 
-	parent = Sprite::Loader({200}).color({0.6f}).load();
+	parent = new Sprite(Sprite::Data({200}).color({0.6f}));
 	new CustomButton(parent);
-	new CustomButton(Sprite::Loader(Texture({75, 50})).parent(parent).position({50, 50}).color({1, 0, 0}).load());
-	new CustomButton(Sprite::Loader({50}).parent(parent).position({-100, 50}).rotation(PI/4).color({0, 1, 0}).load());
+	new CustomButton(new Sprite(Sprite::Data(Texture({75, 50})).parent(parent).position({50, 50}).color({1, 0, 0})));
+	new CustomButton(new Sprite(Sprite::Data({50}).parent(parent).position({-100, 50}).rotation(PI/4).color({0, 1, 0})));
 
 	setUpdate(update);
 

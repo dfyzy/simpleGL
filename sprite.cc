@@ -51,7 +51,7 @@ void Sprite::setZ(int pz) {
 
 void Sprite::setTexture(Texture tex) {
 	sprites.erase(this);
-	setTexture(tex);
+	UnsortedSprite::setTexture(tex);
 	sprites.insert(this);
 }
 

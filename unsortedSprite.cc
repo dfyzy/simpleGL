@@ -44,7 +44,7 @@ void util::bindData(unsigned id, vboType::E type, Matrix model) {
 	int offset = 0;
 
 	for (int i = 0; i < SPRITE_VERTS; i++)
-		(model*quadVertex(i)).load(data, &offset);
+		(model*quadVertex(i)).round().load(data, &offset);//TODO: find any downsides to this method
 
 	glBufferSubData(GL_ARRAY_BUFFER, id * SPRITE_SIZE, SPRITE_SIZE, data);
 }
@@ -77,7 +77,7 @@ void util::bindSprites() {
 }
 
 UnsortedSprite::UnsortedSprite(Point* parent, Texture texture, Vector position, Vector scale, Angle rotation, Color color)
-											: Point(parent, position, scale, rotation), texture(texture), color(color) {
+										: Point(parent, position, scale, rotation), texture(texture), color(color), bounds(texture.getBounds()) {
 	util::print("Adding sprite");
 
 	vertexShader = defaultVertexShader;
