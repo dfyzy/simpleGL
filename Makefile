@@ -7,9 +7,9 @@ CPPFLAGS = -std=gnu++11 -Wall -O2
 
 LIBS = -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lpng16 -lz -lm -lfreetype #-static-libgcc -static-libstdc++
 
-INCS = simpleGL.h shader.h image.h texture.h sprite.h unsortedSprite.h point.h color.h angle.h vector.h \
- 			math.h glfw.h shaderData.h font.h text.h light.h camera.h cursor.h matrix.h timer.h
-OBJS = simpleGL.o unsortedSprite.o sprite.o image.o texture.o shader.o shaderData.o font.o text.o \
+INCS = simpleGL.h shader.h image.h texture.h sprite.h unsortedSprite.h point.h color.h math.h \
+ 			glfw.h shaderData.h font.h text.h light.h camera.h cursor.h matrix.h timer.h
+OBJS = simpleGL.o unsortedSprite.o sprite.o image.o texture.o shader.o math.cc shaderData.o font.o text.o \
 			light.o camera.o cursor.o matrix.o timer.o
 
 %.o: %.cc

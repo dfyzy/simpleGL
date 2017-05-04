@@ -116,6 +116,7 @@ public:
 
 		playing = true;
 		inverted = invert;
+		cursor = 0;
 
 		if (iterator != nullptr)	delete iterator;//TOTHINK: delete on end.
 		iterator = invert ? new InvertedIterator(last) : new Iterator(first);
@@ -147,9 +148,9 @@ protected:
 		if (SetterTimer<Object, Value>::step()) return true;
 
 		(SetterTimer<Object, Value>::object->*SetterTimer<Object, Value>::set)(
-			math::lerp(SetterTimer<Object, Value>::iterator->getPast()->value,
-							SetterTimer<Object, Value>::iterator->getFuture()->value,
-								SetterTimer<Object, Value>::cursor/SetterTimer<Object, Value>::iterator->get()->duration)
+			lerp(SetterTimer<Object, Value>::iterator->getPast()->value,
+					SetterTimer<Object, Value>::iterator->getFuture()->value,
+						SetterTimer<Object, Value>::cursor/SetterTimer<Object, Value>::iterator->get()->duration)
 		);
 	}
 

@@ -22,6 +22,9 @@ private:
 
 	float width;
 
+	int z;
+	Color color;
+
 	void align();
 
 protected:
@@ -36,6 +39,7 @@ public:
 	Font* getFont() const { return font; }
 
 	std::string getCaption() const { return caption; }
+	void setCaption(std::string str);
 
 	Alignment getAlignment() const { return alignment; }
 

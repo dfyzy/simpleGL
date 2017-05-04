@@ -22,7 +22,14 @@ GLuint Text::getDefaultFragment() {
 
 Text::Text(Font* font, std::string caption, Alignment alignment, float width,
 					Point* parent, Vector position, int z, Vector scale, Angle rotation, Color color)
-						: Point(parent, position, scale, rotation), font(font), caption(caption), alignment(alignment), width(width) {
+						: Point(parent, position, scale, rotation), font(font), alignment(alignment), width(width), z(z), color(color) {
+	setCaption(caption);
+}
+
+void Text::setCaption(std::string str) {
+	unloadChildren();
+	caption = str;
+
 	for (auto c = caption.begin(); c != caption.end(); c++) {
 		Glyph* glyph;
 		if (!font->getGlyph(*c, &glyph)) continue;

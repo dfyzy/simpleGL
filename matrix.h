@@ -1,7 +1,7 @@
 #ifndef SIMPLE_MATRIX_H
 #define SIMPLE_MATRIX_H
 
-#include "vector.h"
+#include "math.h"
 
 namespace simpleGL {
 

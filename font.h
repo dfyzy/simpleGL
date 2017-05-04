@@ -4,7 +4,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include "vector.h"
+#include "math.h"
 #include "color.h"
 #include "texture.h"
 

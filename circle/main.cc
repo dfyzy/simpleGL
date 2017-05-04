@@ -14,9 +14,10 @@ int main() {
 
 	glfwSetKeyCallback(window, keyCallback);
 
-	Image circle("circle/circle.png", GL_NEAREST);//GL_LINEAR this will fix it
-	Sprite::Loader(Texture(&circle)).position({-30, 0}).load();//bad
-	Sprite::Loader(Texture(&circle)).position({30.5, 0.5}).load();//good
+	Image* circle = new Image("circle/circle.png", GL_NEAREST);
+	Texture texCircle(circle);
+	new Sprite(Sprite::Data(texCircle).position({-30, 0}));
+	new Sprite(Sprite::Data(texCircle).position({30.5, 0.5}));
 
 	draw();
 }

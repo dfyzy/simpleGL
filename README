@@ -3,10 +3,11 @@ Using OpenGL, GLFW, GLEW, libpng and FreeType
 You can draw stuff now.
 
 TOFIX:
--The uneven sized texture problem(look circle.exe)
+-The float pixels problem(look circle.exe)
 
 TODO:
 -Trigger sprites
+-Improve or remove stencil masks
 -Shadow object(light)
 -Window resizability
 -Particles(if there is a need for further optimization)

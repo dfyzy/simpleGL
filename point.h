@@ -25,8 +25,7 @@ private:
 protected:
 	virtual ~Point() {
 		parent->children.remove(this);
-		for (Point* child : children)
-			child->unload();
+		unloadChildren();
 	}
 
 public:
@@ -102,6 +101,13 @@ public:
 	}
 
 	std::list<Point*> getChildren() const { return children; }
+
+	void unloadChildren() {
+		for (Point* child : children)
+			child->unload();
+	}
+
+	void killAllTheChildren() { unloadChildren(); }
 
 	void translate(Vector v) {
 		position += v.rotate(rotation);

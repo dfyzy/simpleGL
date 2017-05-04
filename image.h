@@ -2,7 +2,7 @@
 #define SIMPLE_IMAGE_H
 
 #include "glfw.h"
-#include "vector.h"
+#include "math.h"
 
 namespace simpleGL {
 
