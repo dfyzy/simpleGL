@@ -89,7 +89,7 @@ int main() {
 	Cursor::getInstance()->setPositionCallback(cursorPosCallback);
 	Cursor::getInstance()->setMouseButtonCallback(mouseButtonCallback);
 
-	Sprite* red = new Sprite(Sprite::Data({50}).parent(Cursor::getInstance()).z(-10).color({1, 0, 0}));
+	Sprite* red = new Sprite(Sprite::Data({50}).parent(Cursor::getInstance()).z(-50).color({1, 0, 0}));
 	red->setMask(back);
 	timer = new LerpTimer<Sprite, Vector>(red, Sprite::setPosition, {});
 	timer->add(0.1, {50, 0});

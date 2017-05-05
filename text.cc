@@ -34,7 +34,7 @@ void Text::setCaption(std::string str) {
 		Glyph* glyph;
 		if (!font->getGlyph(*c, &glyph)) continue;
 
-		Sprite* sprite = new Sprite(Sprite::Data(glyph->texture).parent(this).z(z).color(color));//a bit to the right????
+		Sprite* sprite = new Sprite(Sprite::Data(glyph->texture).anchor(Sprite::UL).parent(this).z(z).color(color));
 		sprite->setFragmentShader(getDefaultFragment());
 	}
 

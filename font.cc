@@ -85,8 +85,7 @@ Font::Font(const char* path, int size) {
 		FT_Bitmap& bitmap = face->glyph->bitmap;
 
 		glyphs[i - FIRST_CHAR] = Glyph {Texture(image, Vector(offset, 0), Vector(bitmap.width, bitmap.rows)),
-			Vector(face->glyph->bitmap_left + bitmap.width * 0.5f, face->glyph->bitmap_top - bitmap.rows * 0.5f),
-			face->glyph->advance.x >> 6};
+													Vector(face->glyph->bitmap_left, face->glyph->bitmap_top), face->glyph->advance.x >> 6};
 
 		std::unique_ptr<unsigned char[]> data(new unsigned char[bitmap.width * bitmap.rows]);
 		for (unsigned y = 0; y < bitmap.rows; y++)
