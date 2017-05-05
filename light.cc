@@ -14,8 +14,8 @@ GLuint Light::Source::getDefaultFragment() {
 	return lightingFragmentShader;
 }
 
-Light::Source::Source(Light* light, UnsortedSprite* parent, Vector position, Vector bounds, Angle rotation, Color color)
-			: UnsortedSprite(parent, Texture(bounds), position, {1}, rotation, color), light(light) {
+Light::Source::Source(Light* light, UnsortedSprite* parent, Anchor anchor, Vector position, Vector bounds, Angle rotation, Color color)
+			: UnsortedSprite(parent, Texture(bounds), anchor, position, {1}, rotation, color), light(light) {
 	setFragmentShader(getDefaultFragment());
 
 	if (light) {
@@ -32,8 +32,8 @@ void Light::Source::draw() {
 	UnsortedSprite::draw();
 }
 
-Light::Light(UnsortedSprite* parent, Vector position, int z, unsigned width, unsigned height, Color base)
-				: Image(width, height, GL_RGB, GL_LINEAR), Sprite(parent, Texture(this), position, z, {1}, {}, {1}), base(base) {
+Light::Light(UnsortedSprite* parent, Anchor anchor, Vector position, int z, unsigned width, unsigned height, Color base)
+				: Image(width, height, GL_RGB, GL_LINEAR), Sprite(parent, Texture(this), anchor, position, z, {1}, {}, {1}), base(base) {
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, Image::getId(), 0);

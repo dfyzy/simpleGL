@@ -22,6 +22,17 @@ private:
 
 	bool needUpdtModel {true};
 
+	Matrix getRealModelMatrix() {
+		if (needUpdtModel) {
+			model = Matrix::translate(position) * Matrix::rotate(rotation) * Matrix::scale(scale);
+			if (parent)	model = parent->getRealModelMatrix() * model;
+
+			needUpdtModel = false;
+		}
+
+		return model;
+	}
+
 protected:
 	virtual ~Point() {
 		parent->children.remove(this);
@@ -34,11 +45,11 @@ public:
 			if (parent) parent->children.push_back(this);
 		}
 
-	virtual void updateVertices() {
+	virtual void updateModel() {
 		needUpdtModel = true;
 
 		for (Point* obj : children)
-			obj->updateVertices();
+			obj->updateModel();
 	}
 
 	bool isEnabled() const {
@@ -59,14 +70,14 @@ public:
 	virtual void setPosition(Vector pposition) {
 		position = pposition;
 
-		updateVertices();
+		updateModel();
 	}
 
 	Vector getScale() const { return scale; }
 	virtual void setScale(Vector pscale) {
 		scale = pscale;
 
-		updateVertices();
+		updateModel();
 	}
 
 	Angle getRotation() const { return rotation; }
@@ -78,18 +89,11 @@ public:
 	virtual void setRotation(Angle protation) {
 		rotation = protation;
 
-		updateVertices();
+		updateModel();
 	}
 
-	Matrix getModelMatrix() {
-		if (needUpdtModel) {
-			model = Matrix::translate(position) * Matrix::rotate(rotation) * Matrix::scale(scale);
-			if (parent)	model = parent->getModelMatrix() * model;
-
-			needUpdtModel = false;
-		}
-
-		return model;
+	virtual Matrix getModelMatrix() {
+		return getRealModelMatrix();
 	}
 
 	Point* getParent() const { return parent; }
@@ -97,7 +101,7 @@ public:
 		parent = obj;
 		if (parent)	parent->children.push_back(this);
 
-		updateVertices();
+		updateModel();
 	}
 
 	std::list<Point*> getChildren() const { return children; }
@@ -112,7 +116,7 @@ public:
 	void translate(Vector v) {
 		position += v.rotate(rotation);
 
-		updateVertices();
+		updateModel();
 	}
 
 	virtual void unload() { delete this; }

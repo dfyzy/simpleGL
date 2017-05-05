@@ -6,10 +6,10 @@
 
 namespace {
 
-constexpr float SPRITE_QUAD[] = {-0.5, 0.5,
-											-0.5, -0.5,
-											0.5, 0.5,
-											0.5, -0.5};
+constexpr float SPRITE_QUAD[] = {-0.5f, 0.5f,
+											-0.5f, -0.5f,
+											0.5f, 0.5f,
+											0.5f, -0.5f};
 
 constexpr int SPRITE_SIZE = sizeof(SPRITE_QUAD);
 constexpr int SPRITE_VERTS = 4;
@@ -76,9 +76,11 @@ void util::bindSprites() {
 		us->bindData();
 }
 
-UnsortedSprite::UnsortedSprite(Point* parent, Texture texture, Vector position, Vector scale, Angle rotation, Color color)
-										: Point(parent, position, scale, rotation), texture(texture), color(color), bounds(texture.getBounds()) {
+UnsortedSprite::UnsortedSprite(Point* parent, Texture texture, Anchor anchor, Vector position, Vector scale, Angle rotation, Color color)
+							: Point(parent, position, scale, rotation), texture(texture), anchor(anchor), color(color), bounds(texture.getBounds()) {
 	util::print("Adding sprite");
+
+	setOffset();
 
 	vertexShader = defaultVertexShader;
 	if (texture.getImage() == nullptr)	fragmentShader = emptyFragmentShader;
@@ -149,11 +151,11 @@ void UnsortedSprite::bindTexture() {
 
 //TODO: sleep on this
 bool UnsortedSprite::inBounds(UnsortedSprite* other) {
-	if (!isEnabled() || !other->isEnabled())	return false;
+	if (!isEnabled() || !other->isEnabled())		return false;
 
 	Matrix mat = other->getModelMatrix();
 	for (int i = 0; i < SPRITE_VERTS; i++)
-		if (inBounds(mat * quadVertex(i)))	return true;
+		if (inBounds(mat * quadVertex(i)))			return true;
 
 	mat = getModelMatrix();
 	for (int i = 0; i < SPRITE_VERTS; i++)

@@ -26,7 +26,7 @@ public:
 	public:
 		static GLuint getDefaultFragment();
 
-		Source(Light* light, UnsortedSprite* parent, Vector position, Vector bounds, Angle rotation, Color color);
+		Source(Light* light, UnsortedSprite* parent, Anchor anchor, Vector position, Vector bounds, Angle rotation, Color color);
 
 		Source(const Source& other) =delete;
 		Source(Source&& other) =delete;
@@ -62,7 +62,7 @@ protected:
 	~Light();
 
 public:
-	Light(UnsortedSprite* parent, Vector position, int z, unsigned width, unsigned height, Color base);
+	Light(UnsortedSprite* parent, Anchor anchor, Vector position, int z, unsigned width, unsigned height, Color base);
 
 	void toggleDraw() { needToDraw = true; }
 

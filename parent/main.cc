@@ -66,7 +66,7 @@ int main() {
 
 	glfwSetKeyCallback(window, keyCallback);
 
-	parent = new Sprite(Sprite::Data({200}).color({0.6f}));
+	parent = new Sprite(Sprite::Data({200}).color({0.6f}).anchor(Sprite::UL));
 	new CustomButton(parent);
 	new CustomButton(new Sprite(Sprite::Data(Texture({75, 50})).parent(parent).position({50, 50}).color({1, 0, 0})));
 	new CustomButton(new Sprite(Sprite::Data({50}).parent(parent).position({-100, 50}).rotation(PI/4).color({0, 1, 0})));
