@@ -104,7 +104,10 @@ public:
 		updateModel();
 	}
 
-	std::list<Point*> getChildren() const { return children; }
+	std::list<Point*>::const_iterator getFirstChild() const { return children.begin(); }
+	std::list<Point*>::const_iterator getLastChild() const { return children.end(); }
+
+	int getChildrenCount() const { return children.size(); }
 
 	void unloadChildren() {
 		for (Point* child : children)

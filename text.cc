@@ -2,7 +2,7 @@
 #include "text.h"
 #include "util.h"
 #include "shaderData.h"
-
+#include <iostream>
 namespace {
 
 constexpr float MIN_JUSTIFIED_SPACE = 0.25f;
@@ -21,116 +21,122 @@ GLuint Text::getDefaultFragment() {
 }
 
 Text::Text(Font* font, std::string caption, Alignment alignment, float width,
-					Point* parent, Vector position, int z, Vector scale, Angle rotation, Color color)
-						: Point(parent, position, scale, rotation), font(font), alignment(alignment), width(width), z(z), color(color) {
+				Point* parent, Vector position, int z, Vector scale, Angle rotation, Color color)
+					: Point(parent, position, scale, rotation), font(font), alignment(alignment), width(width), z(z), color(color) {
 	setCaption(caption);
 }
 
-void Text::setCaption(std::string str) {
+void Text::setCaption(std::string string) {
 	unloadChildren();
-	caption = str;
+	height = font->getLineSpacing();
+	lastLineStr = 0;
+	lastLineSpr = getFirstChild();
 
-	for (auto c = caption.begin(); c != caption.end(); c++) {
-		Glyph* glyph;
-		if (!font->getGlyph(*c, &glyph)) continue;
+	caption.clear();
 
-		Sprite* sprite = new Sprite(Sprite::Data(glyph->texture).anchor(Sprite::UL).parent(this).z(z).color(color));
-		sprite->setFragmentShader(getDefaultFragment());
-	}
-
-	align();
+	addCaption(string);
 }
 
-void Text::align() {
-	//init
-	Vector newLine(0, -font->getLineSpacing());
+void Text::addCaption(std::string string) {
+	caption += string;
 
-	Vector cursor = newLine;
-
-	auto sprite = getChildren().begin();
-	auto lineStart = caption.begin();
+	unsigned cursorStr = lastLineStr;
+	auto cursorSpr = lastLineSpr;
 
 	//for each line
-	while (lineStart != caption.end()) {
-		++lines;
+	while (true) {
+		unsigned lineEnd = cursorStr;
 
-		auto lineEnd = lineStart;
 		float lineWidth = 0;
 		int spaces = 0;
 
 		float spaceWidth = font->getSpaceWidth();
 
 		//incrementing until end of line is found
-		for (auto c = lineStart; ; c++) {
-			if (c == caption.end()) {
+		for (unsigned c = cursorStr; ; c++) {
+			if (c == caption.size()) {
 				lineEnd = c;
 				break;
 			}
 
 			Glyph* glyph;
-			if (!font->getGlyph(*c, &glyph)) {
+			if (!font->getGlyph(caption[c], &glyph)) {
 				lineEnd = c;
 
-				if (*c == ' ')			spaces++;
-				else if (*c == '\n')	break;//easy way
+				if (caption[c] == ' ')			spaces++;
+				else if (caption[c] == '\n')	break;//easy way
 				continue;
 			}
 
 			lineWidth += glyph->advance;
 
 			float spss = spaces*spaceWidth*(alignment == JUSTIFIED ? MIN_JUSTIFIED_SPACE : 1);
-			if ((width != 0) && (lineEnd != lineStart) && (lineWidth + spss > width)) {//hard way(overflow)
+			if ((width != 0) && (lineEnd != cursorStr) && (lineWidth + spss > width)) {//hard way(overflow)
 				//substracting width of overflowing word
-				for (auto s = lineEnd; s != c;) {
+				for (unsigned s = lineEnd; s != c;) {
 					s++;
 
-					if (!font->getGlyph(*s, &glyph) && *s == ' ') 			spaces--;
+					if (!font->getGlyph(caption[s], &glyph) && caption[s] == ' ') 	spaces--;
 
 					lineWidth -= glyph->advance;
 				}
 
 				//substracting all needless spaces
 				c = lineEnd;
-				while (!font->getGlyph(*c, &glyph))	if (*(c--) == ' ')	spaces--;
+				while (!font->getGlyph(caption[c], &glyph))	if (caption[c--] == ' ')	spaces--;
 
 				break;
 			}
-			if (*c == '-')	lineEnd = c;
+			if (caption[c] == '-')	lineEnd = c;
 		}
 
 		lineWidth += spaceWidth*spaces;
 
 		//alignment
-		Vector lastPosition = cursor;
+		bool notEOS = lineEnd != caption.size();
+
+		float offset = 0;
 
 		if (alignment == JUSTIFIED) {
-			if (lineEnd != caption.end()) {
-				spaceWidth += (width - lineWidth)/spaces;
+			if (notEOS) {
+				if (spaces != 0)	spaceWidth += (width - lineWidth)/spaces;
 				lineWidth = width;
 			} else
-				cursor -= Vector((width - lineWidth)/2, 0);//this will depend on language default alignment.
+				offset -= (width - lineWidth)/2;//this will depend on language default alignment.
 		}
 
 		if (alignment != LEFT)
-			cursor -= Vector((lineWidth/(2 - (alignment == RIGHT))), 0);
+			offset -= lineWidth/(2 - (alignment == RIGHT));
 
 		//actually setting sprite position
-		if (lineEnd != caption.end())	lineEnd++;
-		for (; lineStart != lineEnd; lineStart++) {
+		if (notEOS)	lineEnd++;
+		for (; cursorStr != lineEnd; cursorStr++) {
 			Glyph* glyph;
 
-			if (!font->getGlyph(*lineStart, &glyph)) {
-				if (*lineStart == ' ')	cursor += Vector(spaceWidth, 0);
+			if (!font->getGlyph(caption[cursorStr], &glyph)) {
+				if (caption[cursorStr] == ' ')	offset += spaceWidth;
 
 				continue;
 			}
 
-			(*(sprite++))->setPosition(cursor + glyph->offset);
+			Vector position = Vector(offset, -height) + glyph->offset;
 
-			cursor += Vector(glyph->advance, 0);
+			if (cursorSpr == getLastChild()) {
+				Sprite* spr = new Sprite(Sprite::Data(glyph->texture).anchor(Sprite::UL).parent(this).position(position).z(z).color(color));
+				spr->setFragmentShader(getDefaultFragment());
+
+				if (lastLineSpr == getLastChild())	--lastLineSpr;
+			} else (*(cursorSpr++))->setPosition(position);
+
+			offset += glyph->advance;
 		}
 
-		cursor = lastPosition + newLine;
+		if (!notEOS)	break;
+
+		lastLineStr = cursorStr;
+		lastLineSpr = cursorSpr;
+
+		height += font->getLineSpacing();
 	}
 }
 

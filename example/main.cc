@@ -80,7 +80,7 @@ int main() {
 	std::string lorem("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
 	new Text(sans, lorem, Text::CENTER, 350, nullptr, Vector(0, -100), -10, 1, 0, Color(0));
 
-	Light* dark = new Light(nullptr, Sprite::L, {0, -200}, -10, 200, 200, {0});
+	Light* dark = new Light(nullptr, Sprite::L, {0, -200}, -100, 200, 200, {0});
 	new Light::Source(dark, nullptr, Sprite::C, Vector(0, -200) + Vector(25), {100}, 0, {0.5f, 0, 0});
 	new Light::Source(dark, nullptr, Sprite::C, Vector(0, -200) + Vector(-25), {100}, 0, {0, 0.5f, 0});
 

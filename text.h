@@ -21,12 +21,13 @@ private:
 	Alignment alignment;
 
 	float width;
-	int lines {0};
+	float height;
 
 	int z;
 	Color color;
 
-	void align();
+	unsigned lastLineStr;
+	std::list<Point*>::const_iterator lastLineSpr;
 
 protected:
 	~Text() {}
@@ -42,9 +43,11 @@ public:
 	std::string getCaption() const { return caption; }
 	void setCaption(std::string str);
 
+	void addCaption(std::string string);
+
 	Alignment getAlignment() const { return alignment; }
 
-	Vector getBounds() const { return {width, lines*font->getLineSpacing()}; }
+	Vector getBounds() const { return {width, height}; }
 
 };
 
