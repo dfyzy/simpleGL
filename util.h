@@ -11,11 +11,11 @@
 
 namespace simpleGL {
 
-struct vboType { enum E { VERTEX, TEXTURE, COUNT }; };
+struct vboType { enum E { VERTEX, TEXTURE, COLOR, COUNT }; };
 
 namespace util {
 
-inline void print(const char* str) {
+inline void print(std::string str) {
 	#ifdef DEBUG
 		std::cout << str << std::endl;
 	#endif
@@ -28,10 +28,10 @@ void addUpdate(std::function<void()> updt);
 
 GLFWwindow* getWindow();
 
-void bindData(unsigned id, vboType::E type, Matrix model);
+void bindQuadData(unsigned id, vboType::E type, Matrix model);
 
 //calling glUseProgramStages for each stage.
-void useShaders(GLuint vertex, GLuint fragment, Color color);
+void useShaders(GLuint vertex, GLuint fragment);
 
 //TODO: mat
 void setCameraData(Matrix view);

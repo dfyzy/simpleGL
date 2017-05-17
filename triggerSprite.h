@@ -8,7 +8,7 @@ namespace simpleGL {
 class TriggerSprite : public Sprite {
 private:
 	void checkTrigger();
-	
+
 protected:
 	void updateVertices();
 

@@ -3,8 +3,10 @@ Using OpenGL, GLFW, GLEW, libpng and FreeType
 You can draw stuff now.
 
 TODO:
+-Fullscreen stuttering(vsync and maybe refresh rate)
+-Vertex data rounding
 -Trigger sprites
--Improve or remove stencil masks
+-Improve stencil masks
 -Shadow object(light)
 -Window resizability
 -Particles(if there is a need for further optimization)

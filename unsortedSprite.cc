@@ -6,15 +6,17 @@
 
 namespace {
 
+constexpr int RESIZE_FACTOR = 2;
+
 constexpr float SPRITE_QUAD[] = {-0.5f, 0.5f,
 											-0.5f, -0.5f,
 											0.5f, 0.5f,
 											0.5f, -0.5f};
 
-constexpr int SPRITE_SIZE = sizeof(SPRITE_QUAD);
 constexpr int SPRITE_VERTS = 4;
 
 GLuint vbos[simpleGL::vboType::COUNT];
+int vboSize[simpleGL::vboType::COUNT] { 2, 2, 4 };
 
 std::list<simpleGL::UnsortedSprite*> unsortedSprites;
 
@@ -37,29 +39,36 @@ Vector quadVertex(int i) {
 	return Vector(SPRITE_QUAD[i*2], SPRITE_QUAD[i*2 + 1]);
 }
 
-void util::bindData(unsigned id, vboType::E type, Matrix model) {
+void bindVboData(unsigned id, vboType::E type, float data[]) {
 	glBindBuffer(GL_ARRAY_BUFFER, vbos[type]);
 
+	int size = vboSize[type]*SPRITE_VERTS*sizeof(float);
+	glBufferSubData(GL_ARRAY_BUFFER, id * size, size, data);
+}
+
+void util::bindQuadData(unsigned id, vboType::E type, Matrix model) {
 	float data[SPRITE_VERTS*2];
 	int offset = 0;
 
 	for (int i = 0; i < SPRITE_VERTS; i++)
-		(model*quadVertex(i)).round().load(data, &offset);//TODO: find any downsides to this method
+		(model*quadVertex(i)).round().load(data, &offset);//TODO: change it
 
-	glBufferSubData(GL_ARRAY_BUFFER, id * SPRITE_SIZE, SPRITE_SIZE, data);
+	bindVboData(id, type, data);
 }
 
 void util::initSprites() {
+	util::print("Sprite data buffers:load");
+
 	glGenBuffers(vboType::COUNT, vbos);
 
 	for (int i = 0; i < vboType::COUNT; i++) {
 		glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
 
 		//alocating data for spriteCapacity number of sprites for a start.
-		glBufferData(GL_ARRAY_BUFFER, spriteCapacity * SPRITE_SIZE, nullptr, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, spriteCapacity * vboSize[i]*SPRITE_VERTS*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 
 		//binding buffers to layout locations in vertex shader.
-		glVertexAttribPointer(i, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glVertexAttribPointer(i, vboSize[i], GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(i);
 	}
 
@@ -67,8 +76,6 @@ void util::initSprites() {
 
 	defaultFragmentShader = loadShaderSource(simpleShaderData::getDefaultFragment(), GL_FRAGMENT_SHADER);
 	emptyFragmentShader = loadShaderSource(simpleShaderData::getEmptyFragment(), GL_FRAGMENT_SHADER);
-
-	util::print("Sprites initialized");
 }
 
 void util::bindSprites() {
@@ -77,8 +84,8 @@ void util::bindSprites() {
 }
 
 UnsortedSprite::UnsortedSprite(Point* parent, Texture texture, Anchor anchor, Vector position, Vector scale, Angle rotation, Color color)
-							: Point(parent, position, scale, rotation), texture(texture), anchor(anchor), color(color), bounds(texture.getBounds()) {
-	util::print("Adding sprite");
+							: Point(parent, position, scale, rotation), texture(texture), anchor(anchor), color(color) {
+	//util::print("UnsortedSprite:load");
 
 	setOffset();
 
@@ -92,24 +99,26 @@ UnsortedSprite::UnsortedSprite(Point* parent, Texture texture, Anchor anchor, Ve
 	}else	id = spriteCount++;
 
 	if (spriteCapacity < spriteCount) {
-		util::print("Resizing data buffers");
-
-		GLuint tempVbo;
-		glGenBuffers(1, &tempVbo);
-
-		int oldSize = spriteCapacity * SPRITE_SIZE;
-		glBindBuffer(GL_COPY_WRITE_BUFFER, tempVbo);
-		glBufferData(GL_COPY_WRITE_BUFFER, oldSize, nullptr, GL_DYNAMIC_DRAW);
+		util::print("Sprite data buffers:resize");
 
 		for (int i = 0; i < vboType::COUNT; i++) {
+			GLuint tempVbo;
+			glGenBuffers(1, &tempVbo);
+
+			int oldSize = spriteCapacity * vboSize[i]*SPRITE_VERTS*sizeof(float);
+			glBindBuffer(GL_COPY_WRITE_BUFFER, tempVbo);
+			glBufferData(GL_COPY_WRITE_BUFFER, oldSize, nullptr, GL_DYNAMIC_DRAW);
+
 			//loading current data into temp buffer, resizing this buffer and loading data back from temp buffer.
 			glBindBuffer(GL_COPY_READ_BUFFER, vbos[i]);
 
 			glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, oldSize);
 
-			glBufferData(GL_COPY_READ_BUFFER, 2 * oldSize, nullptr, GL_DYNAMIC_DRAW);
+			glBufferData(GL_COPY_READ_BUFFER, RESIZE_FACTOR * oldSize, nullptr, GL_DYNAMIC_DRAW);
 
 			glCopyBufferSubData(GL_COPY_WRITE_BUFFER, GL_COPY_READ_BUFFER, 0, 0, oldSize);
+
+			glDeleteBuffers(1, &tempVbo);
 		}
 
 		//TOTRY: check if one copy/attribpointer is faster than copy/copy
@@ -117,16 +126,14 @@ UnsortedSprite::UnsortedSprite(Point* parent, Texture texture, Anchor anchor, Ve
 		//vbos = tempVbo;
 		//tempVbo = t;
 
-		glDeleteBuffers(1, &tempVbo);
-
-		spriteCapacity *= 2;
+		spriteCapacity *= RESIZE_FACTOR;
 	}
 
 	unsortedSprites.push_back(this);
 }
 
 UnsortedSprite::~UnsortedSprite() {
-	util::print("Unloading sprite");
+	util::print("UnsortedSprite:unload");
 
 	if (id < spriteCount - 1)
 		deletedQueue.push(id);
@@ -140,28 +147,24 @@ UnsortedSprite::~UnsortedSprite() {
 void UnsortedSprite::bindVertices() {
 	Matrix m = getModelMatrix() * Matrix::scale(texture.getBounds());
 
-	util::bindData(id, vboType::VERTEX, m);
+	util::bindQuadData(id, vboType::VERTEX, m);
+}
+
+void UnsortedSprite::bindColor() {
+	int size = vboSize[vboType::COLOR]*SPRITE_VERTS;
+	float data[size];
+
+	for (int i = 0; i < size; i += vboSize[vboType::COLOR]) {
+		data[i] = color.r; data[i + 1] = color.g; data[i + 2] = color.b; data[i + 3] = color.a;
+	}
+
+	bindVboData(id, vboType::COLOR, data);
 }
 
 void UnsortedSprite::bindTexture() {
 
-	util::bindData(id, vboType::TEXTURE,
+	util::bindQuadData(id, vboType::TEXTURE,
 			Matrix::translate(texture.getPosition() + texture.getBounds()*0.5f) * Matrix::scale(texture.getBounds()));
-}
-
-//TODO: sleep on this
-bool UnsortedSprite::inBounds(UnsortedSprite* other) {
-	if (!isEnabled() || !other->isEnabled())		return false;
-
-	Matrix mat = other->getModelMatrix();
-	for (int i = 0; i < SPRITE_VERTS; i++)
-		if (inBounds(mat * quadVertex(i)))			return true;
-
-	mat = getModelMatrix();
-	for (int i = 0; i < SPRITE_VERTS; i++)
-		if (other->inBounds(mat * quadVertex(i)))	return true;
-
-	return false;
 }
 
 void UnsortedSprite::draw() {
@@ -172,7 +175,7 @@ void UnsortedSprite::draw() {
 	glStencilFunc(stencilFunc, stencilRef, 0xFF);
 	glStencilOp(GL_KEEP, GL_KEEP, stencilOp);
 
-	util::useShaders(vertexShader, fragmentShader, color);
+	util::useShaders(vertexShader, fragmentShader);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, id*4, 4);
 }

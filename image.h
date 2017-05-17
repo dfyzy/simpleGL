@@ -18,7 +18,7 @@ protected:
 
 	Image(GLenum filtering);
 
-	virtual ~Image();
+	~Image();
 
 public:
 	/*
@@ -33,6 +33,8 @@ public:
 	 */
 	Image(const char* path, GLenum filtering);
 
+	//Image
+
 	GLuint getId() const { return id; }
 
 	GLenum getFiltering() const {	return filtering; }
@@ -46,7 +48,7 @@ public:
 
 	void setFiltering(GLenum newFiltering);
 
-	virtual void unload() { delete this; }
+	void unload() { delete this; }
 
 };
 

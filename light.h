@@ -6,7 +6,7 @@
 
 namespace simpleGL {
 
-class Light : public Image, public Sprite {
+class Light : public Sprite {
 public:
 	class Source : public UnsortedSprite {
 	private:
@@ -23,17 +23,19 @@ public:
 			light->toggleDraw();
 		}
 
+		void bindColor() {
+			UnsortedSprite::bindColor();
+
+			light->toggleDraw();
+		}
+
+	protected:
+		~Source();
+
 	public:
 		static GLuint getDefaultFragment();
 
 		Source(Light* light, UnsortedSprite* parent, Anchor anchor, Vector position, Vector bounds, Angle rotation, Color color);
-
-		Source(const Source& other) =delete;
-		Source(Source&& other) =delete;
-
-		~Source() {
-			light->sources.remove(this);
-		}
 
 		void setFragmentShader(GLuint sh) {
 			UnsortedSprite::setFragmentShader(sh);
@@ -51,6 +53,8 @@ public:
 	};
 
 private:
+	Image* image;
+
 	Color base;
 
 	GLuint fbo;
@@ -64,13 +68,11 @@ protected:
 public:
 	Light(UnsortedSprite* parent, Anchor anchor, Vector position, int z, unsigned width, unsigned height, Color base);
 
+	Image* getImage() const { return image; }
+
 	void toggleDraw() { needToDraw = true; }
 
 	void draw();
-
-	void unload() {
-		UnsortedSprite::unload();
-	}
 
 };
 

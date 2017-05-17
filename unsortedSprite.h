@@ -28,12 +28,10 @@ private:
 	bool needUpdtOffsetModel {true};
 	bool needUpdtVertices {true};
 	bool needUpdtTexture {true};
+	bool needUpdtColor {true};
 
 	GLuint vertexShader;
 	GLuint fragmentShader;
-
-	Vector bounds;
-	bool customBounds {false};
 
 	GLenum stencilFunc {GL_ALWAYS};
 	GLenum stencilOp {GL_KEEP};
@@ -51,27 +49,18 @@ private:
 protected:
 	virtual void bindVertices();
 	virtual void bindTexture();
+	virtual void bindColor();
 
-	virtual ~UnsortedSprite();
+	~UnsortedSprite();
 
 public:
 	UnsortedSprite(Point* parent, Texture texture, Anchor anchor, Vector position, Vector scale, Angle rotation, Color color);
-
-	void updateModel() {
-		needUpdtOffsetModel = true;
-		needUpdtVertices = true;
-
-		Point::updateModel();
-	}
-	void updateTexture() { needUpdtTexture = true; }
 
 	unsigned getId() const { return id; }
 
 	Texture getTexture() const { return texture; }
 	virtual void setTexture(Texture tex) {
 		texture = tex;
-		if (!customBounds)
-			bounds = texture.getBounds();
 
 		if (anchor != C)	updateOffset();
 		updateTexture();
@@ -84,6 +73,8 @@ public:
 		updateOffset();
 	}
 
+	Vector getCenter() const { return getPosition() + offset; }
+
 	Matrix getModelMatrix() {
 		if (needUpdtOffsetModel)
 			offsetModel = Point::getModelMatrix() * Matrix::translate(offset);
@@ -92,7 +83,11 @@ public:
 	}
 
 	Color getColor() const { return color; }
-	virtual void setColor(Color pcolor) { color = pcolor; }
+	virtual void setColor(Color pcolor) {
+		color = pcolor;
+
+		updateColor();
+	}
 
 	GLuint getVertexShader() const { return vertexShader; }
 	virtual void setVertexShader(GLuint sh) { vertexShader = sh; }
@@ -100,11 +95,14 @@ public:
 	GLuint getFragmentShader() const { return fragmentShader; }
 	virtual void setFragmentShader(GLuint sh) { fragmentShader = sh; }
 
-	Vector getBounds() const { return bounds; }
-	void setBounds(Vector vec) { bounds = vec; customBounds = true; }
-	void setTextureBounds() { bounds = texture.getBounds(); customBounds = false; }
+	void updateModel() {
+		needUpdtOffsetModel = true;
+		needUpdtVertices = true;
 
-	bool isBindingVertices() const { return needUpdtVertices; }
+		Point::updateModel();
+	}
+	void updateTexture() { needUpdtTexture = true; }
+	void updateColor() { needUpdtColor = true; }
 
 	void mask() { stencilFunc = GL_ALWAYS; stencilOp = GL_REPLACE; stencilRef = id; }
 	void setMask(UnsortedSprite* spr) { stencilFunc = GL_EQUAL; stencilRef = spr->id; }
@@ -112,29 +110,24 @@ public:
 
 	void bindData() {
 		if (needUpdtTexture) {
+			needUpdtTexture = false;
+
 			bindTexture();
 			if (!needUpdtVertices)	bindVertices();
-
-			needUpdtTexture = false;
 		}
 
 		if (needUpdtVertices) {
-			bindVertices();
-
 			needUpdtVertices = false;
+
+			bindVertices();
+		}
+
+		if (needUpdtColor) {
+			needUpdtColor = false;
+
+			bindColor();
 		}
 	}
-
-	virtual bool inBounds(Vector pos) {
-		if (!isEnabled())	return false;
-
-		Vector dist = (getModelMatrix().inv() * pos).abs();
-		Vector hBounds = bounds/2;
-
-		return (dist.x < hBounds.x) && (dist.y < hBounds.y);
-	}
-
-	bool inBounds(UnsortedSprite* us);
 
 	virtual void draw();
 

@@ -6,28 +6,28 @@ std::string getVertex() {
 	return std::string("#version 430 core\n"
 	"layout(location=0)	in vec2 inPosition;\n"
 	"layout(location=1)	in vec2 inTexture;\n"
+	"layout(location=2)	in vec4 inColor;\n"
 
-	"out vec4 vColor;\n"
 	"out vec2 vPosition;\n"
 	"out vec2 vTexture;\n"
+	"out vec4 vColor;\n"
 
 	"out gl_PerVertex {\n"
 	"  vec4 gl_Position;\n"
 	"};\n"
 
 	"layout(std140) uniform DynamicData {\n"
-	"	vec4 color;\n"
 	"	mat3 view;\n"
 	"	vec2 resolution;\n"
 	"} dynamic;\n"
 
 	"void main() {\n"
-	"	vColor = dynamic.color;\n"
 	"	vPosition = inPosition;\n"
 	"	vTexture = inTexture;\n"
+	"	vColor = inColor;\n"
 
 	"	gl_Position = vec4(dynamic.view * vec3(inPosition, 1), 1);\n"
-	"	gl_Position.xy /= dynamic.resolution.y/2;"
+	"	gl_Position.xy /= dynamic.resolution.y/2;\n"
 	"	gl_Position.x *= dynamic.resolution.y/dynamic.resolution.x;\n"
 	"}");
 }
@@ -35,9 +35,9 @@ std::string getVertex() {
 std::string getDefaultFragment() {
 	return std::string("#version 430 core\n"
 
-	"in vec4 vColor;\n"
 	"in vec2 vPosition;\n"
 	"in vec2 vTexture;\n"
+	"in vec4 vColor;\n"
 
 	"out vec4 fColor;\n"
 
@@ -51,9 +51,9 @@ std::string getDefaultFragment() {
 std::string getEmptyFragment() {
 	return std::string("#version 430 core\n"
 
-	"in vec4 vColor;\n"
 	"in vec2 vPosition;\n"
 	"in vec2 vTexture;\n"
+	"in vec4 vColor;\n"
 
 	"out vec4 fColor;\n"
 
@@ -65,9 +65,9 @@ std::string getEmptyFragment() {
 std::string getTextFragment() {
 	return std::string("#version 430 core\n"
 
-	"in vec4 vColor;\n"
 	"in vec2 vPosition;\n"
 	"in vec2 vTexture;\n"
+	"in vec4 vColor;\n"
 
 	"out vec4 fColor;\n"
 
@@ -108,9 +108,9 @@ std::string getOverlayFragment() {
 std::string getLightingDefaultFragment() {
 	return std::string("#version 430 core\n"
 
-	"in vec4 vColor;\n"
 	"in vec2 vPosition;\n"
 	"in vec2 vTexture;\n"
+	"in vec4 vColor;\n"
 
 	"out vec4 fColor;\n"
 
@@ -125,9 +125,9 @@ std::string getLightingDefaultFragment() {
 std::string getLightingPow2Fragment() {
 	return std::string("#version 430 core\n"
 
-	"in vec4 vColor;\n"
 	"in vec2 vPosition;\n"
 	"in vec2 vTexture;\n"
+	"in vec4 vColor;\n"
 
 	"out vec4 fColor;\n"
 

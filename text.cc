@@ -2,7 +2,7 @@
 #include "text.h"
 #include "util.h"
 #include "shaderData.h"
-#include <iostream>
+
 namespace {
 
 constexpr float MIN_JUSTIFIED_SPACE = 0.25f;
@@ -27,6 +27,8 @@ Text::Text(Font* font, std::string caption, Alignment alignment, float width,
 }
 
 void Text::setCaption(std::string string) {
+	util::print("Text:setCaption");
+
 	unloadChildren();
 	height = font->getLineSpacing();
 	lastLineStr = 0;
@@ -38,6 +40,8 @@ void Text::setCaption(std::string string) {
 }
 
 void Text::addCaption(std::string string) {
+	util::print("Text:addCaption");
+
 	caption += string;
 
 	unsigned cursorStr = lastLineStr;

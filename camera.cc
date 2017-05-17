@@ -11,6 +11,8 @@ GLuint Camera::rectFbo = 0;
 
 Camera* Camera::getInstance() {
 	if (instance == nullptr) {
+		util::print("Camera:load");
+
 		glGenFramebuffers(1, &msaaFbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo);
 
@@ -40,8 +42,6 @@ Camera* Camera::getInstance() {
 		instance = new Camera(image);
 		instance->setVertexShader(loadShaderSource(simpleShaderData::getOverlayVertex(), GL_VERTEX_SHADER));
 		instance->setFragmentShader(loadShaderSource(simpleShaderData::getOverlayFragment(), GL_FRAGMENT_SHADER));
-
-		util::print("Camera initialized");
 	}
 
 	return instance;
@@ -62,7 +62,7 @@ void Camera::bindVertices() {
 }
 
 void Camera::bindTexture() {
-	util::bindData(getId(), vboType::VERTEX, Matrix::scale(getTexture().getBounds()));
+	util::bindQuadData(getId(), vboType::VERTEX, Matrix::scale(getTexture().getBounds()));
 
 	UnsortedSprite::bindTexture();
 }

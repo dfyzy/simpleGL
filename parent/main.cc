@@ -6,20 +6,14 @@ using namespace simpleGL;
 
 constexpr double PI = 3.14159265358979323846;
 
-class CustomButton : public Button {
-private:
-	Sprite* sprite;
-
+class CustomButton : public SpriteButton {
 public:
-	CustomButton(Sprite* sprite) : sprite(sprite) {
-		Cursor::getInstance()->addButton(sprite, this);
-	}
+	CustomButton(Sprite* sprite) : SpriteButton(sprite) {}
 
-	void onEnter() { sprite->setColor(sprite->getColor() + Color(0, 0, 0.4f)); }
-	void onExit() { sprite->setColor(sprite->getColor() - Color(0, 0, 0.4f)); }
+	void onEnter() { getSprite()->setColor(getSprite()->getColor() + Color(0, 0, 0.4f)); }
+	void onExit() { getSprite()->setColor(getSprite()->getColor() - Color(0, 0, 0.4f)); }
 
 };
-
 
 GLFWwindow* window;
 

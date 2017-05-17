@@ -18,8 +18,10 @@ int Font::dpiX, Font::dpiY;
 
 FT_Library Font::getFTLibrary() {
 	if (ftLibrary == nullptr) {
+		util::print("FreeType:load");
+
 		if (FT_Init_FreeType(&ftLibrary)) {
-			util::print("Failed to init FreeType Library");
+			util::print("error:FreeType:failed to init");
 			return nullptr;
 		}
 
@@ -29,8 +31,6 @@ FT_Library Font::getFTLibrary() {
 		dpiY = GetDeviceCaps(screen, LOGPIXELSY);
 
 		ReleaseDC(0, screen);
-
-		util::print("FreeType Library initialized");
 	}
 
 	return ftLibrary;
@@ -42,17 +42,17 @@ FT_Library Font::getFTLibrary() {
 //}
 
 Font::Font(const char* path, int size) {
-	util::print("Loading font");
+	util::print("Font:load");
 
 	FT_Face face;
 
 	if (FT_New_Face(getFTLibrary(), path, 0, &face)) {
-		util::print("Failed to load the font");
+		util::print("error:Font:failed to create");
 		return;
 	}
 
 	if (FT_Set_Pixel_Sizes(face, 0, size)) {
-		util::print("Failed to change size");
+		util::print("error:Font:failed to resize");
 		return;
 	}
 

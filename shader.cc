@@ -10,10 +10,10 @@
 namespace {
 
 struct dynUniform {
-	enum E { COLOR, CAMERA, RESOLUTION, COUNT };
+	enum E { CAMERA, RESOLUTION, COUNT };
 	static int sizes[COUNT];
 };
-int dynUniform::sizes[COUNT] {4, 12, 2};//if adding new - change 2 to 4.
+int dynUniform::sizes[COUNT] {12, 2};//if adding new - change 2 to 4.
 
 GLuint pipeline;
 
@@ -32,10 +32,7 @@ void setUniform(float* data, dynUniform::E type) {
 	glBufferSubData(GL_UNIFORM_BUFFER, offset*sizeof(float), dynUniform::sizes[type]*sizeof(float), data);
 }
 
-void util::useShaders(GLuint vertex, GLuint fragment, Color color) {
-	float data[] { color.r, color.g, color.b, color.a };
-	setUniform(data, dynUniform::COLOR);
-
+void util::useShaders(GLuint vertex, GLuint fragment) {
 	if (currentVertex != vertex) {
 		glUseProgramStages(pipeline, GL_VERTEX_SHADER_BIT, vertex);
 		currentVertex = vertex;
@@ -78,6 +75,8 @@ inline void printInfoLog(GLuint program) {
 }
 
 void util::initShaders() {
+	util::print("Shader pipeline:load");
+
 	glGenProgramPipelines(1, &pipeline);
 	glBindProgramPipeline(pipeline);
 
@@ -90,17 +89,15 @@ void util::initShaders() {
 	for (int i = 0; i < dynUniform::COUNT; i++)	size += dynUniform::sizes[i];
 	glBufferData(GL_UNIFORM_BUFFER, size*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 	setDefaultResolution();
-
-	util::print("Shaders initialized");
 }
 
 GLuint loadShaderSource(std::string source, GLenum type) {
+	util::print("Shader:load");
+
 	if (type != GL_VERTEX_SHADER && type != GL_FRAGMENT_SHADER) {
-		util::print("Wrong shader type");
+		util::print("error:Shader:wrong shader type");
 		return 0;
 	}
-
-	util::print("Loading shader");
 
 	const char* src = source.c_str();
 	GLuint program = glCreateShaderProgramv(type, 1, &src);
@@ -108,23 +105,25 @@ GLuint loadShaderSource(std::string source, GLenum type) {
 	GLint status;
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	if (!status) {
+		util::print("error:Shader:linking");
 		printInfoLog(program);
 		return 0;
-	} else	util::print("Shader linked");
+	}
 
 	glValidateProgram(program);
 
 	glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
 	if (!status) {
+		util::print("error:Shader:validation");
 		printInfoLog(program);
 		return 0;
-	} else	util::print("Shader validated");
+	}
 
 	return program;
 }
 
 GLuint loadShaderPath(std::string path, GLenum type) {
-	util::print("Loading from path");
+	util::print("Shader:load file");
 
 	std::ifstream file(path);
 	std::string shaderString;

@@ -22,6 +22,8 @@ private:
 
 	bool needUpdtModel {true};
 
+	bool changed {true};
+
 	Matrix getRealModelMatrix() {
 		if (needUpdtModel) {
 			model = Matrix::translate(position) * Matrix::rotate(rotation) * Matrix::scale(scale);
@@ -44,13 +46,10 @@ public:
 		: parent(parent), position(position), scale(scale), rotation(rotation) {
 			if (parent) parent->children.push_back(this);
 		}
+	Point(Point* parent) : Point(parent, {}, {1}, {}) {}
+	Point() : Point(nullptr) {}
 
-	virtual void updateModel() {
-		needUpdtModel = true;
-
-		for (Point* obj : children)
-			obj->updateModel();
-	}
+	Point(const Point& other) =delete;
 
 	bool isEnabled() const {
 		bool res = enabled;
@@ -109,12 +108,19 @@ public:
 
 	int getChildrenCount() const { return children.size(); }
 
-	void unloadChildren() {
-		for (Point* child : children)
-			child->unload();
+	bool hasChanged() {
+		bool result = changed;
+		changed = false;
+		return result;
 	}
 
-	void killAllTheChildren() { unloadChildren(); }
+	virtual void updateModel() {
+		changed = true;
+		needUpdtModel = true;
+
+		for (Point* obj : children)
+			obj->updateModel();
+	}
 
 	void translate(Vector v) {
 		position += v.rotate(rotation);
@@ -122,7 +128,14 @@ public:
 		updateModel();
 	}
 
-	virtual void unload() { delete this; }
+	void unloadChildren() {
+		for (Point* child : children)
+			child->unload();
+	}
+
+	void killAllTheChildren() { unloadChildren(); }
+
+	void unload() { delete this; }
 
 };
 

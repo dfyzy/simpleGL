@@ -10,6 +10,8 @@
 namespace simpleGL {
 
 Image::Image(GLenum filtering) {
+	util::print("Image:load");
+
 	glGenTextures(1, &id);
 
 	setFiltering(filtering);
@@ -23,39 +25,39 @@ Image::Image(unsigned width, unsigned height, GLenum format, GLenum filtering) :
 }
 
 Image::Image(const char* path, GLenum filtering) : Image(filtering) {
-	util::print("Loading image");
+	util::print("Image:load file");
 
 	FILE *file = fopen(path, "rb");
 	if (!file) {
-		util::print("Error opening texture");
+		util::print("error:Image:failed to open file");
 		return;
 	}
 
 	png_byte header[8];
 	fread(header, 1, 8, file);
 	if (png_sig_cmp(header, 0, 8)) {
-		util::print("Not a png");
+		util::print("error:Image:file is not a png");
 		fclose(file);
 		return;
 	}
 
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	if (!png_ptr) {
-		util::print("Failed to create read struct");
+		util::print("error:Image:failed to create read struct");
 		fclose(file);
 		return;
 	}
 
 	png_infop info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr) {
-		util::print("Failed to create info struct");
+		util::print("error:Image:failed to create info struct");
 		png_destroy_read_struct(&png_ptr, nullptr, nullptr);
 		fclose(file);
 		return;
 	}
 
 	if (setjmp(png_jmpbuf(png_ptr))) {
-		util::print("Libpng error");
+		util::print("error:Image:libpng error");
 		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 		fclose(file);
 		return;
@@ -85,7 +87,7 @@ Image::Image(const char* path, GLenum filtering) : Image(filtering) {
 
 void Image::setFiltering(GLenum newFiltering) {
 	if ((newFiltering != GL_LINEAR) && (newFiltering != GL_NEAREST)) {
-		util::print("Wrong filtering type");
+		util::print("error:Image:wrong filtering type");
 		return;
 	}
 
@@ -98,6 +100,8 @@ void Image::setFiltering(GLenum newFiltering) {
 }
 
 void Image::resize(unsigned newWidth, unsigned newHeight, GLenum newFormat) {
+	util::print("Image:resize");
+
 	width = newWidth;
 	height = newHeight;
 	format = newFormat;
@@ -106,7 +110,7 @@ void Image::resize(unsigned newWidth, unsigned newHeight, GLenum newFormat) {
 }
 
 Image::~Image() {
-	util::print("Unloading texture");
+	util::print("Image:unload");
 
 	glDeleteTextures(1, &id);
 }

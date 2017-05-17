@@ -6,7 +6,6 @@
 using namespace simpleGL;
 
 std::mt19937 randEngine(time(0));
-float rotation = 0;
 GLFWwindow* window;
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
@@ -17,8 +16,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 
 void update() {
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		rotation += 0.05f;
-		Camera::getInstance()->setRotation(rotation);
+		Camera::getInstance()->setRotation(Camera::getInstance()->getRotation() + 0.05f);
 	}
 }
 
@@ -27,13 +25,13 @@ int main() {
 
 	glfwSetKeyCallback(window, keyCallback);
 
-	Image st("sprites/eye.png", GL_LINEAR);
+	Image* st = new Image("sprites/eye.png", GL_LINEAR);
 
 	std::uniform_int_distribution<int> positionDist(-500, 500);
 	auto randomPosition = std::bind(positionDist, randEngine);
 
 	for (int i = 0; i < 10000; i++)
-		Sprite::Loader(Texture(&st)).position(Vector(randomPosition(), randomPosition())).color({1, 0, 0, 1}).load();
+		new Sprite(Sprite::Data(Texture(st)).position(Vector(randomPosition(), randomPosition())).color({1, 0, 0, 1}));
 
 	setUpdate(update);
 

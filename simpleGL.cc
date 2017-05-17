@@ -35,13 +35,14 @@ void errorCallback(int error, const char* description) {
 	util::print(description);
 }
 
-inline void initGLFW(bool resizable, bool decorated) {
+inline bool initGLFW(bool resizable, bool decorated) {
 	glfwSetErrorCallback(errorCallback);
 
+	util::print("GLFW:load");
 	if(!glfwInit()) {
-		util::print("Failed to initialize GLFW");
-		exit(EXIT_FAILURE);
-	} else util::print("GLFW initialized");
+		util::print("error:GLFW:failed to init");
+		return false;
+	}
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -49,6 +50,8 @@ inline void initGLFW(bool resizable, bool decorated) {
 
 	glfwWindowHint(GLFW_RESIZABLE, resizable);
 	glfwWindowHint(GLFW_DECORATED, decorated);
+
+	return true;
 }
 
 inline void createWindow(const char* title, GLFWmonitor* monitor, Color background) {
@@ -57,21 +60,24 @@ inline void createWindow(const char* title, GLFWmonitor* monitor, Color backgrou
 	window = glfwCreateWindow(windowWidth, windowHeight, title, monitor, nullptr);
 
 	if (!window) {
-		util::print("Failed to create GLFW window");
+		util::print("error:GLFW:failed to create window");
 		glfwTerminate();
-		exit(EXIT_FAILURE);
+		window = nullptr;
+		return;
 	}
 
 	glfwMakeContextCurrent(window);
 
+	util::print("GLEW:load");
 	// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
 	glewExperimental = GL_TRUE;
 	// Initialize GLEW to setup the OpenGL Function pointers
 	if (glewInit() != GLEW_OK) {
-		util::print("Failed to initialize GLEW");
+		util::print("error:GLEW:failed to init");
 		glfwTerminate();
-		exit(EXIT_FAILURE);
-	} else	util::print("GLEW initialized");
+		window = nullptr;
+		return;
+	}
 
 	#ifdef _WIN32
 		// Turn on vertical screen sync if on Windows.
@@ -99,11 +105,11 @@ inline void createWindow(const char* title, GLFWmonitor* monitor, Color backgrou
 
 GLFWwindow* createFullscreenWindow(const char* title, bool borderless, Color background) {
 	if (window)	{
-		util::print("Why would you need more than one window?");
+		util::print("error:GLFW:creating another window");
 		return nullptr;
 	}
 
-	initGLFW(false, false);
+	if (!initGLFW(false, false)) return nullptr;
 
 	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 
@@ -124,11 +130,11 @@ GLFWwindow* createFullscreenWindow(const char* title, bool borderless, Color bac
 
 GLFWwindow* createWindowedWindow(const char* title, unsigned width, unsigned height, bool resizable, bool decorated, Color background) {
 	if (window)	{
-		util::print("Why would you need more than one window?");
+		util::print("error:GLFW:creating another window");
 		return nullptr;
 	}
 
-	initGLFW(resizable, decorated);
+	if (!initGLFW(resizable, decorated)) return nullptr;
 
 	windowWidth = width;
 	windowHeight = height;
@@ -162,8 +168,10 @@ void util::addUpdate(std::function<void()> updt) {
 }
 
 void draw() {
+	util::print("simpleGL:start of draw cycle");
+
 	if (window == nullptr) {
-		util::print("Did not create a window.");
+		util::print("error:simpleGL:no current OpenGL context");
 		return;
 	}
 
@@ -208,7 +216,10 @@ void draw() {
 		glfwSwapBuffers(window);
 	}
 
+	util::print("GLFW:unload");
+
 	glfwTerminate();
+	window = nullptr;
 }
 
 }

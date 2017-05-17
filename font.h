@@ -4,6 +4,8 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include <memory>
+
 #include "math.h"
 #include "color.h"
 #include "texture.h"
@@ -32,8 +34,7 @@ private:
 	float lineSpacing;
 	unsigned spaceWidth;
 
-protected:
-	virtual ~Font() { image->unload(); }
+	~Font() { image->unload(); }
 
 public:
 	static FT_Library getFTLibrary();
@@ -52,7 +53,7 @@ public:
 		return true;
 	}
 
-	virtual void unload() { delete this; }
+	void unload() { delete this; }
 
 };
 

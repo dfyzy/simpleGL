@@ -8,12 +8,12 @@
 
 using namespace simpleGL;
 
-class CustomButton : public Button {
+class CustomButton : public SpriteButton {
 private:
 	int ind;
 
 public:
-	CustomButton (int i) : ind(i) {}
+	CustomButton(Sprite* sprite, int i) : SpriteButton(sprite), ind(i) {}
 
 	void onEnter() { std::cout << "(" << ind << ") Enter" << std::endl; }
 	void onExit() { std::cout << "(" << ind << ") Exit" << std::endl; }
@@ -66,23 +66,23 @@ int main() {
 	Image* eye = new Image("example/eye.png", GL_LINEAR);
 
 	brimSprite = new Sprite(Sprite::Data(Texture(brim)).position({0, 68.6}));
-	Cursor::getInstance()->addButton(new Sprite(Sprite::Data(Texture(bodyFront))), new CustomButton(0));
-	Cursor::getInstance()->addButton(new Sprite(Sprite::Data(Texture(light)).position({0, 108.8}).z(1)), new CustomButton(1));
-	Cursor::getInstance()->addButton(new Sprite(Sprite::Data(Texture(eye)).position({50.2, 32.1}).z(-1)), new CustomButton(2));
-	Cursor::getInstance()->addButton(new Sprite(Sprite::Data(Texture(eye)).position({-50.2, 32.1}).z(-1)), new CustomButton(3));
+	new CustomButton(new Sprite(Sprite::Data(Texture(bodyFront))), 0);
+	new CustomButton(new Sprite(Sprite::Data(Texture(light)).position({0, 108.8}).z(1)), 1);
+	new CustomButton(new Sprite(Sprite::Data(Texture(eye)).position({50.2, 32.1}).z(-1)), 2);
+	new CustomButton(new Sprite(Sprite::Data(Texture(eye)).position({-50.2, 32.1}).z(-1)), 3);
 
 	Sprite* back = new Sprite(Sprite::Data(Texture(Vector(300))).z(5).rotation(0.25f*3.1415927f));
 	back->mask();
-	Cursor::getInstance()->addButton(back, new CustomButton(5));
+	new CustomButton(back, 5);
 
 	Font* sans = new Font("example/Oranienbaum.ttf", 26);
 
 	std::string lorem("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
 	new Text(sans, lorem, Text::CENTER, 350, nullptr, Vector(0, -100), -10, 1, 0, Color(0));
 
-	Light* dark = new Light(nullptr, Sprite::L, {0, -200}, -100, 200, 200, {0});
-	new Light::Source(dark, nullptr, Sprite::C, Vector(0, -200) + Vector(25), {100}, 0, {0.5f, 0, 0});
-	new Light::Source(dark, nullptr, Sprite::C, Vector(0, -200) + Vector(-25), {100}, 0, {0, 0.5f, 0});
+	//Light* dark = new Light(nullptr, Sprite::L, {0, -200}, -100, 200, 200, {0});
+	//new Light::Source(dark, nullptr, Sprite::C, Vector(0, -200) + Vector(25), {100}, 0, {0.5f, 0, 0});
+	//new Light::Source(dark, nullptr, Sprite::C, Vector(0, -200) + Vector(-25), {100}, 0, {0, 0.5f, 0});
 
 	setUpdate(update);
 

@@ -27,23 +27,23 @@ template<typename Object, typename Value>
 class SetterTimer : public AbstractTimer {
 protected:
 	struct Interval;
-	struct Point {
+	struct TimePoint {
 		Value value;
 
 		Interval* past {nullptr};
 		Interval* future {nullptr};
 
-		Point(Value value) : value(value) {}
-		Point(Value value, Interval* past) : value(value), past(past) {}
+		TimePoint(Value value) : value(value) {}
+		TimePoint(Value value, Interval* past) : value(value), past(past) {}
 	};
 
 	struct Interval {
 		double duration {0};
 
-		Point* past {nullptr};
-		Point* future {nullptr};
+		TimePoint* past {nullptr};
+		TimePoint* future {nullptr};
 
-		Interval(Point* past) : past(past) {
+		Interval(TimePoint* past) : past(past) {
 			past->future = this;
 		}
 	};
@@ -59,8 +59,8 @@ protected:
 
 		Interval* get() const { return interval; }
 
-		virtual Point* getPast() const { return interval->past; }
-		virtual Point* getFuture() const { return interval->future; }
+		virtual TimePoint* getPast() const { return interval->past; }
+		virtual TimePoint* getFuture() const { return interval->future; }
 		virtual void next() { interval = interval->future->future; }
 	};
 
@@ -68,8 +68,8 @@ protected:
 	public:
 		InvertedIterator(Interval* interval) : Iterator(interval) {}
 
-		Point* getPast() const { return Iterator::interval->future; }
-		Point* getFuture() const { return Iterator::interval->past; }
+		TimePoint* getPast() const { return Iterator::interval->future; }
+		TimePoint* getFuture() const { return Iterator::interval->past; }
 		void next() { Iterator::interval = Iterator::interval->past->past; }
 	};
 
@@ -108,7 +108,7 @@ protected:
 
 public:
 	SetterTimer(Object* object, void (Object::*set)(Value), Value firstV) : object(object), set(set) {
-		first = new Interval(new Point(firstV));
+		first = new Interval(new TimePoint(firstV));
 	}
 
 	void play(bool invert) {
@@ -136,7 +136,7 @@ public:
 		}
 
 		last->duration = duration;
-		last->future = new Point(value, last);
+		last->future = new TimePoint(value, last);
 	}
 
 };

@@ -3,24 +3,9 @@
 
 #include <functional>
 
-#include "sprite.h"
+#include "shape.h"
 
 namespace simpleGL {
-
-class Button {
-public:
-
-	virtual void onPress(int mouseButton) {}
-	virtual void onRelease(int mouseButton) {}
-	virtual void onClick(int mouseButton) {}
-
-	virtual void onDrag(int mouseButton) {}
-	virtual void onDragEnd(int mouseButton) {}
-
-	virtual void onEnter() {}
-	virtual void onExit() {}
-
-};
 
 class Cursor : public UnsortedSprite {
 public:
@@ -44,6 +29,7 @@ private:
 	void bindTexture() {}
 
 	Cursor();
+	~Cursor() {}
 
 public:
 	static Cursor* getInstance();
@@ -54,8 +40,53 @@ public:
 	void setPositionCallback(std::function<void(Cursor*)> func) { posCallback = func; }
 	void setMouseButtonCallback(std::function<void(Cursor*, int, bool)> func) { buttCallback = func; }//int button, bool pressed
 
-	void addButton(Sprite* sprite, Button* button);
-	void removeButton(Sprite* sprite);
+};
+
+class Button {
+private:
+	Shape* shape;
+
+public:
+	Button(Shape* shape);
+	virtual ~Button();
+
+	Shape* getShape() const { return shape; }
+
+	virtual int getZ() const =0;
+
+	virtual void onPress(int mouseButton) {}
+	virtual void onRelease(int mouseButton) {}
+	virtual void onClick(int mouseButton) {}
+
+	virtual void onDrag(int mouseButton) {}
+	virtual void onDragEnd(int mouseButton) {}
+
+	virtual void onEnter() {}
+	virtual void onExit() {}
+};
+
+class ShapeButton : public Button {
+private:
+	int z;
+
+public:
+	ShapeButton(Shape* shape, int z) : Button(shape), z(z) {}
+
+	int getZ() const { return z; }
+
+};
+
+class SpriteButton : public Button {
+private:
+	Sprite* sprite;
+
+public:
+	SpriteButton(Sprite* sprite) : Button(new SpriteShape(sprite)), sprite(sprite) {}
+	~SpriteButton() { delete getShape(); }
+
+	int getZ() const { return sprite->getZ(); }
+
+	Sprite* getSprite() const { return sprite; }
 
 };
 

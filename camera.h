@@ -15,8 +15,6 @@ private:
 	void bindTexture();
 
 	Camera(Texture texture) : UnsortedSprite(nullptr, texture, {C}, {}, {1}, 0, {1}) {}
-
-protected:
 	~Camera() {}
 
 public:
