@@ -71,18 +71,18 @@ int main() {
 	new CustomButton(new Sprite(Sprite::Data(Texture(eye)).position({50.2, 32.1}).z(-1)), 2);
 	new CustomButton(new Sprite(Sprite::Data(Texture(eye)).position({-50.2, 32.1}).z(-1)), 3);
 
-	Sprite* back = new Sprite(Sprite::Data(Texture(Vector(300))).z(5).rotation(0.25f*3.1415927f));
-	back->mask();
-	new CustomButton(back, 5);
-
 	Font* sans = new Font("example/Oranienbaum.ttf", 26);
 
 	std::string lorem("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
 	new Text(sans, lorem, Text::CENTER, 350, nullptr, Vector(0, -100), -10, 1, 0, Color(0));
 
-	//Light* dark = new Light(nullptr, Sprite::L, {0, -200}, -100, 200, 200, {0});
-	//new Light::Source(dark, nullptr, Sprite::C, Vector(0, -200) + Vector(25), {100}, 0, {0.5f, 0, 0});
-	//new Light::Source(dark, nullptr, Sprite::C, Vector(0, -200) + Vector(-25), {100}, 0, {0, 0.5f, 0});
+	Light* dark = new Light(nullptr, Sprite::L, {0, -200}, -100, 200, 200, {0});
+	new Light::Source(dark, nullptr, Sprite::C, Vector(0, -200) + Vector(25), {100}, 0, {0.5f, 0, 0});
+	new Light::Source(dark, nullptr, Sprite::C, Vector(0, -200) + Vector(-25), {100}, 0, {0, 0.5f, 0});
+
+	Sprite* back = new Sprite(Sprite::Data({300}).z(5).rotation(0.25f*3.1415927f));
+	back->mask();
+	new CustomButton(back, 5);
 
 	setUpdate(update);
 

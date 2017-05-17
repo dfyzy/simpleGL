@@ -45,7 +45,6 @@ Light::Light(UnsortedSprite* parent, Anchor anchor, Vector position, int z, unsi
 	util::print("Light:load");
 
 	image = new Image(width, height, GL_RGB, GL_LINEAR);
-	setTexture({image});
 
 	glGenFramebuffers(1, &fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
@@ -65,6 +64,11 @@ Light::~Light() {
 
 void Light::draw() {
 	if (needToDraw) {
+		if (first) {
+			first = false;
+			setTexture(image);
+		}
+
 		needToDraw = false;
 
 		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE);
@@ -75,7 +79,7 @@ void Light::draw() {
 		util::setResolution(image->getWidth(), image->getHeight());
 
 		glClearColor(base.r, base.g, base.b, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);
 
 		util::setCameraData(getModelMatrix());
 

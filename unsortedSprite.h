@@ -33,6 +33,8 @@ private:
 	GLuint vertexShader;
 	GLuint fragmentShader;
 
+	bool defaultFrag {true};
+
 	GLenum stencilFunc {GL_ALWAYS};
 	GLenum stencilOp {GL_KEEP};
 	GLint stencilRef {0};
@@ -59,12 +61,7 @@ public:
 	unsigned getId() const { return id; }
 
 	Texture getTexture() const { return texture; }
-	virtual void setTexture(Texture tex) {
-		texture = tex;
-
-		if (anchor != C)	updateOffset();
-		updateTexture();
-	}
+	virtual void setTexture(Texture tex);
 
 	Anchor getAnchor() const { return anchor; }
 	void setAnchor(Anchor panchor) {
@@ -83,7 +80,7 @@ public:
 	}
 
 	Color getColor() const { return color; }
-	virtual void setColor(Color pcolor) {
+	void setColor(Color pcolor) {
 		color = pcolor;
 
 		updateColor();
@@ -93,7 +90,9 @@ public:
 	virtual void setVertexShader(GLuint sh) { vertexShader = sh; }
 
 	GLuint getFragmentShader() const { return fragmentShader; }
-	virtual void setFragmentShader(GLuint sh) { fragmentShader = sh; }
+	virtual void setFragmentShader(GLuint sh) { fragmentShader = sh; defaultFrag = false; }
+
+	void setDefaultFragmentShader();
 
 	void updateModel() {
 		needUpdtOffsetModel = true;

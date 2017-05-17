@@ -43,11 +43,6 @@ public:
 			boundsLoc = glGetUniformLocation(sh, "bounds");
 		}
 
-		void setColor(Color color) {
-			UnsortedSprite::setColor(color);
-			light->toggleDraw();
-		}
-
 		void draw();
 
 	};
@@ -61,6 +56,9 @@ private:
 	std::list<Source*> sources;
 
 	bool needToDraw = true;
+
+	bool first {true};
+	void init();
 
 protected:
 	~Light();

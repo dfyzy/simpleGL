@@ -85,13 +85,12 @@ void util::bindSprites() {
 
 UnsortedSprite::UnsortedSprite(Point* parent, Texture texture, Anchor anchor, Vector position, Vector scale, Angle rotation, Color color)
 							: Point(parent, position, scale, rotation), texture(texture), anchor(anchor), color(color) {
-	//util::print("UnsortedSprite:load");
+	util::print("UnsortedSprite:load");
 
 	setOffset();
 
 	vertexShader = defaultVertexShader;
-	if (texture.getImage() == nullptr)	fragmentShader = emptyFragmentShader;
-	else											fragmentShader = defaultFragmentShader;
+	setDefaultFragmentShader();
 
 	if (!deletedQueue.empty()) {
 		id = deletedQueue.front();
@@ -142,6 +141,22 @@ UnsortedSprite::~UnsortedSprite() {
 	//TOTRY: check for redundant members of the queue.
 
 	unsortedSprites.remove(this);
+}
+
+void UnsortedSprite::setDefaultFragmentShader() {
+	if (texture.getImage() == nullptr)	fragmentShader = emptyFragmentShader;
+	else											fragmentShader = defaultFragmentShader;
+
+	defaultFrag = true;
+}
+
+void UnsortedSprite::setTexture(Texture tex) {
+	texture = tex;
+
+	if (anchor != C)	updateOffset();
+	updateTexture();
+
+	if (defaultFrag) setDefaultFragmentShader();
 }
 
 void UnsortedSprite::bindVertices() {
