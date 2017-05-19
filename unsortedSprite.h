@@ -1,31 +1,20 @@
 #ifndef SIMPLE_UNSORTED_SPRITE_H
 #define SIMPLE_UNSORTED_SPRITE_H
 
-#include "point.h"
+#include "shape.h"
 #include "color.h"
 #include "texture.h"
 
 namespace simpleGL {
 
-class UnsortedSprite  : public Point {
-public:
-	enum Anchor {	UR,	U,		UL,
-						R,		C,		L,
-						DR,	D,		DL};
-
+class UnsortedSprite  : public BaseBoxShape {
 private:
 	unsigned id;
 
 	Texture texture;
 
-	Anchor anchor;
-	Vector offset;
-
-	Matrix offsetModel;
-
 	Color color;
 
-	bool needUpdtOffsetModel {true};
 	bool needUpdtVertices {true};
 	bool needUpdtTexture {true};
 	bool needUpdtColor {true};
@@ -38,15 +27,6 @@ private:
 	GLenum stencilFunc {GL_ALWAYS};
 	GLenum stencilOp {GL_KEEP};
 	GLint stencilRef {0};
-
-	void setOffset() {
-		offset = (Vector(anchor % 3, anchor / 3) - 1) * texture.getBounds() * 0.5f;
-	}
-
-	void updateOffset() {
-		setOffset();
-		updateModel();
-	}
 
 protected:
 	virtual void bindVertices();
@@ -63,21 +43,7 @@ public:
 	Texture getTexture() const { return texture; }
 	virtual void setTexture(Texture tex);
 
-	Anchor getAnchor() const { return anchor; }
-	void setAnchor(Anchor panchor) {
-		anchor = panchor;
-
-		updateOffset();
-	}
-
-	Vector getCenter() const { return getPosition() + offset; }
-
-	Matrix getModelMatrix() {
-		if (needUpdtOffsetModel)
-			offsetModel = Point::getModelMatrix() * Matrix::translate(offset);
-
-		return offsetModel;
-	}
+	Vector getBounds() const { return texture.getBounds(); }
 
 	Color getColor() const { return color; }
 	void setColor(Color pcolor) {
@@ -95,10 +61,9 @@ public:
 	void setDefaultFragmentShader();
 
 	void updateModel() {
-		needUpdtOffsetModel = true;
 		needUpdtVertices = true;
 
-		Point::updateModel();
+		BaseBoxShape::updateModel();
 	}
 	void updateTexture() { needUpdtTexture = true; }
 	void updateColor() { needUpdtColor = true; }
@@ -107,7 +72,9 @@ public:
 	void setMask(UnsortedSprite* spr) { stencilFunc = GL_EQUAL; stencilRef = spr->id; }
 	void unmask() { stencilFunc = GL_ALWAYS; stencilOp = GL_KEEP; }
 
-	void bindData() {
+	void update() {
+		Point::update();
+
 		if (needUpdtTexture) {
 			needUpdtTexture = false;
 

@@ -39,7 +39,7 @@ void setCameraData(Matrix view);
 void setResolution(unsigned width, unsigned height);
 void setDefaultResolution();
 
-void bindSprites();
+void pointUpdate();
 
 //draw sprites for each texture
 void drawSprites();

@@ -13,6 +13,20 @@ public:
 	void onEnter() { getSprite()->setColor(getSprite()->getColor() + Color(0, 0, 0.4f)); }
 	void onExit() { getSprite()->setColor(getSprite()->getColor() - Color(0, 0, 0.4f)); }
 
+	void onClick(int button) { setOpaque(!isOpaque()); }
+
+	void onDragStart(int button) {
+		std::cout << "+++++++" << std::endl;
+	}
+
+	void onDrag(int button) {
+		std::cout << "." << std::endl;
+	}
+
+	void onDragEnd(int button) {
+		std::cout << "-------" << std::endl;
+	}
+
 };
 
 GLFWwindow* window;
@@ -56,13 +70,13 @@ void update() {
 }
 
 int main() {
-	window = createFullscreenWindow("Title", true, Color(0.1f));
+	window = createWindow("Title", 700, 700, false, true, Color(0.1f));
 
 	glfwSetKeyCallback(window, keyCallback);
 
 	parent = new Sprite(Sprite::Data({200}).color({0.6f}).anchor(Sprite::UL));
 	new CustomButton(parent);
-	new CustomButton(new Sprite(Sprite::Data(Texture({75, 50})).parent(parent).position({50, 50}).color({1, 0, 0})));
+	new CustomButton(new Sprite(Sprite::Data(Texture({75, 50})).parent(parent).position({50, -50}).z(-10).color({1, 0, 0})));
 	new CustomButton(new Sprite(Sprite::Data({50}).parent(parent).position({-100, 50}).rotation(PI/4).color({0, 1, 0})));
 
 	setUpdate(update);

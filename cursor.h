@@ -2,8 +2,9 @@
 #define SIMPLE_CURSOR_H
 
 #include <functional>
+#include <memory>
 
-#include "shape.h"
+#include "sprite.h"
 
 namespace simpleGL {
 
@@ -14,7 +15,7 @@ public:
 private:
 	static Cursor* instance;
 
-	static void update();
+	static void updatePosition();
 
 	static void positionCallback(GLFWwindow* window, double xpos, double ypos);
 	static void buttonCallback(GLFWwindow* window, int button, int action, int mods);
@@ -45,6 +46,7 @@ public:
 class Button {
 private:
 	Shape* shape;
+	bool opaque {true};
 
 public:
 	Button(Shape* shape);
@@ -52,12 +54,16 @@ public:
 
 	Shape* getShape() const { return shape; }
 
+	bool isOpaque() const { return opaque; }
+	void setOpaque(bool b) { opaque = b; }
+
 	virtual int getZ() const =0;
 
 	virtual void onPress(int mouseButton) {}
 	virtual void onRelease(int mouseButton) {}
 	virtual void onClick(int mouseButton) {}
 
+	virtual void onDragStart(int mouseButton) {}
 	virtual void onDrag(int mouseButton) {}
 	virtual void onDragEnd(int mouseButton) {}
 
@@ -81,8 +87,7 @@ private:
 	Sprite* sprite;
 
 public:
-	SpriteButton(Sprite* sprite) : Button(new SpriteShape(sprite)), sprite(sprite) {}
-	~SpriteButton() { delete getShape(); }
+	SpriteButton(Sprite* sprite) : Button(sprite), sprite(sprite) {}
 
 	int getZ() const { return sprite->getZ(); }
 

@@ -138,11 +138,13 @@ public:
 	}
 
 	Angle(Vector v) {
-		angle = std::atan2(v.y, v.x);
+		if (v != Vector()) {
+			angle = std::atan2(v.y, v.x);
 
-		float hyp = v.length();
-		sinA = v.y/hyp;
-		cosA = v.x/hyp;
+			float hyp = v.length();
+			sinA = v.y/hyp;
+			cosA = v.x/hyp;
+		}
 	}
 
 	Angle() {}
@@ -191,6 +193,14 @@ public:
 		}
 
 		return result;
+	}
+
+	bool operator==(const Angle& a) const {
+		return angle == a.angle;
+	}
+
+	bool operator!=(const Angle& a) const {
+		return angle != a.angle;
 	}
 
 };

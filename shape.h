@@ -1,31 +1,57 @@
 #ifndef SIMPLE_SHAPE_H
 #define SIMPLE_SHAPE_H
 
-#include "sprite.h"
+#include "point.h"
 
 namespace simpleGL {
 
-class Shape {
+class Shape : public Point {
 protected:
-	Point* point;
-
 	virtual bool isInside(Vector v) const =0;
 
+	~Shape() {}
+
 public:
-	Shape(Point* point) : point(point) {}
-	virtual ~Shape() {}
+	Shape(Point* parent, Vector position, Vector scale, Angle rotation) : Point(parent, position, scale, rotation) {}
 
-	Point* getPoint() const { return point; }
+	bool inBounds(Vector v) {
+		if (!isEnabled())	return false;
 
-	bool inBounds(Vector v) const {
-		if (!point->isEnabled())	return false;
-
-		return isInside(point->getModelMatrix().inv() * v);
+		return isInside(getModelMatrix().inv() * v);
 	}
+
 };
 
 class BaseBoxShape : public Shape {
+public:
+	enum Anchor {	UR,	U,		UL,
+						R,		C,		L,
+						DR,	D,		DL};
+
+private:
+	Anchor anchor;
+	Vector offset;
+
+	Matrix offsetModel;
+
+	bool needUpdtOffset {true};
+	bool needUpdtOffsetModel {true};
+
+	Vector getOffset() {
+		if (needUpdtOffset) {
+			needUpdtOffset = false;
+			offset = (Vector(anchor % 3, anchor / 3) - 1) * getBounds() * 0.5f;
+		}
+
+		return offset;
+	}
+
 protected:
+	void updateOffset() {
+		needUpdtOffset = true;
+		needUpdtOffsetModel = true;
+	}
+
 	bool isInside(Vector v) const {
 		Vector dist = v.abs();
 		Vector hBounds = getBounds()/2;
@@ -33,10 +59,37 @@ protected:
 		return (dist.x < hBounds.x) && (dist.y < hBounds.y);
 	}
 
+	~BaseBoxShape() {}
+
 public:
-	BaseBoxShape(Point* point) : Shape(point) {}
+	BaseBoxShape(Point* parent, Anchor anchor, Vector position, Vector scale, Angle rotation)
+				: Shape(parent, position, scale, rotation), anchor(anchor) {}
 
 	virtual Vector getBounds() const =0;
+
+	Vector getCenter() { return getPosition() + getOffset(); }
+
+	Anchor getAnchor() const { return anchor; }
+	void setAnchor(Anchor panchor) {
+		anchor = panchor;
+
+		updateOffset();
+	}
+
+	Matrix getModelMatrix() {
+		if (needUpdtOffsetModel) {
+			needUpdtOffsetModel = false;
+			offsetModel = Point::getModelMatrix() * Matrix::translate(getOffset());
+		}
+
+		return offsetModel;
+	}
+
+	void updateModel() {
+		needUpdtOffsetModel = true;
+
+		Point::updateModel();
+	}
 
 };
 
@@ -44,24 +97,14 @@ class BoxShape : public BaseBoxShape {
 private:
 	Vector bounds;
 
-public:
-	BoxShape(Point* parent, Vector position, Vector scale, Vector rotation, Vector bounds)
-		: BaseBoxShape(new Point(parent, position, scale, rotation)), bounds(bounds) {}
+protected:
+	~BoxShape() {}
 
-	~BoxShape() { getPoint()->unload(); }
+public:
+	BoxShape(Point* parent, Anchor anchor, Vector position, Vector scale, Angle rotation, Vector bounds)
+		: BaseBoxShape(parent, anchor, position, scale, rotation), bounds(bounds) {}
 
 	Vector getBounds() const { return bounds; }
-
-};
-
-class SpriteShape : public BaseBoxShape {
-private:
-	Sprite* sprite;
-
-	Vector getBounds() const { return sprite->getTexture().getBounds(); }
-
-public:
-	SpriteShape(Sprite* sprite) : BaseBoxShape(sprite), sprite(sprite) {}
 
 };
 

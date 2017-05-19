@@ -76,6 +76,17 @@ public:
 		return Vector(data[0]*v.x + data[1]*v.y + data[2], data[3]*v.x + data[4]*v.y + data[5]);
 	}
 
+	bool operator==(const Matrix& m) const {
+		for (int i = 0; i < 6; i++)
+			if (data[i] != m.data[i]) return false;
+
+		return true;
+	}
+
+	bool operator!=(const Matrix& m) const {
+		return !operator==(m);
+	}
+
 };
 
 }

@@ -1,4 +1,5 @@
 #include <set>
+#include <vector>
 
 #include "cursor.h"
 
@@ -9,8 +10,8 @@ namespace {
 
 std::list<simpleGL::Button*> buttons;//TODO: callback on shape movement
 
-simpleGL::Button* clicked[simpleGL::Cursor::BUTTONS_MAX];
-simpleGL::Button* hovered = nullptr;
+std::list<std::pair<simpleGL::Button*, bool>> clicked[simpleGL::Cursor::BUTTONS_MAX];
+std::vector<simpleGL::Button*> hovered;
 
 }
 
@@ -20,23 +21,42 @@ Cursor* Cursor::instance = nullptr;
 
 Vector glfwToSimple(double xpos, double ypos) { return Vector(xpos - getWindowWidth()/2, getWindowHeight()/2 - ypos); }
 
-Button* getTopHover() {
-	Button* top = nullptr;
+std::list<Button*> getTopHovers() {
+	std::list<Button*> result;
 	for (Button* button : buttons)
-		if (button->getShape()->inBounds(Cursor::getInstance()->getRealPosition()) &&
-			(top == nullptr || button->getZ() < top->getZ()))
-				top = button;
+		if (button->getShape()->inBounds(Cursor::getInstance()->getRealPosition())
+			 && (result.empty() || button->getZ() < (*result.begin())->getZ())) {
+					if (button->isOpaque())	result.clear();
 
-	return top;
+					result.push_front(button);
+				}
+
+	return result;
 }
 
-void moveButton(Button* top) {
-	if (top != hovered) {
-		if (top)			top->onEnter();
-		if (hovered)	hovered->onExit();
+void moveButton(std::list<Button*> top) {
+	bool exited[hovered.size()];
+	for (unsigned i = 0; i < hovered.size(); i++)
+		exited[i] = true;
 
-		hovered = top;
+	for (Button* t : top) {
+		bool entered = true;
+		for (unsigned i = 0; i < hovered.size(); i++)
+			if (t == hovered[i]) {
+				entered = false;
+				exited[i] = false;
+				break;
+			}
+
+		if (entered)	t->onEnter();
 	}
+
+	for (unsigned i = 0; i < hovered.size(); i++)
+		if (exited[i])	hovered[i]->onExit();
+
+	hovered.clear();
+	for (Button* t : top)
+		hovered.push_back(t);
 }
 
 Cursor* Cursor::getInstance() {
@@ -44,23 +64,28 @@ Cursor* Cursor::getInstance() {
 		util::print("Cursor:load");
 
 		instance = new Cursor();
-		util::addUpdate(update);
+		util::addUpdate(updatePosition);
 	}
 
 	return instance;
 }
 
-void Cursor::update() {
-	if (instance->hasChanged()) {
-		for (int i = 0; i < Cursor::BUTTONS_MAX; i++)
-			if (clicked[i])	clicked[i]->onDrag(i);
+void Cursor::updatePosition() {
+	bool instChange = instance->getChanged();
 
-		if (instance->posCallback) instance->posCallback(instance);
-	} else
-		for (int i = 0; i < Cursor::BUTTONS_MAX; i++)
-			if (clicked[i] && clicked[i]->getShape()->getPoint()->hasChanged())	clicked[i]->onDrag(i);
+	if (instChange && instance->posCallback) instance->posCallback(instance);
 
-	moveButton(getTopHover());
+	for (int i = 0; i < Cursor::BUTTONS_MAX; i++)
+		for (std::pair<Button*, bool>& cl : clicked[i])
+			if (instChange || cl.first->getShape()->getChanged()) {
+				if (!cl.second)
+					cl.first->onDragStart(i);
+
+				cl.first->onDrag(i);
+				cl.second = true;
+			}
+
+	moveButton(getTopHovers());
 }
 
 void Cursor::positionCallback(GLFWwindow* window, double xpos, double ypos) {
@@ -75,22 +100,28 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 	glfwGetCursorPos(util::getWindow(), &xpos, &ypos);
 	instance->setPosition(glfwToSimple(xpos, ypos));
 
-	Button* top = getTopHover();
-	if (top) {
+	std::list<Button*> top = getTopHovers();
+	for (Button* b : top)
 		if (pressed) {
-			top->onPress(mButton);
-			clicked[mButton] = top;
-		} else {
-			top->onRelease(mButton);
+			b->onPress(mButton);
+			clicked[mButton].push_back({b, false});
 
-			if (clicked[mButton] == top)
-				top->onClick(mButton);
+			b->getShape()->getChanged();
+		} else {
+			b->onRelease(mButton);
+
+			for (std::pair<Button*, bool>& cl : clicked[mButton])
+				if (b == cl.first) {
+					b->onClick(mButton);
+					break;
+				}
 		}
-	}
 
 	if (!pressed) {
-		if (clicked[mButton])	clicked[mButton]->onDragEnd(mButton);//TOTHINK: ondragend after ondrag
-		clicked[mButton] = nullptr;
+		for (std::pair<Button*, bool>& cl : clicked[mButton])
+			if (cl.second)	cl.first->onDragEnd(mButton);
+
+		clicked[mButton].clear();
 	}
 
 	if (instance->buttCallback)	instance->buttCallback(instance, mButton, pressed);

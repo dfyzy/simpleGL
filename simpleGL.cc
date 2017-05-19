@@ -128,7 +128,7 @@ GLFWwindow* createFullscreenWindow(const char* title, bool borderless, Color bac
 	return window;
 }
 
-GLFWwindow* createWindowedWindow(const char* title, unsigned width, unsigned height, bool resizable, bool decorated, Color background) {
+GLFWwindow* createWindow(const char* title, unsigned width, unsigned height, bool resizable, bool decorated, Color background) {
 	if (window)	{
 		util::print("error:GLFW:creating another window");
 		return nullptr;
@@ -203,7 +203,7 @@ void draw() {
 		for (auto uu : utilUpdates)
 			uu();
 
-		util::bindSprites();
+		util::pointUpdate();
 
 		glBindVertexArray(vao);
 

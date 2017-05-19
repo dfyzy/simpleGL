@@ -27,15 +27,7 @@ Text::Text(Font* font, std::string caption, Alignment alignment, float width,
 }
 
 void Text::setCaption(std::string string) {
-	util::print("Text:setCaption");
-
-	unloadChildren();
-	height = font->getLineSpacing();
-	lastLineStr = 0;
-	lastLineSpr = getFirstChild();
-
-	caption.clear();
-
+	clear();
 	addCaption(string);
 }
 
@@ -125,11 +117,12 @@ void Text::addCaption(std::string string) {
 
 			Vector position = Vector(offset, -height) + glyph->offset;
 
-			if (cursorSpr == getLastChild()) {
+			if (cursorSpr == sprites.end()) {
 				Sprite* spr = new Sprite(Sprite::Data(glyph->texture).anchor(Sprite::UL).parent(this).position(position).z(z).color(color));
 				spr->setFragmentShader(getDefaultFragment());
+				sprites.push_back(spr);
 
-				if (lastLineSpr == getLastChild())	--lastLineSpr;
+				if (lastLineSpr == sprites.end())	--lastLineSpr;
 			} else (*(cursorSpr++))->setPosition(position);
 
 			offset += glyph->advance;

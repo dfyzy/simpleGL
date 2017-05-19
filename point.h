@@ -22,7 +22,7 @@ private:
 
 	bool needUpdtModel {true};
 
-	bool changed {true};
+	bool changed {false};
 
 	Matrix getRealModelMatrix() {
 		if (needUpdtModel) {
@@ -35,17 +35,17 @@ private:
 		return model;
 	}
 
-protected:
-	virtual ~Point() {
-		parent->children.remove(this);
-		unloadChildren();
+	void setChangeTrue() {
+		changed = true;
+		for (Point* child : children)
+			child->setChangeTrue();
 	}
 
+protected:
+	virtual ~Point();
+	
 public:
-	Point(Point* parent, Vector position, Vector scale, Angle rotation)
-		: parent(parent), position(position), scale(scale), rotation(rotation) {
-			if (parent) parent->children.push_back(this);
-		}
+	Point(Point* parent, Vector position, Vector scale, Angle rotation);
 	Point(Point* parent) : Point(parent, {}, {1}, {}) {}
 	Point() : Point(nullptr) {}
 
@@ -62,11 +62,14 @@ public:
 	Vector getRealPosition() const {
 		Vector result = position;
 
-		if (parent)	result = parent->model * result;
+		if (parent)	result = parent->getModelMatrix() * result;
 
 		return result;
 	}
 	virtual void setPosition(Vector pposition) {
+		if (position != pposition)
+			setChangeTrue();
+
 		position = pposition;
 
 		updateModel();
@@ -74,6 +77,9 @@ public:
 
 	Vector getScale() const { return scale; }
 	virtual void setScale(Vector pscale) {
+		if (scale != pscale)
+			setChangeTrue();
+
 		scale = pscale;
 
 		updateModel();
@@ -86,6 +92,9 @@ public:
 		return result;
 	}
 	virtual void setRotation(Angle protation) {
+		if (rotation != protation)
+			setChangeTrue();
+
 		rotation = protation;
 
 		updateModel();
@@ -97,25 +106,25 @@ public:
 
 	Point* getParent() const { return parent; }
 	void setParent(Point* obj) {
+		if (parent != obj)
+			setChangeTrue();
+
+		if (parent)	parent->children.remove(this);
+
 		parent = obj;
+
 		if (parent)	parent->children.push_back(this);
 
 		updateModel();
 	}
 
-	std::list<Point*>::const_iterator getFirstChild() const { return children.begin(); }
-	std::list<Point*>::const_iterator getLastChild() const { return children.end(); }
+	const std::list<Point*>& getChildren() const { return children; }
 
 	int getChildrenCount() const { return children.size(); }
 
-	bool hasChanged() {
-		bool result = changed;
-		changed = false;
-		return result;
-	}
+	bool getChanged() const { return changed; }
 
 	virtual void updateModel() {
-		changed = true;
 		needUpdtModel = true;
 
 		for (Point* obj : children)
@@ -123,17 +132,14 @@ public:
 	}
 
 	void translate(Vector v) {
-		position += v.rotate(rotation);
+		setPosition(getPosition() + v.rotate(rotation));
 
 		updateModel();
 	}
 
-	void unloadChildren() {
-		for (Point* child : children)
-			child->unload();
+	virtual void update() {
+		changed = false;
 	}
-
-	void killAllTheChildren() { unloadChildren(); }
 
 	void unload() { delete this; }
 

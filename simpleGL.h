@@ -20,7 +20,7 @@ namespace simpleGL {
 GLFWwindow* createFullscreenWindow(const char* title, bool borderless, Color background);
 
 /*
- * Creates windowed window.
+ * Creates a window.
  *
  * 'title': title of the window.
  * 'width': width in screen coordinates.
@@ -30,7 +30,7 @@ GLFWwindow* createFullscreenWindow(const char* title, bool borderless, Color bac
  *
  * returns: GLFW handle of created window.
  */
-GLFWwindow* createWindowedWindow(const char* title, unsigned width, unsigned height, bool resizable, bool decorated, Color background);
+GLFWwindow* createWindow(const char* title, unsigned width, unsigned height, bool resizable, bool decorated, Color background);
 
 /*
  * Returns width of the created window.
