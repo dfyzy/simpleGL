@@ -8,10 +8,9 @@
 
 namespace {
 
-std::list<simpleGL::Button*> buttons;//TODO: callback on shape movement
+std::set<simpleGL::Button*, simpleGL::Button::Comparer> buttons;
 
 std::list<std::pair<simpleGL::Button*, bool>> clicked[simpleGL::Cursor::BUTTONS_MAX];
-std::vector<simpleGL::Button*> hovered;
 
 }
 
@@ -21,71 +20,45 @@ Cursor* Cursor::instance = nullptr;
 
 Vector glfwToSimple(double xpos, double ypos) { return Vector(xpos - getWindowWidth()/2, getWindowHeight()/2 - ypos); }
 
-std::list<Button*> getTopHovers() {
-	std::list<Button*> result;
-	for (Button* button : buttons)
-		if (button->getShape()->inBounds(Cursor::getInstance()->getRealPosition())
-			 && (result.empty() || button->getZ() < (*result.begin())->getZ())) {
-					if (button->isOpaque())	result.clear();
-
-					result.push_front(button);
-				}
-
-	return result;
-}
-
-void moveButton(std::list<Button*> top) {
-	bool exited[hovered.size()];
-	for (unsigned i = 0; i < hovered.size(); i++)
-		exited[i] = true;
-
-	for (Button* t : top) {
-		bool entered = true;
-		for (unsigned i = 0; i < hovered.size(); i++)
-			if (t == hovered[i]) {
-				entered = false;
-				exited[i] = false;
-				break;
-			}
-
-		if (entered)	t->onEnter();
-	}
-
-	for (unsigned i = 0; i < hovered.size(); i++)
-		if (exited[i])	hovered[i]->onExit();
-
-	hovered.clear();
-	for (Button* t : top)
-		hovered.push_back(t);
-}
-
 Cursor* Cursor::getInstance() {
 	if (instance == nullptr) {
 		util::print("Cursor:load");
 
 		instance = new Cursor();
-		util::addUpdate(updatePosition);
+		util::addPreUpdate(updatePosition);
 	}
 
 	return instance;
 }
 
 void Cursor::updatePosition() {
-	bool instChange = instance->getChanged();
+	if (instance->changed() && instance->posCallback) instance->posCallback(instance);
 
-	if (instChange && instance->posCallback) instance->posCallback(instance);
+	std::list<std::pair<std::pair<Button*, bool>*, int>> drag;
 
 	for (int i = 0; i < Cursor::BUTTONS_MAX; i++)
 		for (std::pair<Button*, bool>& cl : clicked[i])
-			if (instChange || cl.first->getShape()->getChanged()) {
-				if (!cl.second)
-					cl.first->onDragStart(i);
+			if (instance->changed() || cl.first->changed())
+				drag.push_back({&cl, i});
 
-				cl.first->onDrag(i);
-				cl.second = true;
-			}
+	for (std::pair<std::pair<Button*, bool>*, int> dr : drag) {
+		if (!dr.first->second)
+			dr.first->first->onDragStart(dr.second);
 
-	moveButton(getTopHovers());
+		dr.first->first->onDrag(dr.second);
+		dr.first->second = true;
+	}
+
+	bool notBlocked {true};
+	for (Button* b : buttons) {
+		b->setOn(notBlocked);
+		if (b->isOn() && b->isOpaque())	notBlocked = false;
+	}
+
+	instance->change.reset();
+
+	for (Button* b : buttons)
+		b->callback();
 }
 
 void Cursor::positionCallback(GLFWwindow* window, double xpos, double ypos) {
@@ -100,19 +73,28 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 	glfwGetCursorPos(util::getWindow(), &xpos, &ypos);
 	instance->setPosition(glfwToSimple(xpos, ypos));
 
-	std::list<Button*> top = getTopHovers();
-	for (Button* b : top)
+	std::list<Button*> on;
+
+	bool notBlocked {true};
+	for (Button* b : buttons)
+		if (b->isEntered() && notBlocked) {
+			on.push_back(b);
+
+			if (b->isOpaque())	notBlocked = false;
+		}
+
+	instance->change.reset();
+
+	for (Button* b : on)
 		if (pressed) {
 			b->onPress(mButton);
 			clicked[mButton].push_back({b, false});
-
-			b->getShape()->getChanged();
 		} else {
 			b->onRelease(mButton);
 
 			for (std::pair<Button*, bool>& cl : clicked[mButton])
 				if (b == cl.first) {
-					b->onClick(mButton);
+					if (!cl.second)	b->onClick(mButton);
 					break;
 				}
 		}
@@ -127,7 +109,7 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 	if (instance->buttCallback)	instance->buttCallback(instance, mButton, pressed);
 }
 
-Cursor::Cursor() : UnsortedSprite(Camera::getInstance(), {}, {C}, {}, {1}, 0, {1}) {
+Cursor::Cursor() : UnsortedSprite(Camera::getInstance(), {}, {C}, {}, {1}, 0, {1}), change(getChange()) {
 	glfwSetCursorPosCallback(util::getWindow(), positionCallback);
 	glfwSetMouseButtonCallback(util::getWindow(), buttonCallback);
 }
@@ -141,17 +123,31 @@ bool Cursor::getMouseButton(int button) const {
 	return mouseButtons[button];
 }
 
-Button::Button(Shape* shape) : shape(shape) {
+Button::Button(Shape* shape, int z) : shape(shape), change(shape->getChange()), z(z) {
 	util::print("Button:load");
 
 	Cursor::getInstance();
-	buttons.push_back(this);
+	buttons.insert(this);
 }
 
 Button::~Button() {
 	util::print("Button:unload");
 
-	buttons.remove(this);
+	buttons.erase(this);
+	for (int i = 0; i < simpleGL::Cursor::BUTTONS_MAX; i++)
+		for (auto it = clicked[i].begin(); it != clicked[i].end(); it++)
+			if (it->first == this) {
+				clicked[i].erase(it);
+				break;
+			}
+}
+
+void Button::setZ(int i) {
+	buttons.erase(this);
+
+	z = i;
+
+	buttons.insert(this);
 }
 
 }

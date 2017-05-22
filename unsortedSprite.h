@@ -41,12 +41,23 @@ public:
 	unsigned getId() const { return id; }
 
 	Texture getTexture() const { return texture; }
-	virtual void setTexture(Texture tex);
+	virtual void setTexture(Texture tex) {
+		if (texture == tex)	return;
+
+		texture = tex;
+
+		if (getAnchor() != C)	updateOffset();
+		updateTexture();
+
+		if (defaultFrag) setDefaultFragmentShader();
+	}
 
 	Vector getBounds() const { return texture.getBounds(); }
 
 	Color getColor() const { return color; }
 	void setColor(Color pcolor) {
+		if (color == pcolor)	return;
+
 		color = pcolor;
 
 		updateColor();
@@ -65,32 +76,31 @@ public:
 
 		BaseBoxShape::updateModel();
 	}
-	void updateTexture() { needUpdtTexture = true; }
+	void updateTexture() {
+		needUpdtTexture = true;
+		needUpdtVertices = true;
+
+		setChanges();
+	}
 	void updateColor() { needUpdtColor = true; }
 
 	void mask() { stencilFunc = GL_ALWAYS; stencilOp = GL_REPLACE; stencilRef = id; }
 	void setMask(UnsortedSprite* spr) { stencilFunc = GL_EQUAL; stencilRef = spr->id; }
 	void unmask() { stencilFunc = GL_ALWAYS; stencilOp = GL_KEEP; }
 
-	void update() {
-		Point::update();
-
+	void bindData() {
 		if (needUpdtTexture) {
 			needUpdtTexture = false;
-
 			bindTexture();
-			if (!needUpdtVertices)	bindVertices();
 		}
 
 		if (needUpdtVertices) {
 			needUpdtVertices = false;
-
 			bindVertices();
 		}
 
 		if (needUpdtColor) {
 			needUpdtColor = false;
-
 			bindColor();
 		}
 	}

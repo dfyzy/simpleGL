@@ -31,6 +31,15 @@ struct Color {
 		return operator*(1/f);
 	}
 
+
+	bool operator==(const Color& c) const {
+		return r == c.r && g == c.g && b == c.b && a == c.a;
+	}
+
+	bool operator!=(const Color& c) const {
+		return !operator==(c);
+	}
+
 };
 
 }

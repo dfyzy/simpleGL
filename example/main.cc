@@ -8,19 +8,22 @@
 
 using namespace simpleGL;
 
-class CustomButton : public SpriteButton {
+class CustomButton : public Button {
+private:
+	Sprite* sprite;
+
 public:
-	CustomButton(Sprite* sprite) : SpriteButton(sprite) {}
+	CustomButton(Sprite* sprite) : Button(sprite), sprite(sprite) {}
 
 	void onEnter() {
-		Color c = getSprite()->getColor();
+		Color c = sprite->getColor();
 		c.a -= 0.5f;
-		getSprite()->setColor(c);
+		sprite->setColor(c);
 	}
 	void onExit() {
-		Color c = getSprite()->getColor();
+		Color c = sprite->getColor();
 		c.a += 0.5f;
-		getSprite()->setColor(c);
+		sprite->setColor(c);
 	}
 };
 
@@ -71,8 +74,8 @@ int main() {
 	Image* eye = new Image("example/eye.png", GL_LINEAR);
 
 	brimSprite = new Sprite(Sprite::Data(Texture(brim)).position({0, 68.6}));
-	new CustomButton(new Sprite(Sprite::Data(Texture(bodyFront))));
-	new CustomButton(new Sprite(Sprite::Data(Texture(light)).position({0, 108.8}).z(1)));
+	(new CustomButton(new Sprite(Sprite::Data(Texture(bodyFront)))))->setOpaque(false);
+	(new CustomButton(new Sprite(Sprite::Data(Texture(light)).position({0, 58.8}).z(1))))->setOpaque(true);
 	new CustomButton(new Sprite(Sprite::Data(Texture(eye)).position({50.2, 32.1}).z(-1)));
 	new CustomButton(new Sprite(Sprite::Data(Texture(eye)).position({-50.2, 32.1}).z(-1)));
 

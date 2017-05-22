@@ -24,6 +24,7 @@ inline void print(std::string str) {
 void initShaders();
 void initSprites();
 
+void addPreUpdate(std::function<void()> updt);
 void addUpdate(std::function<void()> updt);
 
 GLFWwindow* getWindow();
@@ -39,7 +40,7 @@ void setCameraData(Matrix view);
 void setResolution(unsigned width, unsigned height);
 void setDefaultResolution();
 
-void pointUpdate();
+void bindSprites();
 
 //draw sprites for each texture
 void drawSprites();

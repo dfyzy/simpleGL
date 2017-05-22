@@ -50,6 +50,8 @@ protected:
 	void updateOffset() {
 		needUpdtOffset = true;
 		needUpdtOffsetModel = true;
+
+		setChanges();
 	}
 
 	bool isInside(Vector v) const {

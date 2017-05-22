@@ -25,6 +25,8 @@ private:
 	std::function<void(Cursor*)> posCallback;
 	std::function<void(Cursor*, int, bool)> buttCallback;
 
+	Change& change;
+
 	//TODO: custom cursor images
 	void bindVertices() {}
 	void bindTexture() {}
@@ -34,6 +36,8 @@ private:
 
 public:
 	static Cursor* getInstance();
+
+	bool changed() const { return change.get(); }
 
 	//0 = left; 1 = right; 2 = middle;
 	bool getMouseButton(int button) const;
@@ -46,18 +50,52 @@ public:
 class Button {
 private:
 	Shape* shape;
+	Change& change;
+
 	bool opaque {true};
 
+	int z;
+
+	bool lastOn {false};
+	bool on {false};
+	bool entered {false};
+
 public:
-	Button(Shape* shape);
-	virtual ~Button();
+	Button(Shape* shape, int z);
+	Button(Sprite* sprite) : Button(sprite, sprite->getZ()) {}
+
+	~Button();
 
 	Shape* getShape() const { return shape; }
+
+	bool changed() const { return change.get(); }
 
 	bool isOpaque() const { return opaque; }
 	void setOpaque(bool b) { opaque = b; }
 
-	virtual int getZ() const =0;
+	int getZ() const { return z; }
+	void setZ(int i);
+
+	bool isEntered() {
+		if (Cursor::getInstance()->changed() || changed())
+			entered = shape->inBounds(Cursor::getInstance()->getRealPosition());
+
+		change.reset();
+
+		return entered;
+	}
+
+	bool isOn() const { return on; }
+	void setOn(bool notBlocked) { on = isEntered() && notBlocked; }
+
+	void callback() {
+		if (lastOn != on) {
+			if (on)	onEnter();
+			else		onExit();
+
+			lastOn = on;
+		}
+	}
 
 	virtual void onPress(int mouseButton) {}
 	virtual void onRelease(int mouseButton) {}
@@ -69,30 +107,15 @@ public:
 
 	virtual void onEnter() {}
 	virtual void onExit() {}
-};
 
-class ShapeButton : public Button {
-private:
-	int z;
+	struct Comparer {
+		bool operator()(const Button* lhs, const Button* rhs) {
+			if (lhs->z != rhs->z)
+				return lhs->z < rhs->z;
 
-public:
-	ShapeButton(Shape* shape, int z) : Button(shape), z(z) {}
-
-	int getZ() const { return z; }
-
-};
-
-class SpriteButton : public Button {
-private:
-	Sprite* sprite;
-
-public:
-	SpriteButton(Sprite* sprite) : Button(sprite), sprite(sprite) {}
-
-	int getZ() const { return sprite->getZ(); }
-
-	Sprite* getSprite() const { return sprite; }
-
+			return lhs < rhs;
+		}
+	};
 };
 
 }

@@ -23,6 +23,8 @@ std::queue<unsigned> deletedQueue;
 unsigned spriteCount = 0;
 unsigned spriteCapacity = 4;
 
+std::list<simpleGL::UnsortedSprite*> unsortedSprites;
+
 GLuint defaultVertexShader;
 
 GLuint defaultFragmentShader;
@@ -49,7 +51,7 @@ void util::bindQuadData(unsigned id, vboType::E type, Matrix model) {
 	int offset = 0;
 
 	for (int i = 0; i < SPRITE_VERTS; i++)
-		(model*quadVertex(i)).round().load(data, &offset);//TODO: change it
+		(model*quadVertex(i)).load(data, &offset);//TODO: change it
 
 	bindVboData(id, type, data);
 }
@@ -74,6 +76,11 @@ void util::initSprites() {
 
 	defaultFragmentShader = loadShaderSource(simpleShaderData::getDefaultFragment(), GL_FRAGMENT_SHADER);
 	emptyFragmentShader = loadShaderSource(simpleShaderData::getEmptyFragment(), GL_FRAGMENT_SHADER);
+}
+
+void util::bindSprites() {
+	for (UnsortedSprite* us : unsortedSprites)
+		us->bindData();
 }
 
 UnsortedSprite::UnsortedSprite(Point* parent, Texture texture, Anchor anchor, Vector position, Vector scale, Angle rotation, Color color)
@@ -118,6 +125,8 @@ UnsortedSprite::UnsortedSprite(Point* parent, Texture texture, Anchor anchor, Ve
 
 		spriteCapacity *= RESIZE_FACTOR;
 	}
+
+	unsortedSprites.push_back(this);
 }
 
 UnsortedSprite::~UnsortedSprite() {
@@ -128,6 +137,8 @@ UnsortedSprite::~UnsortedSprite() {
 	else
 		spriteCount--;
 	//TOTRY: check for redundant members of the queue.
+
+	unsortedSprites.remove(this);
 }
 
 void UnsortedSprite::setDefaultFragmentShader() {
@@ -135,15 +146,6 @@ void UnsortedSprite::setDefaultFragmentShader() {
 	else											fragmentShader = defaultFragmentShader;
 
 	defaultFrag = true;
-}
-
-void UnsortedSprite::setTexture(Texture tex) {
-	texture = tex;
-
-	if (getAnchor() != C)	updateOffset();
-	updateTexture();
-
-	if (defaultFrag) setDefaultFragmentShader();
 }
 
 void UnsortedSprite::bindVertices() {

@@ -7,6 +7,17 @@
 
 namespace simpleGL {
 
+class Change {
+private:
+	bool change {false};
+
+public:
+	bool get() const { return change; }
+	void set() { change = true; }
+	void reset() { change = false; }
+
+};
+
 class Point {
 private:
 	bool enabled {true};
@@ -22,7 +33,7 @@ private:
 
 	bool needUpdtModel {true};
 
-	bool changed {false};
+	std::list<Change> changes;
 
 	Matrix getRealModelMatrix() {
 		if (needUpdtModel) {
@@ -35,17 +46,23 @@ private:
 		return model;
 	}
 
-	void setChangeTrue() {
-		changed = true;
-		for (Point* child : children)
-			child->setChangeTrue();
+protected:
+	void setChanges() {
+		for (Change& ch : changes)
+			ch.set();
 	}
 
-protected:
-	virtual ~Point();
-	
+	virtual ~Point() {
+		parent->children.remove(this);
+		for (Point* child : children)
+			child->unload();
+	}
+
 public:
-	Point(Point* parent, Vector position, Vector scale, Angle rotation);
+	Point(Point* parent, Vector position, Vector scale, Angle rotation)
+		: parent(parent), position(position), scale(scale), rotation(rotation) {
+			if (parent) parent->children.push_back(this);
+		}
 	Point(Point* parent) : Point(parent, {}, {1}, {}) {}
 	Point() : Point(nullptr) {}
 
@@ -67,8 +84,7 @@ public:
 		return result;
 	}
 	virtual void setPosition(Vector pposition) {
-		if (position != pposition)
-			setChangeTrue();
+		if (position == pposition)	return;
 
 		position = pposition;
 
@@ -77,8 +93,7 @@ public:
 
 	Vector getScale() const { return scale; }
 	virtual void setScale(Vector pscale) {
-		if (scale != pscale)
-			setChangeTrue();
+		if (scale == pscale)	return;
 
 		scale = pscale;
 
@@ -92,8 +107,7 @@ public:
 		return result;
 	}
 	virtual void setRotation(Angle protation) {
-		if (rotation != protation)
-			setChangeTrue();
+		if (rotation == protation)	return;
 
 		rotation = protation;
 
@@ -106,8 +120,7 @@ public:
 
 	Point* getParent() const { return parent; }
 	void setParent(Point* obj) {
-		if (parent != obj)
-			setChangeTrue();
+		if (parent == obj)	return;
 
 		if (parent)	parent->children.remove(this);
 
@@ -122,9 +135,13 @@ public:
 
 	int getChildrenCount() const { return children.size(); }
 
-	bool getChanged() const { return changed; }
+	Change& getChange() {
+		changes.emplace_back();
+		return *(--changes.end());
+	}
 
 	virtual void updateModel() {
+		setChanges();
 		needUpdtModel = true;
 
 		for (Point* obj : children)
@@ -133,12 +150,6 @@ public:
 
 	void translate(Vector v) {
 		setPosition(getPosition() + v.rotate(rotation));
-
-		updateModel();
-	}
-
-	virtual void update() {
-		changed = false;
 	}
 
 	void unload() { delete this; }

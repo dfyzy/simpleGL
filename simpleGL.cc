@@ -25,6 +25,7 @@ double deltaTime = 0;
 
 std::function<void()> update;
 
+std::list<std::function<void()>> utilPreUpdates;
 std::list<std::function<void()>> utilUpdates;
 
 }
@@ -163,6 +164,10 @@ void setUpdate(std::function<void()> func) {
 	update = func;
 }
 
+void util::addPreUpdate(std::function<void()> updt) {
+	utilPreUpdates.push_back(updt);
+}
+
 void util::addUpdate(std::function<void()> updt) {
 	utilUpdates.push_back(updt);
 }
@@ -198,12 +203,15 @@ void draw() {
 
 		glfwPollEvents();
 
+		for (auto upu : utilPreUpdates)
+			upu();
+
 		if (update)	update();
 
 		for (auto uu : utilUpdates)
 			uu();
 
-		util::pointUpdate();
+		util::bindSprites();
 
 		glBindVertexArray(vao);
 

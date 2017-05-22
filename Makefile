@@ -9,7 +9,7 @@ LIBS = -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lpng16 -lz -lm -lf
 
 INCS = simpleGL.h glfw.h shader.h shaderData.h image.h texture.h color.h math.h matrix.h point.h shape.h unsortedSprite.h sprite.h \
  			camera.h cursor.h timer.h light.h font.h text.h
-OBJS = simpleGL.o shader.o shaderData.o image.o texture.o math.o matrix.o point.o unsortedSprite.o sprite.o \
+OBJS = simpleGL.o shader.o shaderData.o image.o texture.o math.o matrix.o unsortedSprite.o sprite.o \
 			camera.o cursor.o timer.o light.o font.o text.o
 
 %.o: %.cc

@@ -26,6 +26,14 @@ public:
 
 	void bind();
 
+	bool operator==(const Texture& t) const {
+		return image == t.image && position == t.position && bounds == t.bounds;
+	}
+
+	bool operator!=(const Texture& t) const {
+		return !operator==(t);
+	}
+
 };
 
 }
