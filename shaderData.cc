@@ -1,6 +1,8 @@
 #include "shaderData.h"
 
-namespace simpleShaderData {
+namespace simpleGL {
+
+namespace shaderData {
 
 std::string getVertex() {
 	return std::string("#version 430 core\n"
@@ -137,6 +139,8 @@ std::string getLightingPow2Fragment() {
 	"void main() {\n"
 	"	fColor = (1 - pow(2*length((centre - vPosition)/bounds), 2))*vColor;\n"
 	"}");
+}
+
 }
 
 }

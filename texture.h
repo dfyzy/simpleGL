@@ -21,8 +21,10 @@ public:
 	Image* getImage() const { return image; }
 
 	Vector getPosition() const { return position; }
+	void setPosition(Vector v) { position = v; }
 
 	Vector getBounds() const { return bounds; }
+	void setBounds(Vector v) { bounds = v; }
 
 	void bind();
 

@@ -10,7 +10,13 @@ namespace {
 
 std::set<simpleGL::Button*, simpleGL::Button::Comparer> buttons;
 
-std::list<std::pair<simpleGL::Button*, bool>> clicked[simpleGL::Cursor::BUTTONS_MAX];
+struct Press {
+	simpleGL::Button* button;
+	bool dragging;
+	simpleGL::Vector position;
+};
+
+std::list<Press> presses[simpleGL::Cursor::BUTTONS_MAX];
 
 }
 
@@ -34,19 +40,24 @@ Cursor* Cursor::getInstance() {
 void Cursor::updatePosition() {
 	if (instance->changed() && instance->posCallback) instance->posCallback(instance);
 
-	std::list<std::pair<std::pair<Button*, bool>*, int>> drag;
+	std::list<std::pair<Press*, int>> drag;
 
 	for (int i = 0; i < Cursor::BUTTONS_MAX; i++)
-		for (std::pair<Button*, bool>& cl : clicked[i])
-			if (instance->changed() || cl.first->changed())
+		for (Press& cl : presses[i])
+			if (instance->changed() || cl.button->changed())
 				drag.push_back({&cl, i});
 
-	for (std::pair<std::pair<Button*, bool>*, int> dr : drag) {
-		if (!dr.first->second)
-			dr.first->first->onDragStart(dr.second);
+	for (std::pair<Press*, int> dr : drag) {
+		if (!dr.first->dragging) {
+			if (((dr.first->button->getShape()->getModelMatrix().inv()*instance->getRealPosition())
+					- dr.first->position).length() < dr.first->button->getDragBound())
+						continue;
 
-		dr.first->first->onDrag(dr.second);
-		dr.first->second = true;
+			dr.first->button->onDragStart(dr.second);
+		}
+
+		dr.first->button->onDrag(dr.second);
+		dr.first->dragging = true;
 	}
 
 	bool notBlocked {true};
@@ -88,22 +99,22 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 	for (Button* b : on)
 		if (pressed) {
 			b->onPress(mButton);
-			clicked[mButton].push_back({b, false});
+			presses[mButton].push_back({b, false, b->getShape()->getModelMatrix().inv()*instance->getRealPosition()});
 		} else {
 			b->onRelease(mButton);
 
-			for (std::pair<Button*, bool>& cl : clicked[mButton])
-				if (b == cl.first) {
-					if (!cl.second)	b->onClick(mButton);
+			for (Press& cl : presses[mButton])
+				if (b == cl.button) {
+					if (!cl.dragging)	b->onClick(mButton);
 					break;
 				}
 		}
 
 	if (!pressed) {
-		for (std::pair<Button*, bool>& cl : clicked[mButton])
-			if (cl.second)	cl.first->onDragEnd(mButton);
+		for (Press& cl : presses[mButton])
+			if (cl.dragging)	cl.button->onDragEnd(mButton);
 
-		clicked[mButton].clear();
+		presses[mButton].clear();
 	}
 
 	if (instance->buttCallback)	instance->buttCallback(instance, mButton, pressed);
@@ -135,9 +146,9 @@ Button::~Button() {
 
 	buttons.erase(this);
 	for (int i = 0; i < simpleGL::Cursor::BUTTONS_MAX; i++)
-		for (auto it = clicked[i].begin(); it != clicked[i].end(); it++)
-			if (it->first == this) {
-				clicked[i].erase(it);
+		for (auto it = presses[i].begin(); it != presses[i].end(); it++)
+			if (it->button == this) {
+				presses[i].erase(it);
 				break;
 			}
 }

@@ -51,7 +51,9 @@ void util::bindQuadData(unsigned id, vboType::E type, Matrix model) {
 	int offset = 0;
 
 	for (int i = 0; i < SPRITE_VERTS; i++)
-		(model*quadVertex(i)).load(data, &offset);//TODO: change it
+		(model*quadVertex(i))
+			//.round()//TODO: change it
+				.load(data, &offset);
 
 	bindVboData(id, type, data);
 }
@@ -72,10 +74,10 @@ void util::initSprites() {
 		glEnableVertexAttribArray(i);
 	}
 
-	defaultVertexShader = loadShaderSource(simpleShaderData::getVertex(), GL_VERTEX_SHADER);
+	defaultVertexShader = loadShaderSource(shaderData::getVertex(), GL_VERTEX_SHADER);
 
-	defaultFragmentShader = loadShaderSource(simpleShaderData::getDefaultFragment(), GL_FRAGMENT_SHADER);
-	emptyFragmentShader = loadShaderSource(simpleShaderData::getEmptyFragment(), GL_FRAGMENT_SHADER);
+	defaultFragmentShader = loadShaderSource(shaderData::getDefaultFragment(), GL_FRAGMENT_SHADER);
+	emptyFragmentShader = loadShaderSource(shaderData::getEmptyFragment(), GL_FRAGMENT_SHADER);
 }
 
 void util::bindSprites() {

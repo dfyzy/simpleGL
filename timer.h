@@ -4,7 +4,6 @@
 #include <functional>
 
 #include "simpleGL.h"
-#include "math.h"
 
 namespace simpleGL {
 
@@ -148,7 +147,7 @@ protected:
 		if (SetterTimer<Object, Value>::step()) return true;
 
 		(SetterTimer<Object, Value>::object->*SetterTimer<Object, Value>::set)(
-			lerp(SetterTimer<Object, Value>::iterator->getPast()->value,
+			math::lerp(SetterTimer<Object, Value>::iterator->getPast()->value,
 					SetterTimer<Object, Value>::iterator->getFuture()->value,
 						SetterTimer<Object, Value>::cursor/SetterTimer<Object, Value>::iterator->get()->duration)
 		);

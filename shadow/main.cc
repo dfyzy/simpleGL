@@ -20,7 +20,7 @@ void update() {
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 		Camera::getInstance()->setScale(Camera::getInstance()->getScale() + 0.01f);
 	}
-	
+
 }
 
 int main() {
@@ -28,9 +28,9 @@ int main() {
 
 	glfwSetKeyCallback(window, keyCallback);
 
-	Light* light = new Light(nullptr, {}, -1, getWindowWidth(), getWindowHeight(), {0});
-	lamp = new Light::Source(light, Cursor::getInstance(), {}, {1000}, 0, {0.65f, 0.65f, 0.5f});
-	lamp->setFragmentShader(loadShaderSource(simpleShaderData::getLightingPow2Fragment(), GL_FRAGMENT_SHADER));
+	Light* light = new Light(nullptr, Light::C, {}, -1, getWindowWidth(), getWindowHeight(), {0});
+	lamp = new Light::Source(light, Cursor::getInstance(), Light::C, {}, {1000}, 0, {0.65f, 0.65f, 0.5f});
+	lamp->setFragmentShader(loadShaderSource(shaderData::getLightingPow2Fragment(), GL_FRAGMENT_SHADER));
 
 	setUpdate(update);
 

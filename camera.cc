@@ -40,8 +40,8 @@ Camera* Camera::getInstance() {
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, image->getId(), 0);
 
 		instance = new Camera(image);
-		instance->setVertexShader(loadShaderSource(simpleShaderData::getOverlayVertex(), GL_VERTEX_SHADER));
-		instance->setFragmentShader(loadShaderSource(simpleShaderData::getOverlayFragment(), GL_FRAGMENT_SHADER));
+		instance->setVertexShader(loadShaderSource(shaderData::getOverlayVertex(), GL_VERTEX_SHADER));
+		instance->setFragmentShader(loadShaderSource(shaderData::getOverlayFragment(), GL_FRAGMENT_SHADER));
 	}
 
 	return instance;

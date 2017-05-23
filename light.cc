@@ -9,7 +9,7 @@ GLuint Light::Source::lightingFragmentShader = 0;
 
 GLuint Light::Source::getDefaultFragment() {
 	if (lightingFragmentShader == 0)
-		lightingFragmentShader = loadShaderSource(simpleShaderData::getLightingDefaultFragment(), GL_FRAGMENT_SHADER);
+		lightingFragmentShader = loadShaderSource(shaderData::getLightingDefaultFragment(), GL_FRAGMENT_SHADER);
 
 	return lightingFragmentShader;
 }

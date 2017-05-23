@@ -3,7 +3,9 @@
 
 #include <string>
 
-namespace simpleShaderData {
+namespace simpleGL {
+
+namespace shaderData {
 
 std::string getVertex();
 
@@ -16,6 +18,8 @@ std::string getOverlayFragment();
 
 std::string getLightingDefaultFragment();
 std::string getLightingPow2Fragment();
+
+}
 
 }
 

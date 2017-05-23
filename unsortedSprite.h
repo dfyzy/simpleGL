@@ -52,6 +52,23 @@ public:
 		if (defaultFrag) setDefaultFragmentShader();
 	}
 
+	void setTexturePosition(Vector v) {
+		if (texture.getPosition() == v)	return;
+
+		texture.setPosition(v);
+
+		updateTexture();
+	}
+
+	void setTextureBounds(Vector v) {
+		if (texture.getBounds() == v)	return;
+
+		texture.setBounds(v);
+
+		if (getAnchor() != C)	updateOffset();
+		updateTexture();
+	}
+
 	Vector getBounds() const { return texture.getBounds(); }
 
 	Color getColor() const { return color; }

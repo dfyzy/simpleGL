@@ -15,7 +15,7 @@ GLuint Text::textFragmentShader = 0;
 
 GLuint Text::getDefaultFragment() {
 	if (textFragmentShader == 0)
-		textFragmentShader = loadShaderSource(simpleShaderData::getTextFragment(), GL_FRAGMENT_SHADER);
+		textFragmentShader = loadShaderSource(shaderData::getTextFragment(), GL_FRAGMENT_SHADER);
 
 	return textFragmentShader;
 }

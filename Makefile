@@ -1,4 +1,4 @@
-prefix ?= C:/msys64/mingw64/
+prefix ?= C:/msys64/mingw32/
 
 INCPATH = $(prefix)/include
 LIBPATH = $(prefix)/lib
@@ -29,3 +29,6 @@ install: $(INCS) $(INCPATH)/simpleGL
 	g++ $(CPPFLAGS) -o $(*F) $(*F)/main.cc -lsimpleGL $(LIBS)
 
 all: static install
+
+clean:
+	rm -f *.o *.exe

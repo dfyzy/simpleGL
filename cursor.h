@@ -60,6 +60,8 @@ private:
 	bool on {false};
 	bool entered {false};
 
+	float dragBound {8};
+
 public:
 	Button(Shape* shape, int z);
 	Button(Sprite* sprite) : Button(sprite, sprite->getZ()) {}
@@ -75,6 +77,9 @@ public:
 
 	int getZ() const { return z; }
 	void setZ(int i);
+
+	float getDragBound() const { return dragBound; }
+	void setDragBound(float f) { dragBound = f; }
 
 	bool isEntered() {
 		if (Cursor::getInstance()->changed() || changed())

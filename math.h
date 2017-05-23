@@ -205,6 +205,8 @@ public:
 
 };
 
+namespace math {
+
 inline float distance(Vector lhs, Vector rhs) {
 	return (lhs - rhs).length();
 }
@@ -212,6 +214,8 @@ inline float distance(Vector lhs, Vector rhs) {
 template <typename T>
 inline T lerp(T lhs, T rhs, float t) {
 	return lhs*(1 - t) + rhs*t;
+}
+
 }
 
 }

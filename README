@@ -3,6 +3,7 @@ Using OpenGL, GLFW, GLEW, libpng and FreeType
 You can draw stuff now.
 
 TODO:
+-Unloading buttons
 -Fullscreen stuttering(vsync and maybe refresh rate)
 -Vertex data rounding
 -Trigger sprites
