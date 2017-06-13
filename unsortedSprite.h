@@ -28,6 +28,8 @@ private:
 	GLenum stencilOp {GL_KEEP};
 	GLint stencilRef {0};
 
+	GLint getStencil();
+
 protected:
 	virtual void bindVertices();
 	virtual void bindTexture();
@@ -101,9 +103,16 @@ public:
 	}
 	void updateColor() { needUpdtColor = true; }
 
-	void mask() { stencilFunc = GL_ALWAYS; stencilOp = GL_REPLACE; stencilRef = id; }
-	void setMask(UnsortedSprite* spr) { stencilFunc = GL_EQUAL; stencilRef = spr->id; }
-	void unmask() { stencilFunc = GL_ALWAYS; stencilOp = GL_KEEP; }
+	void setStencil(UnsortedSprite* spr) {
+		setMask(spr);
+
+		if (spr) {
+			stencilFunc = GL_EQUAL;
+			stencilRef = spr->getStencil();
+		} else {
+			stencilFunc = GL_ALWAYS;
+		}
+	}
 
 	void bindData() {
 		if (needUpdtTexture) {

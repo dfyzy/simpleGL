@@ -9,7 +9,7 @@ bool AbstractTimer::firstConst = true;
 void AbstractTimer::update() {
 	for (AbstractTimer* timer : timers)
 		timer->step();
-		
+
 }
 
 AbstractTimer::AbstractTimer() {

@@ -5,6 +5,8 @@
 
 namespace simpleGL {
 
+constexpr int SAMPLES_NUM = 4;
+
 Camera* Camera::instance = nullptr;
 GLuint Camera::msaaFbo = 0;
 GLuint Camera::rectFbo = 0;
@@ -21,7 +23,7 @@ Camera* Camera::getInstance() {
 		glBindRenderbuffer(GL_RENDERBUFFER, rendRGB);
 
 		//TODO: proper internal formats.
-		glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_RGB, getWindowWidth(), getWindowHeight());
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, SAMPLES_NUM, GL_RGB, getWindowWidth(), getWindowHeight());
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rendRGB);
 
 
@@ -30,7 +32,7 @@ Camera* Camera::getInstance() {
 		glBindRenderbuffer(GL_RENDERBUFFER, rendStenc);
 
 		//NOTE:	GL_STENCIL_INDEX8 isn't supported on OpenGL less than 4.3 or without ARB_ES3_compatibility or ARB_texture_stencil8 extensions.
-		glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_STENCIL_INDEX8, getWindowWidth(), getWindowHeight());
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, SAMPLES_NUM, GL_STENCIL_INDEX8, getWindowWidth(), getWindowHeight());
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rendStenc);
 
 		glGenFramebuffers(1, &rectFbo);

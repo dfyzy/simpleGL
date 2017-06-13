@@ -134,7 +134,7 @@ bool Cursor::getMouseButton(int button) const {
 	return mouseButtons[button];
 }
 
-Button::Button(Shape* shape, int z) : shape(shape), change(shape->getChange()), z(z) {
+Button::Button(Shape* shape, int z) : Point::Component(shape), shape(shape), change(shape->getChange()), z(z) {
 	util::print("Button:load");
 
 	Cursor::getInstance();

@@ -1,11 +1,11 @@
-prefix ?= C:/msys64/mingw32/
+prefix ?= C:/msys64/mingw64
 
 INCPATH = $(prefix)/include
 LIBPATH = $(prefix)/lib
 
 CPPFLAGS = -std=gnu++11 -Wall -O2 -static-libgcc -static-libstdc++
 
-LIBS = -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lpng16 -lz -lm -lfreetype
+LIBS = -Wl,-Bstatic -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lpng16 -lz -lm -Wl,-Bdynamic -lfreetype
 
 INCS = simpleGL.h glfw.h shader.h shaderData.h image.h texture.h color.h math.h matrix.h point.h shape.h unsortedSprite.h sprite.h \
  			camera.h cursor.h timer.h light.h font.h text.h
@@ -31,4 +31,4 @@ install: $(INCS) $(INCPATH)/simpleGL
 all: static install
 
 clean:
-	rm -f *.o *.exe
+	rm -f *.o *.exe libsimpleGL.a

@@ -30,6 +30,8 @@ GLuint defaultVertexShader;
 GLuint defaultFragmentShader;
 GLuint emptyFragmentShader;
 
+GLint stencilCount {0};
+
 }
 
 namespace simpleGL {
@@ -51,9 +53,7 @@ void util::bindQuadData(unsigned id, vboType::E type, Matrix model) {
 	int offset = 0;
 
 	for (int i = 0; i < SPRITE_VERTS; i++)
-		(model*quadVertex(i))
-			//.round()//TODO: change it
-				.load(data, &offset);
+		(model*quadVertex(i)).load(data, &offset);
 
 	bindVboData(id, type, data);
 }
@@ -87,7 +87,7 @@ void util::bindSprites() {
 
 UnsortedSprite::UnsortedSprite(Point* parent, Texture texture, Anchor anchor, Vector position, Vector scale, Angle rotation, Color color)
 							: BaseBoxShape(parent, anchor, position, scale, rotation), texture(texture), color(color) {
-	util::print("UnsortedSprite:load");
+	//util::print("UnsortedSprite:load");
 
 	vertexShader = defaultVertexShader;
 	setDefaultFragmentShader();
@@ -132,7 +132,7 @@ UnsortedSprite::UnsortedSprite(Point* parent, Texture texture, Anchor anchor, Ve
 }
 
 UnsortedSprite::~UnsortedSprite() {
-	util::print("UnsortedSprite:unload");
+	//util::print("UnsortedSprite:unload");
 
 	if (id < spriteCount - 1)
 		deletedQueue.push(id);
@@ -148,6 +148,16 @@ void UnsortedSprite::setDefaultFragmentShader() {
 	else											fragmentShader = defaultFragmentShader;
 
 	defaultFrag = true;
+}
+
+GLint UnsortedSprite::getStencil() {
+	if (stencilOp == GL_KEEP) {
+		stencilFunc = GL_ALWAYS;
+		stencilOp = GL_REPLACE;
+		stencilRef = ++stencilCount;
+	}
+
+	return stencilRef;
 }
 
 void UnsortedSprite::bindVertices() {

@@ -15,10 +15,14 @@ protected:
 
 	virtual bool step() =0;
 
+public:
 	AbstractTimer();
 
-public:
 	~AbstractTimer() { timers.remove(this); }
+
+	virtual bool isPlaying() const =0;
+
+	virtual void play(bool invert) =0;
 
 };
 
@@ -110,6 +114,8 @@ public:
 		first = new Interval(new TimePoint(firstV));
 	}
 
+	bool isPlaying() const { return playing; }
+
 	void play(bool invert) {
 		if (last == nullptr)	return;
 
@@ -122,8 +128,6 @@ public:
 
 		(object->*set)(iterator->getPast()->value);
 	}
-
-	void play() { play(false); }
 
 	void add(double duration, Value value) {
 		if (duration < 0)	return;

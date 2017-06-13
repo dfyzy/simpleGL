@@ -46,7 +46,7 @@ void cursorPosCallback(Cursor* instance) {
 }
 
 void mouseButtonCallback(Cursor* instance, int button, bool pressed) {
-	if (pressed)	timer->play();
+	if (pressed)	timer->play(false);
 }
 
 void update() {
@@ -89,7 +89,6 @@ int main() {
 	new Light::Source(dark, nullptr, Sprite::C, Vector(0, -200) + Vector(-25), {100}, 0, {0, 0.5f, 0});
 
 	Sprite* back = new Sprite(Sprite::Data({300}).z(5).rotation(0.25f*3.1415927f));
-	back->mask();
 	new CustomButton(back);
 
 	setUpdate(update);
@@ -98,7 +97,7 @@ int main() {
 	Cursor::getInstance()->setMouseButtonCallback(mouseButtonCallback);
 
 	Sprite* red = new Sprite(Sprite::Data({50}).parent(Cursor::getInstance()).z(-50).color({1, 0, 0}));
-	red->setMask(back);
+	red->setStencil(back);
 	timer = new LerpTimer<Sprite, Vector>(red, Sprite::setPosition, {});
 	timer->add(0.1, {50, 0});
 	timer->add(0.1, {0, 50});

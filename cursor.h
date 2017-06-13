@@ -25,7 +25,7 @@ private:
 	std::function<void(Cursor*)> posCallback;
 	std::function<void(Cursor*, int, bool)> buttCallback;
 
-	Change& change;
+	Point::Change& change;
 
 	//TODO: custom cursor images
 	void bindVertices() {}
@@ -47,10 +47,10 @@ public:
 
 };
 
-class Button {
+class Button : public Point::Component {
 private:
 	Shape* shape;
-	Change& change;
+	Point::Change& change;
 
 	bool opaque {true};
 
@@ -62,11 +62,12 @@ private:
 
 	float dragBound {8};
 
+protected:
+	~Button();
+
 public:
 	Button(Shape* shape, int z);
 	Button(Sprite* sprite) : Button(sprite, sprite->getZ()) {}
-
-	~Button();
 
 	Shape* getShape() const { return shape; }
 

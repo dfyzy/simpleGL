@@ -7,18 +7,30 @@
 
 namespace simpleGL {
 
-class Change {
-private:
-	bool change {false};
-
-public:
-	bool get() const { return change; }
-	void set() { change = true; }
-	void reset() { change = false; }
-
-};
-
 class Point {
+public:
+	class Component {
+	protected:
+		virtual ~Component() {}
+
+	public:
+		Component(Point* p) { p->components.push_back(this); }
+
+		void unload() { delete this; }
+
+	};
+
+	class Change {
+	private:
+		bool change {false};
+
+	public:
+		bool get() const { return change; }
+		void set() { change = true; }
+		void reset() { change = false; }
+
+	};
+
 private:
 	bool enabled {true};
 
@@ -30,8 +42,9 @@ private:
 	Angle rotation;
 
 	Matrix model;
-
 	bool needUpdtModel {true};
+
+	std::list<Component*> components;
 
 	std::list<Change> changes;
 
@@ -53,6 +66,9 @@ protected:
 	}
 
 	virtual ~Point() {
+		for (Component* c : components)
+			c->unload();
+
 		parent->children.remove(this);
 		for (Point* child : children)
 			child->unload();

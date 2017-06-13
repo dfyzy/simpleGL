@@ -28,7 +28,7 @@ std::string getVertex() {
 	"	vTexture = inTexture;\n"
 	"	vColor = inColor;\n"
 
-	"	gl_Position = vec4(dynamic.view * vec3(inPosition, 1), 1);\n"
+	"	gl_Position = vec4(round(dynamic.view * vec3(inPosition, 1)), 1);\n"
 	"	gl_Position.xy /= dynamic.resolution.y/2;\n"
 	"	gl_Position.x *= dynamic.resolution.y/dynamic.resolution.x;\n"
 	"}");
@@ -46,7 +46,9 @@ std::string getDefaultFragment() {
 	"uniform sampler2DRect text;\n"
 
 	"void main() {\n"
-	"	fColor = texture(text, vTexture) * vColor;\n"
+	"	vec4 color = texture(text, vTexture) * vColor;\n"
+	"	if (color.a <= 0)	discard;"
+	"	fColor = color;\n"
 	"}");
 }
 

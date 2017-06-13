@@ -6,6 +6,9 @@
 namespace simpleGL {
 
 class Shape : public Point {
+private:
+	Shape* mask {nullptr};
+
 protected:
 	virtual bool isInside(Vector v) const =0;
 
@@ -14,10 +17,13 @@ protected:
 public:
 	Shape(Point* parent, Vector position, Vector scale, Angle rotation) : Point(parent, position, scale, rotation) {}
 
+	Shape* getMask() const { return mask; }
+	void setMask(Shape* shape) { mask = shape; }
+
 	bool inBounds(Vector v) {
 		if (!isEnabled())	return false;
 
-		return isInside(getModelMatrix().inv() * v);
+		return (mask == nullptr || mask->inBounds(v)) && isInside(getModelMatrix().inv() * v);
 	}
 
 };
