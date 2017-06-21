@@ -15,14 +15,45 @@ struct dynUniform {
 };
 int dynUniform::sizes[COUNT] {12, 2};//if adding new - change 2 to 4.
 
+simpleGL::Matrix viewMatrix;
+
+unsigned resWidth;
+unsigned resHeight;
+
 GLuint pipeline;
 
 GLuint currentVertex {0};
 GLuint currentFragment {0};
 
+GLuint defaultVertexShader {0};
+
+GLuint defaultFragmentShader {0};
+GLuint emptyFragmentShader {0};
+
 }
 
 namespace simpleGL {
+
+GLuint getDefaultVertexShader() {
+	if (defaultVertexShader == 0)
+		defaultVertexShader = loadShaderSource(shaderData::getVertex(), GL_VERTEX_SHADER);
+
+	return defaultVertexShader;
+}
+
+GLuint getDefaultFragmentShader(bool empty) {
+	if (empty) {
+		if (emptyFragmentShader == 0)
+			emptyFragmentShader = loadShaderSource(shaderData::getEmptyFragment(), GL_FRAGMENT_SHADER);
+
+		return emptyFragmentShader;
+	} else {
+		if (defaultFragmentShader == 0)
+			defaultFragmentShader = loadShaderSource(shaderData::getDefaultFragment(), GL_FRAGMENT_SHADER);
+
+		return defaultFragmentShader;
+	}
+}
 
 void setUniform(float* data, dynUniform::E type) {
 	int offset = 0;
@@ -45,16 +76,26 @@ void util::useShaders(GLuint vertex, GLuint fragment) {
 }
 
 void util::setResolution(unsigned width, unsigned height) {
+	resWidth = width;
+	resHeight = height;
+
 	float data[] {(float)width, (float)height};
 
 	setUniform(data, dynUniform::RESOLUTION);
+	glViewport(0, 0, width, height);
 }
 
-void util::setDefaultResolution() {
-	setResolution(getWindowWidth(), getWindowHeight());
+unsigned util::getResWidth() {
+	return resWidth;
 }
 
-void util::setCameraData(Matrix view) {
+unsigned util::getResHeight() {
+	return resHeight;
+}
+
+void util::setViewMatrix(Matrix view) {
+	viewMatrix = view;
+
 	Matrix m = view.inv();
 	//transposing and padding
 	float data[] {m.get(0, 0),		m.get(1, 0),	m.get(2, 0), 0,
@@ -62,6 +103,10 @@ void util::setCameraData(Matrix view) {
 						m.get(0, 2),	m.get(1, 2),	m.get(2, 2), 0};
 
 	setUniform(data, dynUniform::CAMERA);
+}
+
+Matrix util::getViewMatrix() {
+	return viewMatrix;
 }
 
 inline void printInfoLog(GLuint program) {
@@ -88,7 +133,7 @@ void util::initShaders() {
 	int size = 0;
 	for (int i = 0; i < dynUniform::COUNT; i++)	size += dynUniform::sizes[i];
 	glBufferData(GL_UNIFORM_BUFFER, size*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-	setDefaultResolution();
+	setResolution(getWindowWidth(), getWindowHeight());
 }
 
 GLuint loadShaderSource(std::string source, GLenum type) {

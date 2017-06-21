@@ -7,10 +7,10 @@ CPPFLAGS = -std=gnu++11 -Wall -O2 -static-libgcc -static-libstdc++
 
 LIBS = -Wl,-Bstatic -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lpng16 -lz -lm -Wl,-Bdynamic -lfreetype
 
-INCS = simpleGL.h glfw.h shader.h shaderData.h image.h texture.h color.h math.h matrix.h point.h shape.h unsortedSprite.h sprite.h \
- 			camera.h cursor.h timer.h light.h font.h text.h
-OBJS = simpleGL.o shader.o shaderData.o image.o texture.o math.o matrix.o unsortedSprite.o sprite.o \
-			camera.o cursor.o timer.o light.o font.o text.o
+INCS = simpleGL.h glfw.h shader.h shaderData.h image.h texture.h color.h math.h matrix.h point.h shape.h drawObject.h unsortedSprite.h \
+			sprite.h camera.h cursor.h timer.h framebuffer.h lighting.h font.h text.h
+OBJS = simpleGL.o shader.o shaderData.o image.o texture.o math.o matrix.o drawObject.o unsortedSprite.o \
+			sprite.o camera.o cursor.o timer.o framebuffer.o lighting.o font.o text.o
 
 %.o: %.cc
 	g++ -DDEBUG -DFPS_COUNTER $(CPPFLAGS) -c $<

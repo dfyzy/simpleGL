@@ -101,7 +101,7 @@ inline void createWindow(const char* title, GLFWmonitor* monitor, Color backgrou
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	util::initSprites();
+	util::initDataBuffers();
 }
 
 GLFWwindow* createFullscreenWindow(const char* title, bool borderless, Color background) {

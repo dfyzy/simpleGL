@@ -89,7 +89,13 @@ public:
 		if (parent)	res &= parent->isEnabled();
 		return res;
 	}
-	void setEnabled(bool b) { enabled = b; }
+	void setEnabled(bool b) {
+		if (b == enabled) return;
+
+		enabled = b;
+
+		setChanges();
+	}
 
 	Vector getPosition() const { return position; }
 	Vector getRealPosition() const {
@@ -151,9 +157,9 @@ public:
 
 	int getChildrenCount() const { return children.size(); }
 
-	Change& getChange() {
+	Change* getChange() {
 		changes.emplace_back();
-		return *(--changes.end());
+		return &*(--changes.end());
 	}
 
 	virtual void updateModel() {

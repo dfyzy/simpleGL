@@ -14,7 +14,7 @@ private:
 	void bindVertices();
 	void bindTexture();
 
-	Camera(Texture texture) : UnsortedSprite(nullptr, texture, {C}, {}, {1}, 0, {1}) {}
+	Camera(Texture texture) : UnsortedSprite(nullptr, texture, {Center}, {}, {1}, 0, {1}) {}
 	~Camera() {}
 
 public:

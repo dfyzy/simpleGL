@@ -16,8 +16,8 @@ int main() {
 
 	Image* circle = new Image("circle/circle.png", GL_NEAREST);
 	Texture texCircle(circle);
-	new Sprite(Sprite::Data(texCircle).position({-30, 0}));
-	new Sprite(Sprite::Data(texCircle).position({30.5, 0.5}));
+	new Sprite(Data(texCircle).position({-30, 0}));
+	new Sprite(Data(texCircle).position({30.5, 0.5}));
 
 	draw();
 }

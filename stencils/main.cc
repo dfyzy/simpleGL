@@ -85,12 +85,12 @@ int main() {
 
 	for (int i = 0; i < 4; i++) {
 		Color c{colorRand(), colorRand(), colorRand()};
-		Sprite* back = new Sprite(Sprite::Data(st).parent(anchor).position(Vector(H_H_WIN_SIZE) * offsets[i]).color(c));
+		Sprite* back = new Sprite(Data(st).parent(anchor).position(Vector(H_H_WIN_SIZE) * offsets[i]).color(c));
 
 		Point* par = new Point(nullptr, {}, {1}, angles[i]);
 
 		for (int j = 0; j < SPRITES_NUM; j++) {
-			Sprite* sprite = new Sprite(Sprite::Data(st).parent(par).position({posRand(), posRand()})
+			Sprite* sprite = new Sprite(Data(st).parent(par).position({posRand(), posRand()})
 																		.scale({scaleRand()}).color(Color(1) - c));
 			sprite->setStencil(back);
 			sprites[j + i*SPRITES_NUM] = {sprite, speedRand()};

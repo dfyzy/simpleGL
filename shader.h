@@ -8,8 +8,10 @@
 namespace simpleGL {
 
 GLuint loadShaderSource(std::string source, GLenum type);
-
 GLuint loadShaderPath(std::string path, GLenum type);
+
+GLuint getDefaultVertexShader();
+GLuint getDefaultFragmentShader(bool empty);
 
 }
 

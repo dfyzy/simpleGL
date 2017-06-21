@@ -118,7 +118,7 @@ void Text::addCaption(std::string string) {
 			Vector position = Vector(offset, -height) + glyph->offset;
 
 			if (cursorSpr == sprites.end()) {
-				Sprite* spr = new Sprite(Sprite::Data(glyph->texture).anchor(Sprite::UL).parent(this).position(position).z(z).color(color));
+				Sprite* spr = new Sprite(glyph->texture, Data().anchor(TopLeft).parent(this).position(position).color(color), z);
 				spr->setFragmentShader(getDefaultFragment());
 				sprites.push_back(spr);
 

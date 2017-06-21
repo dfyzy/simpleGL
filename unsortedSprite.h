@@ -2,14 +2,32 @@
 #define SIMPLE_UNSORTED_SPRITE_H
 
 #include "shape.h"
-#include "color.h"
-#include "texture.h"
+#include "drawObject.h"
+#include "shader.h"
 
 namespace simpleGL {
 
+struct Data {
+	Point* pparent {nullptr};
+	Anchor panchor{Center};
+	Vector pposition;
+	Vector pscale{1};
+	Angle protation;
+	Color pcolor{1};
+
+	Data() {}
+
+	Data& parent(Point* p) { pparent = p; return *this; }
+	Data& anchor(Anchor a) { panchor = a; return *this; }
+	Data& position(Vector sv) { pposition = sv; return *this; }
+	Data& scale(Vector sv) { pscale = sv; return *this; }
+	Data& rotation(Angle f) { protation = f; return *this; }
+	Data& color(Color sc) { pcolor = sc; return *this; }
+};
+
 class UnsortedSprite  : public BaseBoxShape {
 private:
-	unsigned id;
+	DrawObject* drawObject;
 
 	Texture texture;
 
@@ -31,6 +49,8 @@ private:
 	GLint getStencil();
 
 protected:
+	DrawObject* getDrawObject() const { return drawObject; }
+
 	virtual void bindVertices();
 	virtual void bindTexture();
 	virtual void bindColor();
@@ -40,7 +60,10 @@ protected:
 public:
 	UnsortedSprite(Point* parent, Texture texture, Anchor anchor, Vector position, Vector scale, Angle rotation, Color color);
 
-	unsigned getId() const { return id; }
+	UnsortedSprite(Texture t, Data d) : UnsortedSprite(d.pparent, t, d.panchor, d.pposition, d.pscale, d.protation, d.pcolor) {}
+	UnsortedSprite(Texture t) : UnsortedSprite(t, {}) {}
+
+	unsigned getId() const { return drawObject->getId(); }
 
 	Texture getTexture() const { return texture; }
 	virtual void setTexture(Texture tex) {
@@ -48,7 +71,7 @@ public:
 
 		texture = tex;
 
-		if (getAnchor() != C)	updateOffset();
+		if (getAnchor() != Center)	updateOffset();
 		updateTexture();
 
 		if (defaultFrag) setDefaultFragmentShader();
@@ -67,7 +90,7 @@ public:
 
 		texture.setBounds(v);
 
-		if (getAnchor() != C)	updateOffset();
+		if (getAnchor() != Center)	updateOffset();
 		updateTexture();
 	}
 
@@ -88,7 +111,11 @@ public:
 	GLuint getFragmentShader() const { return fragmentShader; }
 	virtual void setFragmentShader(GLuint sh) { fragmentShader = sh; defaultFrag = false; }
 
-	void setDefaultFragmentShader();
+	void setDefaultFragmentShader() {
+		fragmentShader = getDefaultFragmentShader(texture.getImage() == nullptr);
+
+		defaultFrag = true;
+	}
 
 	void updateModel() {
 		needUpdtVertices = true;

@@ -2,6 +2,7 @@
 #define SIMPLE_TEXTURE_H
 
 #include "image.h"
+#include "matrix.h"
 
 namespace simpleGL {
 
@@ -25,6 +26,10 @@ public:
 
 	Vector getBounds() const { return bounds; }
 	void setBounds(Vector v) { bounds = v; }
+
+	Matrix getMatrix() const {
+		return Matrix::translate(position + bounds*0.5f) * Matrix::scale(bounds);
+	}
 
 	void bind();
 

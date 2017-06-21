@@ -34,8 +34,7 @@ void util::drawSprites() {
 	glEnable(GL_BLEND);
 }
 
-Sprite::Sprite(Point* parent, Texture texture, Anchor anchor, Vector position, int z, Vector scale, Angle rotation, Color color)
-					: UnsortedSprite(parent, texture, anchor, position, scale, rotation, color), z(z) {
+Sprite::Sprite(Texture t, Data d, int z) : UnsortedSprite(t, d), z(z) {
 	sprites.insert(this);
 }
 

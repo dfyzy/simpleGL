@@ -3,6 +3,12 @@
 #include "util.h"
 #include "shaderData.h"
 
+namespace {
+
+GLuint currentFbo;
+
+}
+
 namespace simpleGL {
 
 constexpr int SAMPLES_NUM = 4;
@@ -11,12 +17,22 @@ Camera* Camera::instance = nullptr;
 GLuint Camera::msaaFbo = 0;
 GLuint Camera::rectFbo = 0;
 
+void util::setFbo(GLuint fbo) {
+	currentFbo = fbo;
+
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+}
+
+GLuint util::getFbo() {
+	return currentFbo;
+}
+
 Camera* Camera::getInstance() {
 	if (instance == nullptr) {
 		util::print("Camera:load");
 
 		glGenFramebuffers(1, &msaaFbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo);
+		util::setFbo(msaaFbo);
 
 		GLuint rendRGB;
 		glGenRenderbuffers(1, &rendRGB);
@@ -50,21 +66,19 @@ Camera* Camera::getInstance() {
 }
 
 GLuint Camera::getMSAAFbo() {
-
 	return msaaFbo;
 }
 
 GLuint Camera::getRectFbo() {
-
 	return rectFbo;
 }
 
 void Camera::bindVertices() {
-	util::setCameraData(getModelMatrix());
+	util::setViewMatrix(getModelMatrix());
 }
 
 void Camera::bindTexture() {
-	util::bindQuadData(getId(), vboType::VERTEX, Matrix::scale(getTexture().getBounds()));
+	getDrawObject()->bindVertexData(Matrix::scale(getTexture().getBounds()));
 
 	UnsortedSprite::bindTexture();
 }

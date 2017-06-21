@@ -25,7 +25,7 @@ private:
 	std::function<void(Cursor*)> posCallback;
 	std::function<void(Cursor*, int, bool)> buttCallback;
 
-	Point::Change& change;
+	Point::Change* change;
 
 	//TODO: custom cursor images
 	void bindVertices() {}
@@ -37,7 +37,7 @@ private:
 public:
 	static Cursor* getInstance();
 
-	bool changed() const { return change.get(); }
+	bool changed() const { return change->get(); }
 
 	//0 = left; 1 = right; 2 = middle;
 	bool getMouseButton(int button) const;
@@ -50,7 +50,7 @@ public:
 class Button : public Point::Component {
 private:
 	Shape* shape;
-	Point::Change& change;
+	Point::Change* change;
 
 	bool opaque {true};
 
@@ -71,7 +71,7 @@ public:
 
 	Shape* getShape() const { return shape; }
 
-	bool changed() const { return change.get(); }
+	bool changed() const { return change->get(); }
 
 	bool isOpaque() const { return opaque; }
 	void setOpaque(bool b) { opaque = b; }
@@ -86,7 +86,7 @@ public:
 		if (Cursor::getInstance()->changed() || changed())
 			entered = shape->inBounds(Cursor::getInstance()->getRealPosition());
 
-		change.reset();
+		change->reset();
 
 		return entered;
 	}

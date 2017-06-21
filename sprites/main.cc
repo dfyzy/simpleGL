@@ -31,7 +31,7 @@ int main() {
 	auto randomPosition = std::bind(positionDist, randEngine);
 
 	for (int i = 0; i < 10000; i++)
-		new Sprite(Sprite::Data(Texture(st)).position(Vector(randomPosition(), randomPosition())).color({1, 0, 0, 1}));
+		new Sprite(Data(Texture(st)).position(Vector(randomPosition(), randomPosition())).color({1, 0, 0, 1}));
 
 	setUpdate(update);
 

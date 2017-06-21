@@ -19,30 +19,7 @@ public:
 	 *
 	 * returns: sprite handle.
 	 */
-	Sprite(Point* parent, Texture texture, Anchor anchor, Vector position, int z, Vector scale, Angle rotation, Color color);
-
-	struct Data {
-		Point* pparent {nullptr};
-		Texture ptexture;
-		Anchor panchor{C};
-		Vector pposition;
-		int pz{0};
-		Vector pscale{1};
-		Angle protation;
-		Color pcolor{1};
-
-		Data(Texture texture) : ptexture(texture) {}
-
-		Data& parent(Point* p) { pparent = p; return *this; }
-		Data& anchor(Anchor a) { panchor = a; return *this; }
-		Data& position(Vector sv) { pposition = sv; return *this; }
-		Data& z(int i) { pz = i; return *this; }
-		Data& scale(Vector sv) { pscale = sv; return *this; }
-		Data& rotation(Angle f) { protation = f; return *this; }
-		Data& color(Color sc) { pcolor = sc; return *this; }
-	};
-
-	Sprite(Data d) : Sprite(d.pparent, d.ptexture, d.panchor, d.pposition, d.pz, d.pscale, d.protation, d.pcolor) {}
+	Sprite(Texture t, Data d, int z);
 
 	int getZ() const { return z; }
 	void setZ(int pz);

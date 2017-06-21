@@ -28,12 +28,15 @@ public:
 
 };
 
-class BaseBoxShape : public Shape {
-public:
-	enum Anchor {	UR,	U,		UL,
-						R,		C,		L,
-						DR,	D,		DL};
+enum Anchor {	TopRight,		Top,		TopLeft,
+					Right,			Center,	Left,
+					BottomRight,	Bottom,	BottomLeft};
 
+inline Vector toFactor(Anchor anchor) {
+	return (Vector(anchor % 3, anchor / 3) - 1);
+}
+
+class BaseBoxShape : public Shape {
 private:
 	Anchor anchor;
 	Vector offset;
@@ -46,7 +49,7 @@ private:
 	Vector getOffset() {
 		if (needUpdtOffset) {
 			needUpdtOffset = false;
-			offset = (Vector(anchor % 3, anchor / 3) - 1) * getBounds() * 0.5f;
+			offset = toFactor(anchor) * getBounds() * 0.5f;
 		}
 
 		return offset;
@@ -76,9 +79,12 @@ public:
 	virtual Vector getBounds() const =0;
 
 	Vector getCenter() { return getPosition() + getOffset(); }
+	Vector getRealCenter() { return getModelMatrix() * Vector(); }
 
 	Anchor getAnchor() const { return anchor; }
 	void setAnchor(Anchor panchor) {
+		if (anchor == panchor)	return;
+
 		anchor = panchor;
 
 		updateOffset();

@@ -1,5 +1,5 @@
 #include <simpleGL/simpleGL.h>
-#include <simpleGL/light.h>
+#include <simpleGL/lighting.h>
 #include <simpleGL/text.h>
 #include <simpleGL/cursor.h>
 #include <simpleGL/timer.h>
@@ -73,22 +73,22 @@ int main() {
 	Image* light = new Image("example/light.png", GL_LINEAR);
 	Image* eye = new Image("example/eye.png", GL_LINEAR);
 
-	brimSprite = new Sprite(Sprite::Data(Texture(brim)).position({0, 68.6}));
-	(new CustomButton(new Sprite(Sprite::Data(Texture(bodyFront)))))->setOpaque(false);
-	(new CustomButton(new Sprite(Sprite::Data(Texture(light)).position({0, 58.8}).z(1))))->setOpaque(true);
-	new CustomButton(new Sprite(Sprite::Data(Texture(eye)).position({50.2, 32.1}).z(-1)));
-	new CustomButton(new Sprite(Sprite::Data(Texture(eye)).position({-50.2, 32.1}).z(-1)));
+	brimSprite = new Sprite(Texture(brim), Data().position({0, 68.6}), 0);
+	(new CustomButton(new Sprite(Texture(bodyFront), Data(), 0)))->setOpaque(false);
+	(new CustomButton(new Sprite(Texture(light), Data().position({0, 58.8}), 1)))->setOpaque(true);
+	new CustomButton(new Sprite(Texture(eye), Data().position({50.2, 32.1}), -1));
+	new CustomButton(new Sprite(Texture(eye), Data().position({-50.2, 32.1}), -1));
 
 	Font* sans = new Font("example/Oranienbaum.ttf", 26);
 
 	std::string lorem("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
 	new Text(sans, lorem, Text::CENTER, 350, nullptr, Vector(0, -100), -10, 1, 0, Color(0));
 
-	Light* dark = new Light(nullptr, Sprite::L, {0, -200}, -100, 200, 200, {0});
-	new Light::Source(dark, nullptr, Sprite::C, Vector(0, -200) + Vector(25), {100}, 0, {0.5f, 0, 0});
-	new Light::Source(dark, nullptr, Sprite::C, Vector(0, -200) + Vector(-25), {100}, 0, {0, 0.5f, 0});
+	Lighting* dark = new Lighting(Data().anchor(Left).position({0, -200}), -100, 200, 200, {0});
+	new Lighting::Source(dark, {100}, Data().position(Vector(0, -200) + Vector(25)).color({0.5f, 0, 0}));
+	new Lighting::Source(dark, {100}, Data().position(Vector(0, -200) + Vector(-25)).color({0, 0.5f, 0}));
 
-	Sprite* back = new Sprite(Sprite::Data({300}).z(5).rotation(0.25f*3.1415927f));
+	Sprite* back = new Sprite({300}, Data().rotation(0.25f*3.1415927f), 5);
 	new CustomButton(back);
 
 	setUpdate(update);
@@ -96,7 +96,7 @@ int main() {
 	Cursor::getInstance()->setPositionCallback(cursorPosCallback);
 	Cursor::getInstance()->setMouseButtonCallback(mouseButtonCallback);
 
-	Sprite* red = new Sprite(Sprite::Data({50}).parent(Cursor::getInstance()).z(-50).color({1, 0, 0}));
+	Sprite* red = new Sprite({50}, Data().parent(Cursor::getInstance()).color({1, 0, 0}), -50);
 	red->setStencil(back);
 	timer = new LerpTimer<Sprite, Vector>(red, Sprite::setPosition, {});
 	timer->add(0.1, {50, 0});

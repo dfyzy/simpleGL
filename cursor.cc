@@ -66,7 +66,7 @@ void Cursor::updatePosition() {
 		if (b->isOn() && b->isOpaque())	notBlocked = false;
 	}
 
-	instance->change.reset();
+	instance->change->reset();
 
 	for (Button* b : buttons)
 		b->callback();
@@ -94,7 +94,7 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 			if (b->isOpaque())	notBlocked = false;
 		}
 
-	instance->change.reset();
+	instance->change->reset();
 
 	for (Button* b : on)
 		if (pressed) {
@@ -120,7 +120,7 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 	if (instance->buttCallback)	instance->buttCallback(instance, mButton, pressed);
 }
 
-Cursor::Cursor() : UnsortedSprite(Camera::getInstance(), {}, {C}, {}, {1}, 0, {1}), change(getChange()) {
+Cursor::Cursor() : UnsortedSprite({}, Data().parent(Camera::getInstance()).anchor(Center)), change(getChange()) {
 	glfwSetCursorPosCallback(util::getWindow(), positionCallback);
 	glfwSetMouseButtonCallback(util::getWindow(), buttonCallback);
 }

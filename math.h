@@ -40,6 +40,14 @@ struct Vector {
 		return Vector(std::round(x), std::round(y));
 	}
 
+	const Vector ceil() const {
+		return Vector(std::ceil(x), std::ceil(y));
+	}
+
+	const float dot(const Vector& v) const {
+		return x*v.x + y*v.y;
+	}
+
 	void load(float* array, int* offset) const {
 		array[(*offset)++] = x;
 		array[(*offset)++] = y;
@@ -53,6 +61,11 @@ struct Vector {
 	const Vector operator-(const Vector& v) const {
 
 		return Vector(x - v.x, y - v.y);
+	}
+
+	const Vector operator-() const {
+
+		return Vector(-x, -y);
 	}
 
 	Vector& operator+=(const Vector& v) {
