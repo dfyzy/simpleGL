@@ -3,9 +3,8 @@ Using OpenGL, GLFW, GLEW, libpng and FreeType
 You can draw stuff now.
 
 TODO:
--Fullscreen stuttering(vsync and maybe refresh rate)
+-Fullscreen stuttering(check if relevant)
 -Trigger sprites
--Shadow object(light)
 -Window resizability
 -Particles(if there is a need for further optimization)
 -Audio
