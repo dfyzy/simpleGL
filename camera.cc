@@ -29,7 +29,7 @@ GLuint util::getFbo() {
 
 Camera* Camera::getInstance() {
 	if (instance == nullptr) {
-		util::print("Camera:load");
+		util::println("Camera:load");
 
 		glGenFramebuffers(1, &msaaFbo);
 		util::setFbo(msaaFbo);
@@ -47,8 +47,21 @@ Camera* Camera::getInstance() {
 		glGenRenderbuffers(1, &rendStenc);
 		glBindRenderbuffer(GL_RENDERBUFFER, rendStenc);
 
-		//NOTE:	GL_STENCIL_INDEX8 isn't supported on OpenGL less than 4.3 or without ARB_ES3_compatibility or ARB_texture_stencil8 extensions.
-		glRenderbufferStorageMultisample(GL_RENDERBUFFER, SAMPLES_NUM, GL_STENCIL_INDEX8, getWindowWidth(), getWindowHeight());
+		util::print("simpleGL:stencil only support:");
+
+		std::string word;
+		GLenum format;
+		if (GLEW_ARB_ES3_compatibility || GLEW_ARB_texture_stencil8) {
+			word = "true";
+			format = GL_STENCIL_INDEX8;
+		} else {
+			word = "false";
+			format = GL_DEPTH24_STENCIL8;
+		}
+
+		util::println(word);
+
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, SAMPLES_NUM, format, getWindowWidth(), getWindowHeight());
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rendStenc);
 
 		glGenFramebuffers(1, &rectFbo);

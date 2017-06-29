@@ -4,17 +4,21 @@
 namespace simpleGL {
 
 Framebuffer::Framebuffer(unsigned width, unsigned height, GLenum format, GLenum filtering, Color base) : base(base) {
-	util::print("Framebuffer::load");
+	util::print("Framebuffer:load:");
+
+	glGenFramebuffers(1, &fbo);
+
+	util::println(std::to_string(fbo));
+
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
 	image = new Image(width, height, format, filtering);
 
-	glGenFramebuffers(1, &fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, image->getId(), 0);
 }
 
 Framebuffer::~Framebuffer() {
-	util::print("Framebuffer::unload");
+	util::println(std::string("Framebuffer:unload:") + std::to_string(fbo));
 
 	glDeleteFramebuffers(1, &fbo);
 	image->unload();

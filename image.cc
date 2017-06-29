@@ -10,9 +10,11 @@
 namespace simpleGL {
 
 Image::Image(GLenum filtering) {
-	util::print("Image:load");
+	util::print("Image:load:");
 
 	glGenTextures(1, &id);
+
+	util::println(std::to_string(id));
 
 	setFiltering(filtering);
 
@@ -24,40 +26,40 @@ Image::Image(unsigned width, unsigned height, GLenum format, GLenum filtering) :
 	resize(width, height, format);
 }
 
-Image::Image(const char* path, GLenum filtering) : Image(filtering) {
-	util::print("Image:load file");
+Image::Image(std::string path, GLenum filtering) : Image(filtering) {
+	util::println(std::string("Image:load file:") + path);
 
-	FILE *file = fopen(path, "rb");
+	FILE *file = fopen(path.c_str(), "rb");
 	if (!file) {
-		util::print("error:Image:failed to open file");
+		util::println("error:Image:failed to open file");
 		return;
 	}
 
 	png_byte header[8];
 	fread(header, 1, 8, file);
 	if (png_sig_cmp(header, 0, 8)) {
-		util::print("error:Image:file is not a png");
+		util::println("error:Image:file is not a png");
 		fclose(file);
 		return;
 	}
 
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	if (!png_ptr) {
-		util::print("error:Image:failed to create read struct");
+		util::println("error:Image:failed to create read struct");
 		fclose(file);
 		return;
 	}
 
 	png_infop info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr) {
-		util::print("error:Image:failed to create info struct");
+		util::println("error:Image:failed to create info struct");
 		png_destroy_read_struct(&png_ptr, nullptr, nullptr);
 		fclose(file);
 		return;
 	}
 
 	if (setjmp(png_jmpbuf(png_ptr))) {
-		util::print("error:Image:libpng error");
+		util::println("error:Image:libpng error");
 		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 		fclose(file);
 		return;
@@ -87,7 +89,7 @@ Image::Image(const char* path, GLenum filtering) : Image(filtering) {
 
 void Image::setFiltering(GLenum newFiltering) {
 	if ((newFiltering != GL_LINEAR) && (newFiltering != GL_NEAREST)) {
-		util::print("error:Image:wrong filtering type");
+		util::println("error:Image:wrong filtering type");
 		return;
 	}
 
@@ -100,7 +102,7 @@ void Image::setFiltering(GLenum newFiltering) {
 }
 
 void Image::resize(unsigned newWidth, unsigned newHeight, GLenum newFormat) {
-	util::print("Image:resize");
+	util::println(std::string("Image:resize:") + std::to_string(id));
 
 	width = newWidth;
 	height = newHeight;
@@ -110,7 +112,7 @@ void Image::resize(unsigned newWidth, unsigned newHeight, GLenum newFormat) {
 }
 
 Image::~Image() {
-	util::print("Image:unload");
+	util::println(std::string("Image:unload:") + std::to_string(id));
 
 	glDeleteTextures(1, &id);
 }

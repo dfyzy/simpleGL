@@ -21,7 +21,7 @@ void update() {
 }
 
 int main() {
-	window = createFullscreenWindow("Title", true, Color(1));
+	window = loadFullscreenWindow("Title", true, Color(1));
 
 	glfwSetKeyCallback(window, keyCallback);
 
@@ -31,7 +31,7 @@ int main() {
 	auto randomPosition = std::bind(positionDist, randEngine);
 
 	for (int i = 0; i < 10000; i++)
-		new Sprite(Data(Texture(st)).position(Vector(randomPosition(), randomPosition())).color({1, 0, 0, 1}));
+		new Sprite(st, Data().position(Vector(randomPosition(), randomPosition())).color({1, 0, 0, 1}), 0);
 
 	setUpdate(update);
 

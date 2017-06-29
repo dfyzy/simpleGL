@@ -19,7 +19,7 @@ unsigned objectCapacity = 4;
 namespace simpleGL {
 
 void util::initDataBuffers() {
-	util::print("Data buffers:load");
+	util::println("Data buffers:load");
 
 	glGenBuffers(DataType::COUNT, vbos);
 
@@ -42,7 +42,7 @@ DrawObject::DrawObject() {
 	}else	id = objectCount++;
 
 	if (objectCapacity < objectCount) {
-		util::print("Data buffers:resize");
+		util::println(std::string("Data buffers:resize:") + std::to_string(objectCapacity*RESIZE_FACTOR));
 
 		for (int i = 0; i < DataType::COUNT; i++) {
 			GLuint tempVbo;

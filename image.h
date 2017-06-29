@@ -3,6 +3,7 @@
 
 #include "glfw.h"
 #include "math.h"
+#include <string>
 
 namespace simpleGL {
 
@@ -31,7 +32,7 @@ public:
 	 *
 	 * 'path': the path of the image file.
 	 */
-	Image(const char* path, GLenum filtering);
+	Image(std::string path, GLenum filtering);
 
 	GLuint getId() const { return id; }
 

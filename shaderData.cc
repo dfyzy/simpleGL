@@ -5,7 +5,7 @@ namespace simpleGL {
 namespace shaderData {
 
 std::string getVertex() {
-	return std::string("#version 430 core\n"
+	return std::string("#version 330 core\n"
 	"layout(location=0)	in vec2 inPosition;\n"
 	"layout(location=1)	in vec2 inTexture;\n"
 	"layout(location=2)	in vec4 inColor;\n"
@@ -35,7 +35,7 @@ std::string getVertex() {
 }
 
 std::string getDefaultFragment() {
-	return std::string("#version 430 core\n"
+	return std::string("#version 330 core\n"
 
 	"in vec2 vPosition;\n"
 	"in vec2 vTexture;\n"
@@ -53,7 +53,7 @@ std::string getDefaultFragment() {
 }
 
 std::string getEmptyFragment() {
-	return std::string("#version 430 core\n"
+	return std::string("#version 330 core\n"
 
 	"in vec2 vPosition;\n"
 	"in vec2 vTexture;\n"
@@ -67,7 +67,7 @@ std::string getEmptyFragment() {
 }
 
 std::string getTextFragment() {
-	return std::string("#version 430 core\n"
+	return std::string("#version 330 core\n"
 
 	"in vec2 vPosition;\n"
 	"in vec2 vTexture;\n"
@@ -84,7 +84,7 @@ std::string getTextFragment() {
 }
 
 std::string getOverlayVertex() {
-	return std::string("#version 430 core\n"
+	return std::string("#version 330 core\n"
 	"layout(location=0)	in vec2 inPosition;\n"
 
 	"out gl_PerVertex {\n"
@@ -97,7 +97,7 @@ std::string getOverlayVertex() {
 }
 
 std::string getOverlayFragment() {
-	return std::string("#version 430 core\n"
+	return std::string("#version 330 core\n"
 	"in vec4 gl_FragCoord;\n"
 
 	"out vec4 fColor;\n"
@@ -110,7 +110,7 @@ std::string getOverlayFragment() {
 }
 
 std::string getLightingDefaultFragment() {
-	return std::string("#version 430 core\n"
+	return std::string("#version 330 core\n"
 
 	"in vec2 vPosition;\n"
 	"in vec2 vTexture;\n"
@@ -127,7 +127,7 @@ std::string getLightingDefaultFragment() {
 }
 
 std::string getLightingPow2Fragment() {
-	return std::string("#version 430 core\n"
+	return std::string("#version 330 core\n"
 
 	"in vec2 vPosition;\n"
 	"in vec2 vTexture;\n"

@@ -73,7 +73,7 @@ void update() {
 }
 
 int main() {
-	window = createWindow("Title", 700, 700, false, true, Color(0.1f));
+	window = loadWindow("Title", 700, 700, false, true, Color(0.1f));
 
 	glfwSetKeyCallback(window, keyCallback);
 

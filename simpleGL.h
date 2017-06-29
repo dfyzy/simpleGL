@@ -17,7 +17,7 @@ namespace simpleGL {
  *
  * returns: GLFW handle of created window.
  */
-GLFWwindow* createFullscreenWindow(const char* title, bool borderless, Color background);
+GLFWwindow* loadFullscreenWindow(std::string title, bool borderless, Color background);
 
 /*
  * Creates a window.
@@ -30,7 +30,7 @@ GLFWwindow* createFullscreenWindow(const char* title, bool borderless, Color bac
  *
  * returns: GLFW handle of created window.
  */
-GLFWwindow* createWindow(const char* title, unsigned width, unsigned height, bool resizable, bool decorated, Color background);
+GLFWwindow* loadWindow(std::string title, unsigned width, unsigned height, bool resizable, bool decorated, Color background);
 
 /*
  * Returns width of the created window.
@@ -45,6 +45,11 @@ unsigned getWindowHeight();
 double getDeltaTime();
 
 void setUpdate(std::function<void()> func);
+
+/*
+ *	Checks if this OpenGL context has an extension 'ext'
+ */
+bool hasExtension(std::string ext);
 
 /*
  *	Starts draw loop

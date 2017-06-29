@@ -10,14 +10,14 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 }
 
 int main() {
-	window = createFullscreenWindow("Title", false, Color(0.5f));
+	window = loadFullscreenWindow("Title", false, Color(0.5f));
 
 	glfwSetKeyCallback(window, keyCallback);
 
 	Image* circle = new Image("circle/circle.png", GL_NEAREST);
 	Texture texCircle(circle);
-	new Sprite(Data(texCircle).position({-30, 0}));
-	new Sprite(Data(texCircle).position({30.5, 0.5}));
+	new Sprite(texCircle, Data().position({-30, 0}), 0);
+	new Sprite(texCircle, Data().position({30.5, 0.5}), 0);
 
 	draw();
 }

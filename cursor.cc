@@ -28,7 +28,7 @@ Vector glfwToSimple(double xpos, double ypos) { return Vector(xpos - getWindowWi
 
 Cursor* Cursor::getInstance() {
 	if (instance == nullptr) {
-		util::print("Cursor:load");
+		util::println("Cursor:load");
 
 		instance = new Cursor();
 		util::addPreUpdate(updatePosition);
@@ -127,7 +127,7 @@ Cursor::Cursor() : UnsortedSprite({}, Data().parent(Camera::getInstance()).ancho
 
 bool Cursor::getMouseButton(int button) const {
 	if (button >= BUTTONS_MAX) {
-		util::print("error:Cursor:getMouseButton:not a valid parameter");
+		util::println("error:Cursor:getMouseButton:not a valid parameter");
 		return false;
 	}
 
@@ -135,14 +135,14 @@ bool Cursor::getMouseButton(int button) const {
 }
 
 Button::Button(Shape* shape, int z) : Point::Component(shape), shape(shape), change(shape->getChange()), z(z) {
-	util::print("Button:load");
+	util::println("Button:load");
 
 	Cursor::getInstance();
 	buttons.insert(this);
 }
 
 Button::~Button() {
-	util::print("Button:unload");
+	util::println("Button:unload");
 
 	buttons.erase(this);
 	for (int i = 0; i < simpleGL::Cursor::BUTTONS_MAX; i++)

@@ -116,11 +116,11 @@ inline void printInfoLog(GLuint program) {
 	std::unique_ptr<GLchar> infoLog(new GLchar[length + 1]);
 	glGetProgramInfoLog(program, length, nullptr, infoLog.get());
 
-	util::print(infoLog.get());
+	util::println(infoLog.get());
 }
 
 void util::initShaders() {
-	util::print("Shader pipeline:load");
+	util::println("Shader pipeline:load");
 
 	glGenProgramPipelines(1, &pipeline);
 	glBindProgramPipeline(pipeline);
@@ -137,10 +137,10 @@ void util::initShaders() {
 }
 
 GLuint loadShaderSource(std::string source, GLenum type) {
-	util::print("Shader:load");
+	util::println("Shader:load");
 
 	if (type != GL_VERTEX_SHADER && type != GL_FRAGMENT_SHADER) {
-		util::print("error:Shader:wrong shader type");
+		util::println("error:Shader:wrong shader type");
 		return 0;
 	}
 
@@ -150,7 +150,7 @@ GLuint loadShaderSource(std::string source, GLenum type) {
 	GLint status;
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	if (!status) {
-		util::print("error:Shader:linking");
+		util::println("error:Shader:linking");
 		printInfoLog(program);
 		return 0;
 	}
@@ -159,7 +159,7 @@ GLuint loadShaderSource(std::string source, GLenum type) {
 
 	glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
 	if (!status) {
-		util::print("error:Shader:validation");
+		util::println("error:Shader:validation");
 		printInfoLog(program);
 		return 0;
 	}
@@ -168,7 +168,7 @@ GLuint loadShaderSource(std::string source, GLenum type) {
 }
 
 GLuint loadShaderPath(std::string path, GLenum type) {
-	util::print("Shader:load file");
+	util::println(std::string("Shader:load file:") + path);
 
 	std::ifstream file(path);
 	std::string shaderString;

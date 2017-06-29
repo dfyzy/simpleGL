@@ -25,8 +25,6 @@ GLuint Lighting::Source::getDefaultFragment() {
 }
 
 Lighting::Source::Source(Lighting* lighting, Texture t, Data d) : UnsortedSprite(t, d), lighting(lighting) {
-	util::print("LightingSource:load");
-
 	setFragmentShader(getDefaultFragment());
 
 	Vector bounds = t.getBounds().ceil();
@@ -39,8 +37,6 @@ Lighting::Source::Source(Lighting* lighting, Texture t, Data d) : UnsortedSprite
 }
 
 Lighting::Source::~Source() {
-	util::print("LightingSource:unload");
-
 	framebuffer->unload();
 
 	lighting->sources.remove(this);
@@ -81,8 +77,6 @@ void Lighting::Source::draw() {
 
 Lighting::Shadow::Shadow(Lighting* lighting, Vector bounds, Data d)
 		: Point(d.pparent, d.pposition, d.pscale, d.protation), lighting(lighting), bounds(bounds), anchor(d.panchor), color(d.pcolor) {
-	util::print("LightingShadow:load");
-
 	bottom = new DrawObject();
 	bottom->bindTextureData({});
 	bottom->bindColorData({0});
@@ -98,8 +92,6 @@ Lighting::Shadow::Shadow(Lighting* lighting, Vector bounds, Data d)
 }
 
 Lighting::Shadow::~Shadow() {
-	util::print("LightingShadow:unload");
-
 	bottom->unload();
 	middle->unload();
 
@@ -147,13 +139,13 @@ void Lighting::Shadow::draw(Source* source) {
 
 Lighting::Lighting(Data d, int z, unsigned width, unsigned height, Color base)
 				: Sprite({}, d, z) {
-	util::print("Lighting:load");
+	util::println("Lighting:load");
 
 	framebuffer = new Framebuffer(width, height, GL_RGB, GL_LINEAR, base);
 }
 
 Lighting::~Lighting() {
-	util::print("Lighting:unload");
+	util::println("Lighting:unload");
 
 	for (Source* s : sources)
 		s->unload();

@@ -65,6 +65,12 @@ protected:
 			ch.set();
 	}
 
+	void setChangesDown() {
+		setChanges();
+		for (Point* ch : children)
+			ch->setChangesDown();
+	}
+
 	virtual ~Point() {
 		for (Component* c : components)
 			c->unload();
@@ -94,7 +100,7 @@ public:
 
 		enabled = b;
 
-		setChanges();
+		setChangesDown();
 	}
 
 	Vector getPosition() const { return position; }

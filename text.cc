@@ -32,7 +32,7 @@ void Text::setCaption(std::string string) {
 }
 
 void Text::addCaption(std::string string) {
-	util::print("Text:addCaption");
+	util::println("Text:addCaption");
 
 	caption += string;
 

@@ -1,8 +1,6 @@
 #ifndef SIMPLE_TEXT_H
 #define SIMPLE_TEXT_H
 
-#include <string>
-
 #include "sprite.h"
 #include "font.h"
 

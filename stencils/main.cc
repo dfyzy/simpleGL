@@ -73,7 +73,7 @@ void update() {
 }
 
 int main() {
-	window = createWindow("Title", WIN_SIZE, WIN_SIZE, false, true, {0});
+	window = loadWindow("Title", WIN_SIZE, WIN_SIZE, false, true, {0});
 
 	glfwSetKeyCallback(window, keyCallback);
 
@@ -85,13 +85,13 @@ int main() {
 
 	for (int i = 0; i < 4; i++) {
 		Color c{colorRand(), colorRand(), colorRand()};
-		Sprite* back = new Sprite(Data(st).parent(anchor).position(Vector(H_H_WIN_SIZE) * offsets[i]).color(c));
+		Sprite* back = new Sprite(st, Data().parent(anchor).position(Vector(H_H_WIN_SIZE) * offsets[i]).color(c), 0);
 
 		Point* par = new Point(nullptr, {}, {1}, angles[i]);
 
 		for (int j = 0; j < SPRITES_NUM; j++) {
-			Sprite* sprite = new Sprite(Data(st).parent(par).position({posRand(), posRand()})
-																		.scale({scaleRand()}).color(Color(1) - c));
+			Sprite* sprite = new Sprite(st, Data().parent(par).position({posRand(), posRand()})
+																		.scale({scaleRand()}).color(Color(1) - c), 0);
 			sprite->setStencil(back);
 			sprites[j + i*SPRITES_NUM] = {sprite, speedRand()};
 		}

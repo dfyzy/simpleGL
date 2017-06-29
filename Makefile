@@ -5,7 +5,9 @@ LIBPATH = $(prefix)/lib
 
 CPPFLAGS = -std=gnu++11 -Wall -O2 -static-libgcc -static-libstdc++
 
-LIBS = -Wl,-Bstatic -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lpng16 -lz -lm -Wl,-Bdynamic -lfreetype
+#LIBS = -lglew32 -lglfw3 -lopengl32 -lgdi32 -lfreetype -lpng16
+LIBS = -Wl,-Bstatic -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 \
+			-lfreetype -lharfbuzz -lfreetype -lgraphite2 -lglib-2.0 -lpng16 -lz -lm -lbz2
 
 INCS = simpleGL.h glfw.h shader.h shaderData.h image.h texture.h color.h math.h matrix.h point.h shape.h drawObject.h unsortedSprite.h \
 			sprite.h camera.h cursor.h timer.h framebuffer.h lighting.h font.h text.h
@@ -27,6 +29,8 @@ install: $(INCS) $(INCPATH)/simpleGL
 
 %.exe: static install %/main.cc
 	g++ $(CPPFLAGS) -o $(*F) $(*F)/main.cc -lsimpleGL $(LIBS)
+
+test: example.exe sprites.exe shadow.exe stencils.exe
 
 all: static install
 

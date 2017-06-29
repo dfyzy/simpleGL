@@ -3,7 +3,6 @@ Using OpenGL, GLFW, GLEW, libpng and FreeType
 You can draw stuff now.
 
 TODO:
--Fullscreen stuttering(check if relevant)
 -Trigger sprites
 -Window resizability
 -Particles(if there is a need for further optimization)
