@@ -1,5 +1,4 @@
 #include <windows.h>
-
 #include <memory>
 
 #include "font.h"
@@ -14,7 +13,7 @@ constexpr unsigned TEX_GAP = 1;
 namespace simpleGL {
 
 FT_Library Font::ftLibrary = nullptr;
-int Font::dpiX, Font::dpiY;
+float Font::dpiX, Font::dpiY;
 
 FT_Library Font::getFTLibrary() {
 	if (ftLibrary == nullptr) {
@@ -25,12 +24,14 @@ FT_Library Font::getFTLibrary() {
 			return nullptr;
 		}
 
-		HDC screen = GetDC(0);//win32
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
-		dpiX = GetDeviceCaps(screen, LOGPIXELSX);
-		dpiY = GetDeviceCaps(screen, LOGPIXELSY);
+		int widthMM, heightMM;
+		glfwGetMonitorPhysicalSize(monitor, &widthMM, &heightMM);
 
-		ReleaseDC(0, screen);
+		dpiX = mode->width / (widthMM / 25.4f);
+		dpiY = mode->height / (heightMM / 25.4f);
 	}
 
 	return ftLibrary;

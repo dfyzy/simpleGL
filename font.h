@@ -25,7 +25,7 @@ struct Glyph {
 class Font {
 private:
 	static FT_Library ftLibrary;
-	static int dpiX, dpiY;
+	static float dpiX, dpiY;
 
 	Image* image;
 
