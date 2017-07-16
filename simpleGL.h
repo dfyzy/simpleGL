@@ -32,6 +32,8 @@ GLFWwindow* loadFullscreenWindow(std::string title, bool borderless, Color backg
  */
 GLFWwindow* loadWindow(std::string title, unsigned width, unsigned height, bool resizable, bool decorated, Color background);
 
+GLFWwindow* getWindow();
+
 /*
  * Returns width of the created window.
  */
@@ -41,6 +43,8 @@ unsigned getWindowWidth();
  * Returns height of the created window.
  */
 unsigned getWindowHeight();
+
+Color getBackground();
 
 double getDeltaTime();
 

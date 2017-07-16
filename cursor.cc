@@ -81,7 +81,7 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 	instance->mouseButtons[mButton] = pressed;
 
 	double xpos, ypos;
-	glfwGetCursorPos(util::getWindow(), &xpos, &ypos);
+	glfwGetCursorPos(getWindow(), &xpos, &ypos);
 	instance->setPosition(glfwToSimple(xpos, ypos));
 
 	std::list<Button*> on;
@@ -121,8 +121,8 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 }
 
 Cursor::Cursor() : UnsortedSprite({}, Data().parent(Camera::getInstance()).anchor(Center)), change(getChange()) {
-	glfwSetCursorPosCallback(util::getWindow(), positionCallback);
-	glfwSetMouseButtonCallback(util::getWindow(), buttonCallback);
+	glfwSetCursorPosCallback(getWindow(), positionCallback);
+	glfwSetMouseButtonCallback(getWindow(), buttonCallback);
 }
 
 bool Cursor::getMouseButton(int button) const {

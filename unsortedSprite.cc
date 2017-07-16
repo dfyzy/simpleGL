@@ -1,20 +1,16 @@
+#include <queue>
+
 #include "shaderData.h"
 #include "util.h"
 
 namespace {
 
-std::list<simpleGL::UnsortedSprite*> unsortedSprites;
-
-GLint stencilCount {0};
+GLint stencilCount {1};
+std::queue<GLint> deletedStencils;
 
 }
 
 namespace simpleGL {
-
-void util::bindSprites() {
-	for (UnsortedSprite* us : unsortedSprites)
-		us->bindData();
-}
 
 UnsortedSprite::UnsortedSprite(Point* parent, Texture texture, Anchor anchor, Vector position, Vector scale, Angle rotation, Color color)
 							: BaseBoxShape(parent, anchor, position, scale, rotation), texture(texture), color(color) {
@@ -22,24 +18,14 @@ UnsortedSprite::UnsortedSprite(Point* parent, Texture texture, Anchor anchor, Ve
 
 	vertexShader = getDefaultVertexShader();
 	setDefaultFragmentShader();
-
-	unsortedSprites.push_back(this);
 }
 
 UnsortedSprite::~UnsortedSprite() {
-	unsortedSprites.remove(this);
+	stopUsingStencil();
+	for (UnsortedSprite* st : stenciled)
+		st->setStencil(nullptr);
 
 	drawObject->unload();
-}
-
-GLint UnsortedSprite::getStencil() {
-	if (stencilOp == GL_KEEP) {
-		stencilFunc = GL_ALWAYS;
-		stencilOp = GL_REPLACE;
-		stencilRef = ++stencilCount;
-	}
-
-	return stencilRef;
 }
 
 void UnsortedSprite::bindVertices() {
@@ -57,11 +43,66 @@ void UnsortedSprite::bindTexture() {
 	drawObject->bindTextureData(texture);
 }
 
+void UnsortedSprite::stopUsingStencil() {
+	if (!stencil)	return;
+
+	stencil->stenciled.remove(this);
+
+	if (stencil->stenciled.empty()) {
+		if (stencil->stencilRef < stencilCount - 1)
+			deletedStencils.push(stencil->stencilRef);
+		else
+			stencilCount--;
+	} else {
+		stencilOp = GL_KEEP;
+	}
+}
+
+void UnsortedSprite::setStencil(UnsortedSprite* spr) {
+	setMask(spr);
+
+	stopUsingStencil();
+
+	stencil = spr;
+
+	if (stencil) {
+		if (stencil->stenciled.empty()) {
+			if (!deletedStencils.empty()) {
+				stencil->stencilRef = deletedStencils.front();
+				deletedStencils.pop();
+			} else	stencil->stencilRef = stencilCount++;
+
+			stencil->stencilOp = GL_REPLACE;
+		}
+		stencilFunc = GL_EQUAL;
+		stencilRef = stencil->stencilRef;
+
+		stencil->stenciled.push_back(this);
+	} else {
+		stencilFunc = GL_ALWAYS;
+	}
+}
+
 void UnsortedSprite::draw() {
 	if (!isEnabled())	return;
 
-	texture.bind();
+	if (needUpdtTexture) {
+		needUpdtTexture = false;
+		bindTexture();
+	}
 
+	if (needUpdtVertices) {
+		needUpdtVertices = false;
+		bindVertices();
+	}
+
+	if (needUpdtColor) {
+		needUpdtColor = false;
+		bindColor();
+	}
+
+	texture.bind();
+	
 	glStencilFunc(stencilFunc, stencilRef, 0xFF);
 	glStencilOp(GL_KEEP, GL_KEEP, stencilOp);
 

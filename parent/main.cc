@@ -4,8 +4,6 @@
 
 using namespace simpleGL;
 
-constexpr double PI = 3.14159265358979323846;
-
 class CustomButton : public Button {
 private:
 	Sprite* sprite;
@@ -52,14 +50,14 @@ void update() {
 
 	pos *= 5;
 
-	parent->setPosition(parent->getPosition() + pos);
+	parent->addPosition(pos);
 
 	int i = 0;
 
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) i += 1;
 	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) i -= 1;
 
-	parent->setRotation(parent->getRotation() + speed*i);
+	parent->addRotation(speed*i);
 
 	Vector scl;
 	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) scl.x += 1;
@@ -77,10 +75,10 @@ int main() {
 
 	glfwSetKeyCallback(window, keyCallback);
 
-	parent = new Sprite(Data({200}).color({0.6f}).anchor(Sprite::UL));
+	parent = new Sprite({200}, Data().color({0.6f}).anchor(TopLeft), 0);
 	new CustomButton(parent);
-	new CustomButton(new Sprite(Data(Texture({75, 50})).parent(parent).position({50, -50}).z(-10).color({1, 0, 0})));
-	new CustomButton(new Sprite(Data({50}).parent(parent).position({-100, 50}).rotation(PI/4).color({0, 1, 0})));
+	new CustomButton(new Sprite({{75, 50}}, Data().parent(parent).position({50, -50}).color({1, 0, 0}), -10));
+	new CustomButton(new Sprite({50}, Data().parent(parent).position({-100, 50}).rotation(PI/4).color({0, 1, 0}), 0));
 
 	setUpdate(update);
 

@@ -42,11 +42,14 @@ private:
 
 	bool defaultFrag {true};
 
-	GLenum stencilFunc {GL_ALWAYS};
-	GLenum stencilOp {GL_KEEP};
+	GLenum stencilFunc = GL_ALWAYS;
+	GLenum stencilOp = GL_KEEP;
 	GLint stencilRef {0};
 
-	GLint getStencil();
+	UnsortedSprite* stencil {nullptr};
+	std::list<UnsortedSprite*> stenciled;
+
+	void stopUsingStencil();
 
 protected:
 	DrawObject* getDrawObject() const { return drawObject; }
@@ -130,32 +133,11 @@ public:
 	}
 	void updateColor() { needUpdtColor = true; }
 
-	void setStencil(UnsortedSprite* spr) {
-		setMask(spr);
-
-		if (spr) {
-			stencilFunc = GL_EQUAL;
-			stencilRef = spr->getStencil();
-		} else {
-			stencilFunc = GL_ALWAYS;
-		}
-	}
-
-	void bindData() {
-		if (needUpdtTexture) {
-			needUpdtTexture = false;
-			bindTexture();
-		}
-
-		if (needUpdtVertices) {
-			needUpdtVertices = false;
-			bindVertices();
-		}
-
-		if (needUpdtColor) {
-			needUpdtColor = false;
-			bindColor();
-		}
+	void setStencil(UnsortedSprite* spr);
+	void setCustomStencil(GLenum func, GLenum ref, GLenum op) {
+		stencilFunc = func;
+		stencilOp = op;
+		stencilRef = ref;
 	}
 
 	virtual void draw();

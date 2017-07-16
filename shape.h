@@ -8,17 +8,32 @@ namespace simpleGL {
 class Shape : public Point {
 private:
 	Shape* mask {nullptr};
+	std::list<Shape*> masked;
 
 protected:
 	virtual bool isInside(Vector v) const =0;
 
-	~Shape() {}
+	void stopUsingMask() {
+		if (mask)	mask->masked.remove(this);
+	}
+
+	~Shape() {
+		stopUsingMask();
+		for (Shape* sh : masked)
+			sh->mask = nullptr;
+	}
 
 public:
 	Shape(Point* parent, Vector position, Vector scale, Angle rotation) : Point(parent, position, scale, rotation) {}
 
 	Shape* getMask() const { return mask; }
-	void setMask(Shape* shape) { mask = shape; }
+	void setMask(Shape* shape) {
+		stopUsingMask();
+
+		mask = shape;
+
+		if (mask)	mask->masked.push_back(this);
+	}
 
 	bool inBounds(Vector v) {
 		if (!isEnabled())	return false;

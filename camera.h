@@ -2,26 +2,34 @@
 #define SIMPLE_CAMERA_H
 
 #include "unsortedSprite.h"
+#include "framebuffer.h"
 
 namespace simpleGL {
 
 class Camera : public UnsortedSprite {
 private:
 	static Camera* instance;
-	static GLuint msaaFbo;
-	static GLuint rectFbo;
 
-	void bindVertices();
-	void bindTexture();
+	Framebuffer* framebuffer;
 
-	Camera(Texture texture) : UnsortedSprite(nullptr, texture, {Center}, {}, {1}, 0, {1}) {}
-	~Camera() {}
+	void bindVertices() {}
+	void bindTexture() {
+		getDrawObject()->bindVertexData(Matrix::scale(getTexture().getBounds()));
+
+		UnsortedSprite::bindTexture();
+	}
+
+	Camera(Framebuffer* framebuffer) : UnsortedSprite(nullptr, framebuffer->getImage(), {Center}, {}, {1}, 0, {1}), framebuffer(framebuffer) {}
+	~Camera() {
+		framebuffer->unload();
+	}
 
 public:
 	static Camera* getInstance();
 
-	static GLuint getMSAAFbo();
-	static GLuint getRectFbo();
+	Framebuffer* getFramebuffer() const { return framebuffer; }
+
+	void draw();
 
 };
 

@@ -22,8 +22,8 @@ Image::Image(GLenum filtering) {
 	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
-Image::Image(unsigned width, unsigned height, GLenum format, GLenum filtering) : Image(filtering) {
-	resize(width, height, format);
+Image::Image(unsigned width, unsigned height, GLint internal, GLenum format, GLenum type, GLenum filtering) : Image(filtering) {
+	resize(width, height, internal, format, type);
 }
 
 Image::Image(std::string path, GLenum filtering) : Image(filtering) {
@@ -73,7 +73,7 @@ Image::Image(std::string path, GLenum filtering) : Image(filtering) {
 
 	png_get_IHDR(png_ptr, info_ptr, &width, &height, nullptr, nullptr, nullptr, nullptr, nullptr);
 
-	resize(width, height, GL_RGBA);
+	resize(width, height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
 
 	std::unique_ptr<png_byte[]> row(new png_byte[4*width]);
 
@@ -101,14 +101,16 @@ void Image::setFiltering(GLenum newFiltering) {
 	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, filtering);
 }
 
-void Image::resize(unsigned newWidth, unsigned newHeight, GLenum newFormat) {
+void Image::resize(unsigned newWidth, unsigned newHeight, GLint newInternal, GLenum newFormat, GLenum newType) {
 	util::println(std::string("Image:resize:") + std::to_string(id));
 
 	width = newWidth;
 	height = newHeight;
+	internal = newInternal;
 	format = newFormat;
+	type = newType;
 
-	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, nullptr);
+	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, internal, width, height, 0, format, type, nullptr);
 }
 
 Image::~Image() {

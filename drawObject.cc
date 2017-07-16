@@ -9,7 +9,7 @@ constexpr int RESIZE_FACTOR = 2;
 GLuint vbos[simpleGL::DataType::COUNT];
 int dataSize[simpleGL::DataType::COUNT] { 2, 2, 4 };
 
-std::queue<unsigned> deletedQueue;
+std::queue<unsigned> deletedDos;
 
 unsigned objectCount = 0;
 unsigned objectCapacity = 4;
@@ -36,9 +36,9 @@ void util::initDataBuffers() {
 }
 
 DrawObject::DrawObject() {
-	if (!deletedQueue.empty()) {
-		id = deletedQueue.front();
-		deletedQueue.pop();
+	if (!deletedDos.empty()) {
+		id = deletedDos.front();
+		deletedDos.pop();
 	}else	id = objectCount++;
 
 	if (objectCapacity < objectCount) {
@@ -75,10 +75,9 @@ DrawObject::DrawObject() {
 
 DrawObject::~DrawObject() {
 	if (id < objectCount - 1)
-		deletedQueue.push(id);
+		deletedDos.push(id);
 	else
 		objectCount--;
-	//TOTRY: check for redundant members of the queue.
 }
 
 void DrawObject::bindData(DataType::E type, float data[]) const {

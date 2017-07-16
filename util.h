@@ -29,8 +29,6 @@ void initDataBuffers();
 void addPreUpdate(std::function<void()> updt);
 void addUpdate(std::function<void()> updt);
 
-GLFWwindow* getWindow();
-
 //calling glUseProgramStages for each stage.
 void useShaders(GLuint vertex, GLuint fragment);
 
@@ -44,8 +42,6 @@ unsigned getResHeight();
 
 void setFbo(GLuint fbo);
 GLuint getFbo();
-
-void bindSprites();
 
 //draw sprites for each texture
 void drawSprites();

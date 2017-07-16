@@ -10,12 +10,14 @@ namespace simpleGL {
 class Image {
 private:
 	GLuint id {0};
-	GLenum filtering;
+	GLint internal;
 	GLenum format;
+	GLenum type;
+	GLenum filtering;
 	unsigned width, height;
 
 protected:
-	void resize(unsigned newWidth, unsigned newHeight, GLenum newFormat);
+	void resize(unsigned newWidth, unsigned newHeight, GLint newInternal, GLenum newFormat, GLenum newType);
 
 	Image(GLenum filtering);
 
@@ -25,7 +27,11 @@ public:
 	/*
 	 *	Creates empty image with given resolution.
 	 */
-	Image(unsigned width, unsigned height, GLenum format, GLenum filtering);
+	Image(unsigned width, unsigned height, GLint internal, GLenum format, GLenum type, GLenum filtering);
+
+	Image(unsigned width, unsigned height, GLenum format, GLenum filtering)
+		: Image(width, height, format, format, GL_UNSIGNED_BYTE, filtering) {}
+
 
 	/*
 	 * Loads image from file into opengl texture object. Only works with png images(for now?).
@@ -36,8 +42,10 @@ public:
 
 	GLuint getId() const { return id; }
 
-	GLenum getFiltering() const {	return filtering; }
+	GLint getInternalFormat() const { return internal; }
 	GLenum getFormat() const {	return format; }
+	GLenum getDataType() const { return type; }
+	GLenum getFiltering() const {	return filtering; }
 
 	/*
 	 *	Gets pixel width and height of this texture.

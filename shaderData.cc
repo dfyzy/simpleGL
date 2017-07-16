@@ -28,7 +28,7 @@ std::string getVertex() {
 	"	vTexture = inTexture;\n"
 	"	vColor = inColor;\n"
 
-	"	gl_Position = vec4(round(dynamic.view * vec3(inPosition, 1)), 1);\n"
+	"	gl_Position = vec4(dynamic.view * vec3(inPosition, 1), 1);\n"
 	"	gl_Position.xy /= dynamic.resolution.y/2;\n"
 	"	gl_Position.x *= dynamic.resolution.y/dynamic.resolution.x;\n"
 	"}");

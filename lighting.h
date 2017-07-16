@@ -14,8 +14,6 @@ public:
 
 		Lighting* lighting;
 
-		Framebuffer* framebuffer;
-
 		GLint centreLoc;
 		GLint boundsLoc;
 
@@ -28,14 +26,27 @@ public:
 		}
 
 	protected:
-		~Source();
+		~Source() {
+			lighting->sources.remove(this);
+		}
 
 	public:
 		static GLuint getDefaultFragment();
 
-		Source(Lighting* lighting, Texture t, Data d);
+		Source(Lighting* lighting, Texture t, Data d) : UnsortedSprite(t, d), lighting(lighting) {
+			setFragmentShader(getDefaultFragment());
 
-		bool getChanged() const { return change->get(); }
+			if (lighting) {
+				lighting->sources.push_back(this);
+				change = getChange();
+			}
+		}
+
+		bool getChanged() {
+			bool result = change->get();
+			change->reset();
+			return result;
+		}
 
 		void setFragmentShader(GLuint sh) {
 			UnsortedSprite::setFragmentShader(sh);
@@ -51,6 +62,8 @@ public:
 	private:
 		Lighting* lighting;
 
+		DrawObject* object;
+
 		DrawObject* bottom;
 		DrawObject* middle;
 
@@ -59,17 +72,56 @@ public:
 		Anchor anchor;
 		Color color;
 
+		Change* change;
+
 	protected:
-		~Shadow();
+		~Shadow() {
+			object->unload();
+
+			bottom->unload();
+			middle->unload();
+
+			lighting->shadows.remove(this);
+		}
 
 	public:
-		Shadow(Lighting* lighting, Vector bounds, Data d);
+		Shadow(Lighting* lighting, Vector bounds, Data d)
+				: Point(d.pparent, d.pposition, d.pscale, d.protation), lighting(lighting), bounds(bounds), anchor(d.panchor), color(d.pcolor) {
+			object = new DrawObject();
+			object->bindTextureData(bounds);
+
+			bottom = new DrawObject();
+			bottom->bindTextureData({});
+
+			middle = new DrawObject();
+			middle->bindTextureData({});
+
+			if (lighting) {
+				lighting->shadows.push_back(this);
+				change = getChange();
+			}
+		}
+
+		bool getChanged() {
+			bool result = change->get();
+			change->reset();
+			return result;
+		}
 
 		Anchor getAnchor() const { return anchor; }
 		void setAnchor(Anchor a) {
 			if (anchor == a)	return;
 
 			anchor = a;
+			setChanges();
+		}
+
+		Vector getBounds() const { return bounds; }
+		void setBounds(Vector v) {
+			if (bounds == v)	return;
+
+			bounds = v;
+
 			setChanges();
 		}
 
@@ -85,8 +137,6 @@ private:
 
 	std::list<Source*> sources;
 	std::list<Shadow*> shadows;
-
-	std::list<Change*> shadowChanges;
 
 	bool first {true};
 	void init();

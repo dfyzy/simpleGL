@@ -9,8 +9,6 @@ std::pair<int, int> SIDE_VERTS [9] {{0, 3}, {1, 3}, {1, 2},
 											{0, 1}, {0, 0}, {3, 2},
 											{2, 1}, {2, 0}, {3, 0}};
 
-bool shadowChanged;
-
 }
 
 namespace simpleGL {
@@ -24,24 +22,6 @@ GLuint Lighting::Source::getDefaultFragment() {
 	return lightingFragmentShader;
 }
 
-Lighting::Source::Source(Lighting* lighting, Texture t, Data d) : UnsortedSprite(t, d), lighting(lighting) {
-	setFragmentShader(getDefaultFragment());
-
-	Vector bounds = t.getBounds().ceil();
-	framebuffer = new Framebuffer(bounds.x, bounds.y, GL_RGB, GL_NEAREST, {0});
-
-	if (lighting) {
-		lighting->sources.push_back(this);
-		change = getChange();
-	}
-}
-
-Lighting::Source::~Source() {
-	framebuffer->unload();
-
-	lighting->sources.remove(this);
-}
-
 void Lighting::Source::draw() {
 	if (!isEnabled())	return;
 
@@ -50,67 +30,39 @@ void Lighting::Source::draw() {
 	Vector b = getTexture().getBounds()*getScale();
 	glProgramUniform2f(getFragmentShader(), boundsLoc, b.x, b.y);
 
-	if (shadowChanged || change->get()) {
-		change->reset();
+	//TODO: stuff if overlapping
+	glColorMask(false, false, false, false);
 
-		framebuffer->bind(getModelMatrix());
+	setCustomStencil(GL_ALWAYS, 1, GL_REPLACE);
 
-		glDisable(GL_BLEND);
+	UnsortedSprite::draw();
 
-		//TODO: stuff if overlapping
+	util::useShaders(getDefaultVertexShader(), getDefaultFragmentShader(true));
 
-		UnsortedSprite::draw();
+	for (Shadow* sh : lighting->shadows)
+		sh->draw(this);
 
-		for (Shadow* sh : lighting->shadows)
-			sh->draw(this);
+	glColorMask(true, true, true, true);
 
-		glEnable(GL_BLEND);
+	setCustomStencil(GL_EQUAL, 1, GL_ZERO);
 
-		framebuffer->unbind();
-	}
-
-	util::useShaders(getDefaultVertexShader(), getDefaultFragmentShader(false));
-	Texture(framebuffer->getImage()).bind();
-
-	getDrawObject()->draw();
-}
-
-Lighting::Shadow::Shadow(Lighting* lighting, Vector bounds, Data d)
-		: Point(d.pparent, d.pposition, d.pscale, d.protation), lighting(lighting), bounds(bounds), anchor(d.panchor), color(d.pcolor) {
-	bottom = new DrawObject();
-	bottom->bindTextureData({});
-	bottom->bindColorData({0});
-
-	middle = new DrawObject();
-	middle->bindTextureData({});
-	middle->bindColorData({0});
-
-	if (lighting) {
-		lighting->shadows.push_back(this);
-		lighting->shadowChanges.push_back(getChange());
-	}
-}
-
-Lighting::Shadow::~Shadow() {
-	bottom->unload();
-	middle->unload();
-
-	lighting->shadows.remove(this);
+	UnsortedSprite::draw();
 }
 
 void Lighting::Shadow::draw(Source* source) {
 	if (!isEnabled())	return;
 
-	util::useShaders(getDefaultVertexShader(), getDefaultFragmentShader(true));
+	Matrix objModel = getModelMatrix() * Matrix::translate(toFactor(anchor) * bounds * 0.5f) * Matrix::scale(bounds);
+	object->bindVertexData(objModel);
 
-	Matrix bottomModel = getModelMatrix() * Matrix::translate(toFactor(anchor) * bounds * 0.5f) * Matrix::scale(bounds);
+	Matrix bottomModel = objModel;
 	bottom->bindVertexData(bottomModel);
 
 	float data[QUAD_VERTS*2];
 
 	Vector pov = source->getRealCenter();
 
-	Vector prj = bottomModel.inv() * pov;
+	Vector prj = objModel.inv() * pov;
 	std::pair<int, int> verts = SIDE_VERTS[(prj.x > 0.5f) - (prj.x < -0.5f) + 1
 													+ 3*((prj.y > 0.5f) - (prj.y < -0.5f) + 1)];
 
@@ -133,15 +85,23 @@ void Lighting::Shadow::draw(Source* source) {
 
 	middle->bindData(DataType::VERTEX, data);
 
+	glStencilFunc(GL_EQUAL, 1, 0xFF);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
+
 	bottom->draw();
 	middle->draw();
+
+	glStencilFunc(GL_ALWAYS, 1, 0xFF);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+	object->draw();
 }
 
 Lighting::Lighting(Data d, int z, unsigned width, unsigned height, Color base)
 				: Sprite({}, d, z) {
 	util::println("Lighting:load");
 
-	framebuffer = new Framebuffer(width, height, GL_RGB, GL_LINEAR, base);
+	framebuffer = new Framebuffer(width, height, GL_RGB, true, GL_LINEAR, base);
 }
 
 Lighting::~Lighting() {
@@ -158,25 +118,17 @@ Lighting::~Lighting() {
 
 void Lighting::draw() {
 	bool needToDraw = false;
-	for (Change* ch : shadowChanges)
-		if (ch->get()) {
-			ch->reset();
-			needToDraw = true;
-			shadowChanged = true;
-		}
+	for (Shadow* sh : shadows)
+		needToDraw |= sh->getChanged();
 
 	for (Source* src : sources)
-		if (src->getChanged()) {
-			needToDraw = true;
-			break;
-		}
+		needToDraw |= src->getChanged();
 
 	if (first) {
 		first = false;
 
 		setTexture(framebuffer->getImage());
 		needToDraw = true;
-		shadowChanged = true;
 	}
 
 	if (needToDraw) {
@@ -189,7 +141,6 @@ void Lighting::draw() {
 
 		framebuffer->unbind();
 	}
-	shadowChanged = false;
 
 	glBlendFunc(GL_ZERO, GL_SRC_COLOR);
 

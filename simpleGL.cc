@@ -15,9 +15,9 @@ namespace {
 typedef std::chrono::high_resolution_clock Clock;
 
 GLFWwindow* window = nullptr;
-unsigned windowWidth, windowHeight;
+unsigned windowWidth = 0, windowHeight = 0;
 
-simpleGL::Color clearColor;
+simpleGL::Color backColor;
 
 GLuint vao;
 
@@ -57,7 +57,7 @@ inline bool initGLFW(bool resizable, bool decorated) {
 }
 
 inline void loadWindow(std::string title, GLFWmonitor* monitor, Color background) {
-	clearColor = background;
+	backColor = background;
 
 	window = glfwCreateWindow(windowWidth, windowHeight, title.c_str(), monitor, nullptr);
 
@@ -145,6 +145,10 @@ GLFWwindow* loadWindow(std::string title, unsigned width, unsigned height, bool 
 	return window;
 }
 
+GLFWwindow* getWindow() {
+	return window;
+}
+
 unsigned getWindowWidth() {
 	return windowWidth;
 }
@@ -153,12 +157,12 @@ unsigned getWindowHeight() {
 	return windowHeight;
 }
 
-double getDeltaTime() {
-	return deltaTime;
+Color getBackground() {
+	return backColor;
 }
 
-GLFWwindow* util::getWindow() {
-	return window;
+double getDeltaTime() {
+	return deltaTime;
 }
 
 void setUpdate(std::function<void()> func) {
@@ -212,13 +216,9 @@ void draw() {
 		for (auto uu : utilUpdates)
 			uu();
 
-		util::bindSprites();
-
 		glBindVertexArray(vao);
 
-		glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
-
-		util::drawSprites();
+		Camera::getInstance()->draw();
 
 		glBindVertexArray(0);
 

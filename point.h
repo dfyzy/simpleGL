@@ -119,6 +119,10 @@ public:
 		updateModel();
 	}
 
+	void addPosition(Vector v) {
+		setPosition(getPosition() + v);
+	}
+
 	Vector getScale() const { return scale; }
 	virtual void setScale(Vector pscale) {
 		if (scale == pscale)	return;
@@ -140,6 +144,10 @@ public:
 		rotation = protation;
 
 		updateModel();
+	}
+
+	void addRotation(Angle a) {
+		setRotation(getRotation() + a);
 	}
 
 	virtual Matrix getModelMatrix() {
