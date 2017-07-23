@@ -19,6 +19,10 @@ public:
 	Audio* loadData(int chanels, int length, int sampleRate, const short* data);
 	Audio* loadData(std::string path);
 
+	ALuint getId() const { return id; }
+
+	void unload() { delete this; }
+
 };
 
 }

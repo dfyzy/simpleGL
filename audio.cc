@@ -73,4 +73,10 @@ Audio* Audio::loadData(std::string path) {
 	return loadData(info.channels, info.frames, info.samplerate, data.get());
 }
 
+Audio::~Audio() {
+	util::println("Audio:unload");
+
+	alDeleteBuffers(1, &id);
+}
+
 }

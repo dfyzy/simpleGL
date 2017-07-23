@@ -100,6 +100,21 @@ inline void loadWindow(std::string title, GLFWmonitor* monitor, Color background
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
+
+	ALCdevice* device = alcOpenDevice(NULL);
+
+	if (!device) {
+		util::println("error:OpenAL:failed to create device");
+		return;
+	}
+
+	ALCcontext* context = alcCreateContext(device, NULL);
+	if (!context) {
+		util::println("error:OpenAL:failed to create context");
+		return;
+	}
+
+	alcMakeContextCurrent(context);
 }
 
 GLFWwindow* loadFullscreenWindow(std::string title, bool borderless, Color background) {

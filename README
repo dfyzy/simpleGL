@@ -1,11 +1,16 @@
-Using OpenGL, GLFW, GLEW, libpng and FreeType
+Using OpenGL, GLFW, GLEW, libpng, FreeType, OpenAL and libsndfile.
 
-You can draw stuff now.
+You can draw stuff now. This just in! You can listen to stuff too!
 
 TOFIX:
 -Text fractions blur
 
 TODO:
+-Listener class
+-Futher buffer manipulation
+-Futher source manipulation
+-Sound position and attenuation
+-Dopler effect
 -Proper exiting
 -Trigger sprites
 -Window resizability
