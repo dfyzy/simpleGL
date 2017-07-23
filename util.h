@@ -23,25 +23,8 @@ inline void println(std::string str) {
 	print(str + "\n");
 }
 
-void initShaders();
-void initDataBuffers();
-
 void addPreUpdate(std::function<void()> updt);
 void addUpdate(std::function<void()> updt);
-
-//calling glUseProgramStages for each stage.
-void useShaders(GLuint vertex, GLuint fragment);
-
-//TODO: mat
-void setViewMatrix(Matrix view);
-Matrix getViewMatrix();
-
-void setResolution(unsigned width, unsigned height);
-unsigned getResWidth();
-unsigned getResHeight();
-
-void setFbo(GLuint fbo);
-GLuint getFbo();
 
 //draw sprites for each texture
 void drawSprites();

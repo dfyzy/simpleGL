@@ -12,7 +12,7 @@ Audio::Audio() {
 	alGenBuffers(1, &id);
 }
 
-Audio& Audio::loadData(int channels, int length, int sampleRate, const short* data) {
+Audio* Audio::loadData(int channels, int length, int sampleRate, const short* data) {
 	util::println("Audio:loadData");
 
 	ALenum format {0};
@@ -25,13 +25,11 @@ Audio& Audio::loadData(int channels, int length, int sampleRate, const short* da
 
 	if (format == 0) {
 		util::println("error:Audio:unsupported number of channels");
-		return *this;
+		return this;
 	}
 
 	alBufferData(id, format, data, length*channels*sizeof(short), sampleRate);
 
-	util::openalError();
-	
 	ALenum error = alGetError();
 	if (error != AL_NO_ERROR) {
 		std::string errorString;
@@ -42,10 +40,10 @@ Audio& Audio::loadData(int channels, int length, int sampleRate, const short* da
 		util::println("error:OpenAL:" + errorString);
 	}
 
-	return *this;
+	return this;
 }
 
-Audio& Audio::loadData(std::string path) {
+Audio* Audio::loadData(std::string path) {
 	util::println("Audio:load file:" + path);
 
 	SF_INFO info;
@@ -63,7 +61,7 @@ Audio& Audio::loadData(std::string path) {
 
 		util::println("error:libsndfile:failed to open file:" + errorString);
 
-		return *this;
+		return this;
 	}
 
 	int samples = info.frames*info.channels;

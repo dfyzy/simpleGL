@@ -75,7 +75,7 @@ Font::Font(std::string path, int size) {
 	}
 	width -= TEX_GAP;
 
-	image = new Image(width, height, GL_RED, GL_LINEAR);
+	image = (new Image(GL_LINEAR))->loadData(width, height, GL_RED, nullptr);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 

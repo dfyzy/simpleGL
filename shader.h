@@ -7,11 +7,13 @@
 
 namespace simpleGL {
 
+GLuint getDefaultVertexShader();
+GLuint getDefaultFragmentShader(bool empty);
+
 GLuint loadShaderSource(std::string source, GLenum type);
 GLuint loadShaderPath(std::string path, GLenum type);
 
-GLuint getDefaultVertexShader();
-GLuint getDefaultFragmentShader(bool empty);
+void useShaders(GLuint vertex, GLuint fragment);
 
 }
 

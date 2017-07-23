@@ -102,11 +102,11 @@ void UnsortedSprite::draw() {
 	}
 
 	texture.bind();
-	
+
 	glStencilFunc(stencilFunc, stencilRef, 0xFF);
 	glStencilOp(GL_KEEP, GL_KEEP, stencilOp);
 
-	util::useShaders(vertexShader, fragmentShader);
+	useShaders(vertexShader, fragmentShader);
 
 	drawObject->draw();
 }

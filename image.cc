@@ -10,11 +10,9 @@
 namespace simpleGL {
 
 Image::Image(GLenum filtering) {
-	util::print("Image:load:");
+	util::println("Image:load");
 
 	glGenTextures(1, &id);
-
-	util::println(std::to_string(id));
 
 	setFiltering(filtering);
 
@@ -22,17 +20,37 @@ Image::Image(GLenum filtering) {
 	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
-Image::Image(unsigned width, unsigned height, GLint internal, GLenum format, GLenum type, GLenum filtering) : Image(filtering) {
-	resize(width, height, internal, format, type);
+Image* Image::loadData(unsigned pwidth, unsigned pheight, GLenum pformat, GLint pinternal, GLenum ptype, const void* data) {
+	util::println("Image:loadData");
+
+	width = pwidth;
+	height = pheight;
+	internal = pinternal;
+	format = pformat;
+	type = ptype;
+
+	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, internal, width, height, 0, format, type, data);
+
+	GLenum error;
+	while((error = glGetError()) != GL_NO_ERROR) {
+		std::string errorString;
+		if (error == GL_INVALID_ENUM)					errorString = "invalid enum";
+		else if (error == GL_INVALID_VALUE)			errorString = "invalid value";
+		else if (error == GL_INVALID_OPERATION)	errorString = "invalid operation";
+
+		util::println("error:OpenGL:" + errorString);
+	}
+
+	return this;
 }
 
-Image::Image(std::string path, GLenum filtering) : Image(filtering) {
-	util::println(std::string("Image:load file:") + path);
+Image* Image::loadData(std::string path) {
+	util::println("Image:load file:" + path);
 
 	FILE *file = fopen(path.c_str(), "rb");
 	if (!file) {
 		util::println("error:Image:failed to open file");
-		return;
+		return this;
 	}
 
 	png_byte header[8];
@@ -40,14 +58,14 @@ Image::Image(std::string path, GLenum filtering) : Image(filtering) {
 	if (png_sig_cmp(header, 0, 8)) {
 		util::println("error:Image:file is not a png");
 		fclose(file);
-		return;
+		return this;
 	}
 
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	if (!png_ptr) {
 		util::println("error:Image:failed to create read struct");
 		fclose(file);
-		return;
+		return this;
 	}
 
 	png_infop info_ptr = png_create_info_struct(png_ptr);
@@ -55,14 +73,14 @@ Image::Image(std::string path, GLenum filtering) : Image(filtering) {
 		util::println("error:Image:failed to create info struct");
 		png_destroy_read_struct(&png_ptr, nullptr, nullptr);
 		fclose(file);
-		return;
+		return this;
 	}
 
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		util::println("error:Image:libpng error");
 		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 		fclose(file);
-		return;
+		return this;
 	}
 
 	png_init_io(png_ptr, file);
@@ -73,7 +91,7 @@ Image::Image(std::string path, GLenum filtering) : Image(filtering) {
 
 	png_get_IHDR(png_ptr, info_ptr, &width, &height, nullptr, nullptr, nullptr, nullptr, nullptr);
 
-	resize(width, height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE);
+	loadData(width, height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
 	std::unique_ptr<png_byte[]> row(new png_byte[4*width]);
 
@@ -85,15 +103,17 @@ Image::Image(std::string path, GLenum filtering) : Image(filtering) {
 	png_read_end(png_ptr, nullptr);
 	png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 	fclose(file);
+
+	return this;
 }
 
-void Image::setFiltering(GLenum newFiltering) {
-	if ((newFiltering != GL_LINEAR) && (newFiltering != GL_NEAREST)) {
-		util::println("error:Image:wrong filtering type");
+void Image::setFiltering(GLenum pfiltering) {
+	if ((pfiltering != GL_LINEAR) && (pfiltering != GL_NEAREST)) {
+		util::println("error:OpenGL:wrong filtering type");
 		return;
 	}
 
-	filtering = newFiltering;
+	filtering = pfiltering;
 
 	glBindTexture(GL_TEXTURE_RECTANGLE, id);
 
@@ -101,20 +121,8 @@ void Image::setFiltering(GLenum newFiltering) {
 	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, filtering);
 }
 
-void Image::resize(unsigned newWidth, unsigned newHeight, GLint newInternal, GLenum newFormat, GLenum newType) {
-	util::println(std::string("Image:resize:") + std::to_string(id));
-
-	width = newWidth;
-	height = newHeight;
-	internal = newInternal;
-	format = newFormat;
-	type = newType;
-
-	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, internal, width, height, 0, format, type, nullptr);
-}
-
 Image::~Image() {
-	util::println(std::string("Image:unload:") + std::to_string(id));
+	util::println("Image:unload");
 
 	glDeleteTextures(1, &id);
 }

@@ -68,10 +68,10 @@ int main() {
 
 	glfwSetKeyCallback(window, keyCallback);
 
-	Image* bodyFront = new Image("example/body_front.png", GL_LINEAR);
-	Image* brim = new Image("example/brim.png", GL_LINEAR);
-	Image* light = new Image("example/light.png", GL_LINEAR);
-	Image* eye = new Image("example/eye.png", GL_LINEAR);
+	Image* bodyFront = (new Image(GL_LINEAR))->loadData("example/body_front.png");
+	Image* brim = (new Image(GL_LINEAR))->loadData("example/brim.png");
+	Image* light = (new Image(GL_LINEAR))->loadData("example/light.png");
+	Image* eye = (new Image(GL_LINEAR))->loadData("example/eye.png");
 
 	brimSprite = new Sprite(Texture(brim), Data().position({0, 68.6}), 0);
 	(new CustomButton(new Sprite(Texture(bodyFront), Data(), 0)))->setOpaque(false);
@@ -84,9 +84,9 @@ int main() {
 	std::string lorem("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
 	new Text(sans, lorem, Text::CENTER, 350, nullptr, Vector(0, -100), -10, 1, 0, Color(0));
 
-	Lighting* dark = new Lighting(Data().anchor(Left).position({0, -200}), -100, 200, 200, {0});
-	new Lighting::Source(dark, {100}, Data().position(Vector(0, -200) + Vector(25)).color({0.5f, 0, 0}));
-	new Lighting::Source(dark, {100}, Data().position(Vector(0, -200) + Vector(-25)).color({0, 0.5f, 0}));
+	Lighting* dark = new Lighting(Data().anchor(Left).position({0, -150}), -100, 200, 200, {0});
+	new Lighting::Source(dark, {100}, Data().position(Vector(0, -150) + Vector(25)).color({0.5f, 0, 0}));
+	new Lighting::Source(dark, {100}, Data().position(Vector(0, -150) + Vector(-25)).color({0, 0.5f, 0}));
 
 	Sprite* back = new Sprite({300}, Data().rotation(0.25f*3.1415927f), 5);
 	new CustomButton(back);

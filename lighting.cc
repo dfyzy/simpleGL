@@ -37,7 +37,7 @@ void Lighting::Source::draw() {
 
 	UnsortedSprite::draw();
 
-	util::useShaders(getDefaultVertexShader(), getDefaultFragmentShader(true));
+	useShaders(getDefaultVertexShader(), getDefaultFragmentShader(true));
 
 	for (Shadow* sh : lighting->shadows)
 		sh->draw(this);

@@ -7,6 +7,8 @@ namespace {
 constexpr int RESIZE_FACTOR = 2;
 
 GLuint vbos[simpleGL::DataType::COUNT];
+bool buffersNotInited {true};
+
 int dataSize[simpleGL::DataType::COUNT] { 2, 2, 4 };
 
 std::queue<unsigned> deletedDos;
@@ -18,24 +20,26 @@ unsigned objectCapacity = 4;
 
 namespace simpleGL {
 
-void util::initDataBuffers() {
-	util::println("Data buffers:load");
-
-	glGenBuffers(DataType::COUNT, vbos);
-
-	for (int i = 0; i < DataType::COUNT; i++) {
-		glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
-
-		//alocating data for objectCapacity number of objects.
-		glBufferData(GL_ARRAY_BUFFER, objectCapacity * dataSize[i]*QUAD_VERTS*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-
-		//binding buffers to layout locations in vertex shader.
-		glVertexAttribPointer(i, dataSize[i], GL_FLOAT, GL_FALSE, 0, nullptr);
-		glEnableVertexAttribArray(i);
-	}
-}
-
 DrawObject::DrawObject() {
+	if (buffersNotInited) {
+		buffersNotInited = false;
+
+		util::println("Data buffers:load");
+
+		glGenBuffers(DataType::COUNT, vbos);
+
+		for (int i = 0; i < DataType::COUNT; i++) {
+			glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
+
+			//alocating data for objectCapacity number of objects.
+			glBufferData(GL_ARRAY_BUFFER, objectCapacity * dataSize[i]*QUAD_VERTS*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+
+			//binding buffers to layout locations in vertex shader.
+			glVertexAttribPointer(i, dataSize[i], GL_FLOAT, GL_FALSE, 0, nullptr);
+			glEnableVertexAttribArray(i);
+		}
+	}
+
 	if (!deletedDos.empty()) {
 		id = deletedDos.front();
 		deletedDos.pop();
@@ -81,6 +85,11 @@ DrawObject::~DrawObject() {
 }
 
 void DrawObject::bindData(DataType::E type, float data[]) const {
+	if (type == DataType::COUNT) {
+		util::println("error:DrawObject:do not use DataType::COUNT");
+		return;
+	}
+
 	glBindBuffer(GL_ARRAY_BUFFER, vbos[type]);
 
 	int size = dataSize[type]*QUAD_VERTS*sizeof(float);

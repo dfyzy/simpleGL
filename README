@@ -2,9 +2,12 @@ Using OpenGL, GLFW, GLEW, libpng and FreeType
 
 You can draw stuff now.
 
+TOFIX:
+-Text fractions blur
+
 TODO:
+-Proper exiting
 -Trigger sprites
 -Window resizability
 -Particles(if there is a need for further optimization)
--Audio
 -Networking

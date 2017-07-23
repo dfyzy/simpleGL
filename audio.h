@@ -16,8 +16,8 @@ protected:
 public:
 	Audio();
 
-	Audio& loadData(int chanels, int length, int sampleRate, const short* data);
-	Audio& loadData(std::string path);
+	Audio* loadData(int chanels, int length, int sampleRate, const short* data);
+	Audio* loadData(std::string path);
 
 };
 

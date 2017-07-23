@@ -5,12 +5,11 @@ LIBPATH = $(prefix)/lib
 
 CPPFLAGS = -std=gnu++11 -Wall -O2 -static-libgcc -static-libstdc++
 
-#LIBS = -lglew32 -lglfw3 -lopengl32 -lgdi32 -lfreetype -lpng16
 LIBS = -Wl,-Bstatic -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 \
 			-lfreetype -lharfbuzz -lfreetype -lgraphite2 -lglib-2.0 -lpng16 -lz -lm -lbz2
 
 INCS = simpleGL.h glfw.h shader.h shaderData.h image.h texture.h color.h math.h matrix.h point.h shape.h drawObject.h unsortedSprite.h \
-			sprite.h camera.h cursor.h timer.h framebuffer.h lighting.h font.h text.h
+			sprite.h camera.h cursor.h timer.h framebuffer.h lighting.h font.h text.h util.h
 OBJS = simpleGL.o shader.o shaderData.o image.o texture.o math.o matrix.o drawObject.o unsortedSprite.o \
 			sprite.o camera.o cursor.o timer.o framebuffer.o lighting.o font.o text.o
 

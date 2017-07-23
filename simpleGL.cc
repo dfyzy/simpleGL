@@ -97,12 +97,9 @@ inline void loadWindow(std::string title, GLFWmonitor* monitor, Color background
 
 	glEnable(GL_STENCIL_TEST);
 
-	util::initShaders();
-
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-	util::initDataBuffers();
 }
 
 GLFWwindow* loadFullscreenWindow(std::string title, bool borderless, Color background) {
@@ -208,6 +205,8 @@ void draw() {
 
 		glfwPollEvents();
 
+		glBindVertexArray(vao);
+
 		for (auto upu : utilPreUpdates)
 			upu();
 
@@ -215,8 +214,6 @@ void draw() {
 
 		for (auto uu : utilUpdates)
 			uu();
-
-		glBindVertexArray(vao);
 
 		Camera::getInstance()->draw();
 
