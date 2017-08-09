@@ -1,11 +1,10 @@
 #include <fstream>
 
-#include <vector>
 #include <memory>
 
 #include "shader.h"
-#include "util.h"
 #include "shaderData.h"
+#include "util.h"
 
 namespace {
 
@@ -18,6 +17,17 @@ GLuint defaultVertexShader {0};
 
 GLuint defaultFragmentShader {0};
 GLuint emptyFragmentShader {0};
+
+
+inline void printInfoLog(GLuint program) {
+	GLint length;
+	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
+
+	std::unique_ptr<GLchar[]> infoLog(new GLchar[length + 1]);
+	glGetProgramInfoLog(program, length, nullptr, infoLog.get());
+
+	simpleGL::util::println(infoLog.get());
+}
 
 }
 
@@ -42,16 +52,6 @@ GLuint getDefaultFragmentShader(bool empty) {
 
 		return defaultFragmentShader;
 	}
-}
-
-inline void printInfoLog(GLuint program) {
-	GLint length;
-	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
-
-	std::unique_ptr<GLchar> infoLog(new GLchar[length + 1]);
-	glGetProgramInfoLog(program, length, nullptr, infoLog.get());
-
-	util::println(infoLog.get());
 }
 
 GLuint loadShaderSource(std::string source, GLenum type) {

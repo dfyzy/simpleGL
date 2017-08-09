@@ -1,13 +1,12 @@
+/* Loads freetype font into an image object
+*/
+
 #ifndef SIMPLE_FONT_H
 #define SIMPLE_FONT_H
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include <memory>
-
-#include "math.h"
-#include "color.h"
 #include "texture.h"
 
 namespace simpleGL {

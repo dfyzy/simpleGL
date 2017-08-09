@@ -1,13 +1,31 @@
 #include <libpng16/png.h>
-#include <zlib.h>
+//#include <zlib.h>
 
-#include <list>
 #include <memory>
 
 #include "image.h"
 #include "util.h"
 
+namespace {
+
+GLuint currentImage;
+
+
+void bindImage(GLuint image) {
+	if (image != currentImage) {
+
+		glBindTexture(GL_TEXTURE_RECTANGLE, image);
+		currentImage = image;
+	}
+}
+
+}
+
 namespace simpleGL {
+
+void Image::unbind() {
+	bindImage(0);
+}
 
 Image::Image(GLenum filtering) {
 	util::println("Image:load");
@@ -107,18 +125,22 @@ Image* Image::loadData(std::string path) {
 	return this;
 }
 
-void Image::setFiltering(GLenum pfiltering) {
-	if ((pfiltering != GL_LINEAR) && (pfiltering != GL_NEAREST)) {
+void Image::setFiltering(GLenum gle) {
+	if ((gle != GL_LINEAR) && (gle != GL_NEAREST)) {
 		util::println("error:OpenGL:wrong filtering type");
 		return;
 	}
 
-	filtering = pfiltering;
+	filtering = gle;
 
 	glBindTexture(GL_TEXTURE_RECTANGLE, id);
 
 	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, filtering);
 	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, filtering);
+}
+
+void Image::bind() const {
+	bindImage(id);
 }
 
 Image::~Image() {

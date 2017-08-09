@@ -1,3 +1,6 @@
+/* Use this functions only if you know what you are doing
+*/
+
 #ifndef SIMPLE_UTIL_H
 #define SIMPLE_UTIL_H
 
@@ -6,8 +9,6 @@
 #endif
 
 #include <functional>
-
-#include "sprite.h"
 
 namespace simpleGL {
 
@@ -23,8 +24,9 @@ inline void println(std::string str) {
 	print(str + "\n");
 }
 
+//Util update functions are ran before and after the user update function
 void addPreUpdate(std::function<void()> updt);
-void addUpdate(std::function<void()> updt);
+void addPostUpdate(std::function<void()> updt);
 
 //draw sprites for each texture
 void drawSprites();

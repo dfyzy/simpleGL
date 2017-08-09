@@ -1,3 +1,6 @@
+/* Some shader sources
+*/
+
 #ifndef SIMPLE_SHADER_DATA_H
 #define SIMPLE_SHADER_DATA_H
 

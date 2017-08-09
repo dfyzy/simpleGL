@@ -1,6 +1,6 @@
 #include <set>
 
-#include "simpleGL.h"
+#include "sprite.h"
 #include "util.h"
 
 namespace {
@@ -24,15 +24,15 @@ Sprite::~Sprite() {
 	sprites.erase(this);
 }
 
-void Sprite::setZ(int pz) {
+void Sprite::setZ(int z) {
 	sprites.erase(this);
-	z = pz;
+	z = z;
 	sprites.insert(this);
 }
 
-void Sprite::setTexture(Texture tex) {
+void Sprite::setTexture(Texture t) {
 	sprites.erase(this);
-	UnsortedSprite::setTexture(tex);
+	UnsortedSprite::setTexture(t);
 	sprites.insert(this);
 }
 

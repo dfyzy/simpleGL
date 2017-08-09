@@ -1,9 +1,14 @@
+/* Allows to do stuff over time
+ * Like animations and the likes
+*/
+
 #ifndef SIMPLE_TIMER_H
 #define SIMPLE_TIMER_H
 
 #include <functional>
 
 #include "simpleGL.h"
+#include "math.h"
 
 namespace simpleGL {
 

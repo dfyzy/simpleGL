@@ -1,11 +1,23 @@
+/* Base sprite class
+ * Doesn't draw automatically
+*/
+
 #ifndef SIMPLE_UNSORTED_SPRITE_H
 #define SIMPLE_UNSORTED_SPRITE_H
 
-#include "shape.h"
+#include "boxShape.h"
 #include "drawObject.h"
 #include "shader.h"
 
 namespace simpleGL {
+
+enum Anchor {	TopRight,		Top,		TopLeft,
+					Right,			Center,	Left,
+					BottomRight,	Bottom,	BottomLeft};
+
+inline Vector anchorToFactor(Anchor anchor) {
+	return (Vector(anchor % 3, anchor / 3) - 1);
+}
 
 struct Data {
 	Point* pparent {nullptr};
@@ -27,6 +39,9 @@ struct Data {
 
 class UnsortedSprite  : public BaseBoxShape {
 private:
+	Point* offset;
+	Anchor anchor;
+
 	DrawObject* drawObject;
 
 	Texture texture;
@@ -51,65 +66,78 @@ private:
 
 	void stopUsingStencil();
 
+	void updateAnchor() { offset->setPosition(anchorToFactor(anchor)*texture.getBounds()*0.5f); }
+
 protected:
 	DrawObject* getDrawObject() const { return drawObject; }
 
-	virtual void bindVertices();
-	virtual void bindTexture();
-	virtual void bindColor();
+	void updateModel() override {
+		needUpdtVertices = true;
 
-	~UnsortedSprite();
+		BaseBoxShape::updateModel();
+	}
+
+	~UnsortedSprite() {
+		stopUsingStencil();
+		for (UnsortedSprite* st : stenciled)
+			st->setStencil(nullptr);
+
+		drawObject->unload();
+	}
 
 public:
-	UnsortedSprite(Point* parent, Texture texture, Anchor anchor, Vector position, Vector scale, Angle rotation, Color color);
+	UnsortedSprite(Point* parent, Anchor anchor, Texture texture, Vector position, Vector scale, Angle rotation, Color color)
+								: BaseBoxShape(parent, position, scale, rotation), anchor(anchor), texture(texture), color(color) {
+		offset = new Point(this);
+		updateAnchor();
 
-	UnsortedSprite(Texture t, Data d) : UnsortedSprite(d.pparent, t, d.panchor, d.pposition, d.pscale, d.protation, d.pcolor) {}
+		drawObject = new DrawObject();
+
+		vertexShader = getDefaultVertexShader();
+		setDefaultFragmentShader();
+	}
+
+	UnsortedSprite(Texture t, Data d)
+		: UnsortedSprite(d.pparent, d.panchor, t, d.pposition, d.pscale, d.protation, d.pcolor) {}
 	UnsortedSprite(Texture t) : UnsortedSprite(t, {}) {}
 
 	unsigned getId() const { return drawObject->getId(); }
 
+	Anchor getAnchor() const { return anchor; }
+	void setAnchor(Anchor a) { anchor = a; updateAnchor(); }
+
+	Matrix getOffsetedModelMatrix() const { return offset->getModelMatrix(); }
+
 	Texture getTexture() const { return texture; }
-	virtual void setTexture(Texture tex) {
-		if (texture == tex)	return;
+	virtual void setTexture(Texture t) {
+		if (texture == t)	return;
 
-		texture = tex;
+		texture = t;
 
-		if (getAnchor() != Center)	updateOffset();
-		updateTexture();
+		needUpdtTexture = true;
+		needUpdtVertices = true;
+
+		updateAnchor();
+
+		setChanges();
 
 		if (defaultFrag) setDefaultFragmentShader();
 	}
 
-	void setTexturePosition(Vector v) {
-		if (texture.getPosition() == v)	return;
-
-		texture.setPosition(v);
-
-		updateTexture();
-	}
-
-	void setTextureBounds(Vector v) {
-		if (texture.getBounds() == v)	return;
-
-		texture.setBounds(v);
-
-		if (getAnchor() != Center)	updateOffset();
-		updateTexture();
-	}
-
-	Vector getBounds() const { return texture.getBounds(); }
+	Vector getBounds() const override { return texture.getBounds(); }
 
 	Color getColor() const { return color; }
-	void setColor(Color pcolor) {
-		if (color == pcolor)	return;
+	void setColor(Color c) {
+		if (color == c)	return;
 
-		color = pcolor;
+		color = c;
 
-		updateColor();
+		needUpdtColor = true;
+		setChanges();
 	}
 
 	GLuint getVertexShader() const { return vertexShader; }
-	virtual void setVertexShader(GLuint sh) { vertexShader = sh; }
+	void setVertexShader(GLuint sh) { vertexShader = sh; }
 
 	GLuint getFragmentShader() const { return fragmentShader; }
 	virtual void setFragmentShader(GLuint sh) { fragmentShader = sh; defaultFrag = false; }
@@ -119,19 +147,6 @@ public:
 
 		defaultFrag = true;
 	}
-
-	void updateModel() {
-		needUpdtVertices = true;
-
-		BaseBoxShape::updateModel();
-	}
-	void updateTexture() {
-		needUpdtTexture = true;
-		needUpdtVertices = true;
-
-		setChanges();
-	}
-	void updateColor() { needUpdtColor = true; }
 
 	void setStencil(UnsortedSprite* spr);
 	void setCustomStencil(GLenum func, GLenum ref, GLenum op) {

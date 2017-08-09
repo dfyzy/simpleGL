@@ -27,7 +27,7 @@ double deltaTime = 0;
 std::function<void()> update;
 
 std::list<std::function<void()>> utilPreUpdates;
-std::list<std::function<void()>> utilUpdates;
+std::list<std::function<void()>> utilPostUpdates;
 
 }
 
@@ -185,8 +185,8 @@ void util::addPreUpdate(std::function<void()> updt) {
 	utilPreUpdates.push_back(updt);
 }
 
-void util::addUpdate(std::function<void()> updt) {
-	utilUpdates.push_back(updt);
+void util::addPostUpdate(std::function<void()> updt) {
+	utilPostUpdates.push_back(updt);
 }
 
 void draw() {
@@ -227,7 +227,7 @@ void draw() {
 
 		if (update)	update();
 
-		for (auto uu : utilUpdates)
+		for (auto uu : utilPostUpdates)
 			uu();
 
 		Camera::getInstance()->draw();

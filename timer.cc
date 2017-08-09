@@ -15,7 +15,7 @@ void AbstractTimer::update() {
 AbstractTimer::AbstractTimer() {
 	if (firstConst) {
 		firstConst = false;
-		util::addUpdate(update);
+		util::addPostUpdate(update);
 	}
 
 	timers.push_back(this);

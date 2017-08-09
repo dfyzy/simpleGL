@@ -1,8 +1,6 @@
 #include <set>
-#include <vector>
 
 #include "cursor.h"
-
 #include "simpleGL.h"
 #include "util.h"
 
@@ -18,13 +16,16 @@ struct Press {
 
 std::list<Press> presses[simpleGL::Cursor::BUTTONS_MAX];
 
+
+simpleGL::Vector glfwToSimple(double xpos, double ypos) {
+	return simpleGL::Vector(xpos - simpleGL::getWindowWidth()/2, simpleGL::getWindowHeight()/2 - ypos);
+}
+
 }
 
 namespace simpleGL {
 
 Cursor* Cursor::instance = nullptr;
-
-Vector glfwToSimple(double xpos, double ypos) { return Vector(xpos - getWindowWidth()/2, getWindowHeight()/2 - ypos); }
 
 Cursor* Cursor::getInstance() {
 	if (instance == nullptr) {

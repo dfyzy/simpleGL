@@ -1,8 +1,10 @@
+/* Sprite, sorted by z and drawn every frame
+*/
+
 #ifndef SIMPLE_SPRITE_H
 #define SIMPLE_SPRITE_H
 
 #include "unsortedSprite.h"
-#include "texture.h"
 
 namespace simpleGL {
 
@@ -14,17 +16,12 @@ protected:
 	~Sprite();
 
 public:
-	/*
-	 * Creates sprite object and loads attribute data into data buffers.
-	 *
-	 * returns: sprite handle.
-	 */
 	Sprite(Texture t, Data d, int z);
 
 	int getZ() const { return z; }
-	void setZ(int pz);
+	void setZ(int i);
 
-	void setTexture(Texture tex);
+	void setTexture(Texture t) override;
 
 	struct Comparer {
 		bool operator()(const Sprite* lhs, const Sprite* rhs) {

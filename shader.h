@@ -1,3 +1,6 @@
+/* Shader stuff
+*/
+
 #ifndef SIMPLE_SHADER_H
 #define SIMPLE_SHADER_H
 

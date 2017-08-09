@@ -1,3 +1,6 @@
+/* Represents rectangle cut-out from an image
+*/
+
 #ifndef SIMPLE_TEXTURE_H
 #define SIMPLE_TEXTURE_H
 
@@ -31,7 +34,10 @@ public:
 		return Matrix::translate(position + bounds*0.5f) * Matrix::scale(bounds);
 	}
 
-	void bind();
+	void bind() {
+		if (image)	image->bind();
+		else			Image::unbind();
+	}
 
 	bool operator==(const Texture& t) const {
 		return image == t.image && position == t.position && bounds == t.bounds;

@@ -12,7 +12,7 @@ Audio::Audio() {
 	alGenBuffers(1, &id);
 }
 
-Audio* Audio::loadData(int channels, int length, int sampleRate, const short* data) {
+Audio* Audio::loadData(unsigned channels, unsigned length, unsigned sampleRate, const short* data) {
 	util::println("Audio:loadData");
 
 	ALenum format {0};
@@ -33,8 +33,10 @@ Audio* Audio::loadData(int channels, int length, int sampleRate, const short* da
 	ALenum error = alGetError();
 	if (error != AL_NO_ERROR) {
 		std::string errorString;
-		if (error == AL_INVALID_ENUM)			errorString = "invalid format";
+		if (error == AL_INVALID_OPERATION)	errorString = "invalid operation";
+		else if (error == AL_INVALID_ENUM)	errorString = "invalid format";
 		else if (error == AL_INVALID_VALUE)	errorString = "invalid value";
+		else if (error == AL_INVALID_NAME)	errorString = "invalid name";
 		else if (error == AL_OUT_OF_MEMORY)	errorString = "out of memory";
 
 		util::println("error:OpenAL:" + errorString);
@@ -65,7 +67,7 @@ Audio* Audio::loadData(std::string path) {
 	}
 
 	int samples = info.frames*info.channels;
-	std::unique_ptr<short> data {new short[samples]};
+	std::unique_ptr<short[]> data {new short[samples]};
 	sf_read_short(file, data.get(), samples);
 
 	sf_close(file);

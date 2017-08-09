@@ -1,7 +1,6 @@
-#include "camera.h"
 #include "simpleGL.h"
-#include "util.h"
 #include "shaderData.h"
+#include "util.h"
 
 namespace simpleGL {
 
@@ -11,13 +10,20 @@ Camera* Camera::getInstance() {
 	if (instance == nullptr) {
 		util::println("Camera:load");
 
-		instance = new Camera(new Framebuffer(getWindowWidth(), getWindowHeight(), GL_RGB, true, GL_NEAREST, getBackground()));
-		instance->setVertexShader(loadShaderSource(shaderData::getOverlayVertex(), GL_VERTEX_SHADER));
-		instance->setFragmentShader(loadShaderSource(shaderData::getOverlayFragment(), GL_FRAGMENT_SHADER));
+		instance = new Camera();
 	}
 
 	return instance;
 }
+
+Camera::Camera() : Point(),
+			framebuffer(new Framebuffer(getWindowWidth(), getWindowHeight(), GL_RGB, true, GL_NEAREST, getBackground())),
+			drawObject(new DrawObject()),
+			vertex(loadShaderSource(shaderData::getOverlayVertex(), GL_VERTEX_SHADER)),
+			fragment(loadShaderSource(shaderData::getOverlayFragment(), GL_FRAGMENT_SHADER)) {
+
+				drawObject->bindVertexData(Matrix::scale(2.0f));
+			}
 
 void Camera::draw() {
 	framebuffer->bind(getModelMatrix());
@@ -26,8 +32,11 @@ void Camera::draw() {
 
 	framebuffer->unbind();
 
+	useShaders(vertex, fragment);
+	framebuffer->getImage()->bind();
+
 	glDisable(GL_BLEND);
-	UnsortedSprite::draw();
+	drawObject->draw();
 	glEnable(GL_BLEND);
 }
 

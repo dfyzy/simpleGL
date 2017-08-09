@@ -1,7 +1,6 @@
 #include "lighting.h"
-#include "simpleGL.h"
-#include "util.h"
 #include "shaderData.h"
+#include "util.h"
 
 namespace {
 
@@ -25,7 +24,7 @@ GLuint Lighting::Source::getDefaultFragment() {
 void Lighting::Source::draw() {
 	if (!isEnabled())	return;
 
-	Vector pos = getRealCenter();
+	Vector pos = getRealPosition();
 	glProgramUniform2f(getFragmentShader(), centreLoc, pos.x, pos.y);
 	Vector b = getTexture().getBounds()*getScale();
 	glProgramUniform2f(getFragmentShader(), boundsLoc, b.x, b.y);
@@ -52,7 +51,7 @@ void Lighting::Source::draw() {
 void Lighting::Shadow::draw(Source* source) {
 	if (!isEnabled())	return;
 
-	Matrix objModel = getModelMatrix() * Matrix::translate(toFactor(anchor) * bounds * 0.5f) * Matrix::scale(bounds);
+	Matrix objModel = getModelMatrix() * Matrix::scale(bounds);
 	object->bindVertexData(objModel);
 
 	Matrix bottomModel = objModel;
@@ -60,7 +59,7 @@ void Lighting::Shadow::draw(Source* source) {
 
 	float data[QUAD_VERTS*2];
 
-	Vector pov = source->getRealCenter();
+	Vector pov = source->getRealPosition();
 
 	Vector prj = objModel.inv() * pov;
 	std::pair<int, int> verts = SIDE_VERTS[(prj.x > 0.5f) - (prj.x < -0.5f) + 1
@@ -134,7 +133,7 @@ void Lighting::draw() {
 	if (needToDraw) {
 		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE);
 
-		framebuffer->bind(getModelMatrix());
+		framebuffer->bind(getOffsetedModelMatrix());
 
 		for (Source* s : sources)
 			s->draw();

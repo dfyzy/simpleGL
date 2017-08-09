@@ -20,9 +20,6 @@ simpleGL::Matrix currentView;
 unsigned currentWidth;
 unsigned currentHeight;
 
-}
-
-namespace simpleGL {
 
 void setUniform(float* data, dynUniform::E type) {
 	int offset = 0;
@@ -42,10 +39,10 @@ void setResolution(unsigned width, unsigned height) {
 	glViewport(0, 0, width, height);
 }
 
-void setViewMatrix(Matrix view) {
+void setViewMatrix(simpleGL::Matrix view) {
 	currentView = view;
 
-	Matrix m = view.inv();
+	simpleGL::Matrix m = view.inv();
 	//transposing and padding
 	float data[] {m.get(0, 0),		m.get(1, 0),	m.get(2, 0), 0,
 						m.get(0, 1),	m.get(1, 1),	m.get(2, 1), 0,
@@ -62,7 +59,7 @@ void setFbo(GLuint fbo) {
 
 GLenum getStencilFormat() {
 	if (stencilFormat == 0) {
-		util::print("simpleGL:stencil only support:");
+		simpleGL::util::print("simpleGL:stencil only support:");
 
 		std::string word;
 
@@ -74,11 +71,15 @@ GLenum getStencilFormat() {
 			stencilFormat = GL_DEPTH24_STENCIL8;
 		}
 
-		util::println(word);
+		simpleGL::util::println(word);
 	}
 
 	return stencilFormat;
 }
+
+}
+
+namespace simpleGL {
 
 Framebuffer::Framebuffer(unsigned width, unsigned height, GLint internalFormat, GLenum format, GLenum type,
 									bool stencil, GLenum filtering, Color base) : base(base) {

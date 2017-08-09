@@ -1,3 +1,9 @@
+/* Lighting is a framebuffer(represents darkness) where you draw with Sources(represents light)
+ * When Lighting object is drawn, the colors underneath it are blended by multiplication
+ *
+ * Something something shadows something stencils
+*/
+
 #ifndef SIMPLE_LIGHTING_H
 #define SIMPLE_LIGHTING_H
 
@@ -18,12 +24,6 @@ public:
 		GLint boundsLoc;
 
 		Change* change;
-
-		void bindColor() {
-			UnsortedSprite::bindColor();
-
-			setChanges();
-		}
 
 	protected:
 		~Source() {
@@ -48,13 +48,13 @@ public:
 			return result;
 		}
 
-		void setFragmentShader(GLuint sh) {
+		void setFragmentShader(GLuint sh) override {
 			UnsortedSprite::setFragmentShader(sh);
 			centreLoc = glGetUniformLocation(sh, "centre");
 			boundsLoc = glGetUniformLocation(sh, "bounds");
 		}
 
-		void draw();
+		void draw() override;
 
 	};
 
@@ -68,9 +68,6 @@ public:
 		DrawObject* middle;
 
 		Vector bounds;
-
-		Anchor anchor;
-		Color color;
 
 		Change* change;
 
@@ -86,7 +83,7 @@ public:
 
 	public:
 		Shadow(Lighting* lighting, Vector bounds, Data d)
-				: Point(d.pparent, d.pposition, d.pscale, d.protation), lighting(lighting), bounds(bounds), anchor(d.panchor), color(d.pcolor) {
+				: Point(d.pparent, d.pposition, d.pscale, d.protation), lighting(lighting), bounds(bounds) {
 			object = new DrawObject();
 			object->bindTextureData(bounds);
 
@@ -108,14 +105,6 @@ public:
 			return result;
 		}
 
-		Anchor getAnchor() const { return anchor; }
-		void setAnchor(Anchor a) {
-			if (anchor == a)	return;
-
-			anchor = a;
-			setChanges();
-		}
-
 		Vector getBounds() const { return bounds; }
 		void setBounds(Vector v) {
 			if (bounds == v)	return;
@@ -124,10 +113,6 @@ public:
 
 			setChanges();
 		}
-
-		//TODO: color and transparency
-		Color getColor() const { return color; }
-		void setColor(Color c) { color = c; }
 
 		void draw(Source* source);
 	};
@@ -149,7 +134,7 @@ public:
 
 	Image* getImage() const { return framebuffer->getImage(); }
 
-	void draw();
+	void draw() override;
 
 };
 

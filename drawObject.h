@@ -1,7 +1,12 @@
+/* The base visual class
+ * Draws quads
+*/
+
 #ifndef SIMPLE_DRAW_OBJECT_H
 #define SIMPLE_DRAW_OBJECT_H
 
 #include "color.h"
+#include "matrix.h"
 #include "texture.h"
 
 namespace simpleGL {

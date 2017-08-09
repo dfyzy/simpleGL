@@ -1,3 +1,11 @@
+/* The base unit for spatial simulation
+ * Basically, a 2D model matrix with some usefull stuff
+ *
+ * Component class allows you to bind the lifetime of an object to a lifetime of a point
+ *
+ * Value of Change class object is set to true every time the point's properties change
+*/
+
 #ifndef SIMPLE_POINT_H
 #define SIMPLE_POINT_H
 
@@ -48,17 +56,6 @@ private:
 
 	std::list<Change> changes;
 
-	Matrix getRealModelMatrix() {
-		if (needUpdtModel) {
-			model = Matrix::translate(position) * Matrix::rotate(rotation) * Matrix::scale(scale);
-			if (parent)	model = parent->getRealModelMatrix() * model;
-
-			needUpdtModel = false;
-		}
-
-		return model;
-	}
-
 protected:
 	void setChanges() {
 		for (Change& ch : changes)
@@ -69,6 +66,14 @@ protected:
 		setChanges();
 		for (Point* ch : children)
 			ch->setChangesDown();
+	}
+
+	virtual void updateModel() {
+		setChanges();
+		needUpdtModel = true;
+
+		for (Point* obj : children)
+			obj->updateModel();
 	}
 
 	virtual ~Point() {
@@ -104,17 +109,11 @@ public:
 	}
 
 	Vector getPosition() const { return position; }
-	Vector getRealPosition() const {
-		Vector result = position;
+	Vector getRealPosition() { return getModelMatrix()*Vector(); }
+	void setPosition(Vector v) {
+		if (position == v)	return;
 
-		if (parent)	result = parent->getModelMatrix() * result;
-
-		return result;
-	}
-	virtual void setPosition(Vector pposition) {
-		if (position == pposition)	return;
-
-		position = pposition;
+		position = v;
 
 		updateModel();
 	}
@@ -124,24 +123,19 @@ public:
 	}
 
 	Vector getScale() const { return scale; }
-	virtual void setScale(Vector pscale) {
-		if (scale == pscale)	return;
+	void setScale(Vector v) {
+		if (scale == v)	return;
 
-		scale = pscale;
+		scale = v;
 
 		updateModel();
 	}
 
 	Angle getRotation() const { return rotation; }
-	Angle getRealRotation() const {
-		Angle result = rotation;
-		if (parent)	result += parent->getRealRotation();
-		return result;
-	}
-	virtual void setRotation(Angle protation) {
-		if (rotation == protation)	return;
+	void setRotation(Angle a) {
+		if (rotation == a)	return;
 
-		rotation = protation;
+		rotation = a;
 
 		updateModel();
 	}
@@ -150,8 +144,15 @@ public:
 		setRotation(getRotation() + a);
 	}
 
-	virtual Matrix getModelMatrix() {
-		return getRealModelMatrix();
+	Matrix getModelMatrix() {
+		if (needUpdtModel) {
+			model = Matrix::translate(position) * Matrix::rotate(rotation) * Matrix::scale(scale);
+			if (parent)	model = parent->getModelMatrix() * model;
+
+			needUpdtModel = false;
+		}
+
+		return model;
 	}
 
 	Point* getParent() const { return parent; }
@@ -174,14 +175,6 @@ public:
 	Change* getChange() {
 		changes.emplace_back();
 		return &*(--changes.end());
-	}
-
-	virtual void updateModel() {
-		setChanges();
-		needUpdtModel = true;
-
-		for (Point* obj : children)
-			obj->updateModel();
 	}
 
 	void translate(Vector v) {

@@ -1,3 +1,7 @@
+/* Vector class with 4 elements and some utility
+ * Used only to represent color as RGBA
+*/
+
 #ifndef SIMPLE_COLOR_H
 #define SIMPLE_COLOR_H
 

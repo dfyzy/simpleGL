@@ -1,10 +1,12 @@
+/* A wrapper around opengl texture object
+*/
+
 #ifndef SIMPLE_IMAGE_H
 #define SIMPLE_IMAGE_H
 
 #include <string>
 
 #include "glfw.h"
-#include "math.h"
 
 namespace simpleGL {
 
@@ -21,6 +23,8 @@ protected:
 	~Image();
 
 public:
+	static void unbind();
+
 	/*
 	 *	Creates empty image with given filtering mode.
 	 */
@@ -46,7 +50,9 @@ public:
 	unsigned getWidth() const { return width; }
 	unsigned getHeight() const { return height; }
 
-	void setFiltering(GLenum pfiltering);
+	void setFiltering(GLenum gle);
+
+	void bind() const;
 
 	void unload() { delete this; }
 

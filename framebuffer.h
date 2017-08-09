@@ -1,3 +1,9 @@
+/* A wrapper around opengl framebuffer object
+ * Draws stuff on an associated image object, instead of the screen
+ *
+ * Right now only with msaa
+*/
+
 #ifndef SIMPLE_FRAMEBUFFER_H
 #define SIMPLE_FRAMEBUFFER_H
 

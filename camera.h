@@ -1,3 +1,9 @@
+/* A singleton class which does 2 things:
+ * 1.	It's the view matrix
+ * 2.	It's the framebuffer on which all the draw calls are made
+ * 	After that, it draws the resulting image object on the screen, using assigned fragment shader
+*/
+
 #ifndef SIMPLE_CAMERA_H
 #define SIMPLE_CAMERA_H
 
@@ -6,28 +12,28 @@
 
 namespace simpleGL {
 
-class Camera : public UnsortedSprite {
+class Camera : public Point {
 private:
 	static Camera* instance;
 
 	Framebuffer* framebuffer;
+	DrawObject* drawObject;
 
-	void bindVertices() {}
-	void bindTexture() {
-		getDrawObject()->bindVertexData(Matrix::scale(getTexture().getBounds()));
+	const GLuint vertex;
+	GLuint fragment;
 
-		UnsortedSprite::bindTexture();
-	}
-
-	Camera(Framebuffer* framebuffer) : UnsortedSprite(nullptr, framebuffer->getImage(), {Center}, {}, {1}, 0, {1}), framebuffer(framebuffer) {}
+	Camera();
 	~Camera() {
 		framebuffer->unload();
+		drawObject->unload();
 	}
 
 public:
 	static Camera* getInstance();
 
 	Framebuffer* getFramebuffer() const { return framebuffer; }
+
+	void setFragmentShader(GLuint sh) { fragment = sh; }
 
 	void draw();
 

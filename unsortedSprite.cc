@@ -1,7 +1,6 @@
 #include <queue>
 
-#include "shaderData.h"
-#include "util.h"
+#include "unsortedSprite.h"
 
 namespace {
 
@@ -11,37 +10,6 @@ std::queue<GLint> deletedStencils;
 }
 
 namespace simpleGL {
-
-UnsortedSprite::UnsortedSprite(Point* parent, Texture texture, Anchor anchor, Vector position, Vector scale, Angle rotation, Color color)
-							: BaseBoxShape(parent, anchor, position, scale, rotation), texture(texture), color(color) {
-	drawObject = new DrawObject();
-
-	vertexShader = getDefaultVertexShader();
-	setDefaultFragmentShader();
-}
-
-UnsortedSprite::~UnsortedSprite() {
-	stopUsingStencil();
-	for (UnsortedSprite* st : stenciled)
-		st->setStencil(nullptr);
-
-	drawObject->unload();
-}
-
-void UnsortedSprite::bindVertices() {
-
-	drawObject->bindVertexData(getModelMatrix() * Matrix::scale(texture.getBounds()));
-}
-
-void UnsortedSprite::bindColor() {
-
-	drawObject->bindColorData(color);
-}
-
-void UnsortedSprite::bindTexture() {
-
-	drawObject->bindTextureData(texture);
-}
 
 void UnsortedSprite::stopUsingStencil() {
 	if (!stencil)	return;
@@ -88,17 +56,17 @@ void UnsortedSprite::draw() {
 
 	if (needUpdtTexture) {
 		needUpdtTexture = false;
-		bindTexture();
+		drawObject->bindTextureData(texture);
 	}
 
 	if (needUpdtVertices) {
 		needUpdtVertices = false;
-		bindVertices();
+		drawObject->bindVertexData(getOffsetedModelMatrix() * Matrix::scale(texture.getBounds()));
 	}
 
 	if (needUpdtColor) {
 		needUpdtColor = false;
-		bindColor();
+		drawObject->bindColorData(color);
 	}
 
 	texture.bind();

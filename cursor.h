@@ -1,3 +1,7 @@
+/* Cursor sprite(without actual drawing for now)
+ * Also, callbacks for mouse buttons
+*/
+
 #ifndef SIMPLE_CURSOR_H
 #define SIMPLE_CURSOR_H
 
@@ -28,8 +32,6 @@ private:
 	Point::Change* change;
 
 	//TODO: custom cursor images
-	void bindVertices() {}
-	void bindTexture() {}
 
 	Cursor();
 	~Cursor() {}

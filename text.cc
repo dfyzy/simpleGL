@@ -1,7 +1,6 @@
-#include "shader.h"
 #include "text.h"
-#include "util.h"
 #include "shaderData.h"
+#include "util.h"
 
 namespace {
 
@@ -18,17 +17,6 @@ GLuint Text::getDefaultFragment() {
 		textFragmentShader = loadShaderSource(shaderData::getTextFragment(), GL_FRAGMENT_SHADER);
 
 	return textFragmentShader;
-}
-
-Text::Text(Font* font, std::string caption, Alignment alignment, float width,
-				Point* parent, Vector position, int z, Vector scale, Angle rotation, Color color)
-					: Point(parent, position, scale, rotation), font(font), alignment(alignment), width(width), z(z), color(color) {
-	setCaption(caption);
-}
-
-void Text::setCaption(std::string string) {
-	clear();
-	addCaption(string);
 }
 
 void Text::addCaption(std::string string) {
@@ -67,7 +55,7 @@ void Text::addCaption(std::string string) {
 			lineWidth += glyph->advance;
 
 			float spss = spaces*spaceWidth*(alignment == JUSTIFIED ? MIN_JUSTIFIED_SPACE : 1);
-			if ((width != 0) && (lineEnd != cursorStr) && (lineWidth + spss > width)) {//hard way(overflow)
+			if ((bounds.x != 0) && (lineEnd != cursorStr) && (lineWidth + spss > bounds.x)) {//hard way(overflow)
 				//substracting width of overflowing word
 				for (unsigned s = lineEnd; s != c;) {
 					s++;
@@ -95,10 +83,10 @@ void Text::addCaption(std::string string) {
 
 		if (alignment == JUSTIFIED) {
 			if (notEOS) {
-				if (spaces != 0)	spaceWidth += (width - lineWidth)/spaces;
-				lineWidth = width;
+				if (spaces != 0)	spaceWidth += (bounds.x - lineWidth)/spaces;
+				lineWidth = bounds.x;
 			} else
-				offset -= (width - lineWidth)/2;//this will depend on language default alignment.
+				offset -= (bounds.x - lineWidth)/2;//this will depend on language default alignment.
 		}
 
 		if (alignment != LEFT)
@@ -115,7 +103,7 @@ void Text::addCaption(std::string string) {
 				continue;
 			}
 
-			Vector position = Vector(offset, -height) + glyph->offset;
+			Vector position = Vector(offset, -bounds.y) + glyph->offset;
 
 			if (cursorSpr == sprites.end()) {
 				Sprite* spr = new Sprite(glyph->texture, Data().anchor(TopLeft).parent(this).position(position).color(color), z);
@@ -133,7 +121,7 @@ void Text::addCaption(std::string string) {
 		lastLineStr = cursorStr;
 		lastLineSpr = cursorSpr;
 
-		height += font->getLineSpacing();
+		bounds.y += font->getLineSpacing();
 	}
 }
 

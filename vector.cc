@@ -1,4 +1,5 @@
-#include "math.h"
+#include "vector.h"
+#include "angle.h"
 
 namespace simpleGL {
 

@@ -1,11 +1,17 @@
+/* 3x3 tranformation matrix class
+ *
+ * Data is stored row-first
+ * The last row is ALWAYS 0 0 1
+*/
+
 #ifndef SIMPLE_MATRIX_H
 #define SIMPLE_MATRIX_H
 
-#include "math.h"
+#include "vector.h"
+#include "angle.h"
 
 namespace simpleGL {
 
-//3x3, row-first
 class Matrix {
 private:
 	float data[9];
@@ -36,10 +42,13 @@ public:
 							0, 1, 0) {}
 
 	float get(int row, int coll) const {
+		if (row < 0 || row > 2 ||
+			coll < 0 || coll > 2) return std::nanf("");
+
 		return data[row*3 + coll];
 	}
 
-	//this and inv func work only when last row of this matrix is (0, 0, 1); which is always;
+	//this and inv funcs work only because last row of this matrix is 0 0 1
 	float det() const {
 
 		return data[0]*data[4] - data[1]*data[3];
