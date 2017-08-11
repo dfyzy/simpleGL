@@ -26,8 +26,8 @@ private:
 
 	bool mouseButtons[BUTTONS_MAX];
 
-	std::function<void(Cursor*)> posCallback;
-	std::function<void(Cursor*, int, bool)> buttCallback;
+	std::function<void()> posCallback;
+	std::function<void(int, bool)> buttCallback;
 
 	Point::Change* change;
 
@@ -44,8 +44,8 @@ public:
 	//0 = left; 1 = right; 2 = middle;
 	bool getMouseButton(int button) const;
 
-	void setPositionCallback(std::function<void(Cursor*)> func) { posCallback = func; }
-	void setMouseButtonCallback(std::function<void(Cursor*, int, bool)> func) { buttCallback = func; }//int button, bool pressed
+	void setPositionCallback(std::function<void()> func) { posCallback = func; }
+	void setMouseButtonCallback(std::function<void(int, bool)> func) { buttCallback = func; }//int button, bool pressed
 
 };
 

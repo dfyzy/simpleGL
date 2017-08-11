@@ -39,7 +39,7 @@ Cursor* Cursor::getInstance() {
 }
 
 void Cursor::updatePosition() {
-	if (instance->changed() && instance->posCallback) instance->posCallback(instance);
+	if (instance->changed() && instance->posCallback) instance->posCallback();
 
 	std::list<std::pair<Press*, int>> drag;
 
@@ -118,7 +118,7 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 		presses[mButton].clear();
 	}
 
-	if (instance->buttCallback)	instance->buttCallback(instance, mButton, pressed);
+	if (instance->buttCallback)	instance->buttCallback(mButton, pressed);
 }
 
 Cursor::Cursor() : UnsortedSprite(Camera::getInstance(), {}, {1.0f}, {}, {}, Center, {1}), change(getChange()) {

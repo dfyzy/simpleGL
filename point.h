@@ -93,8 +93,6 @@ public:
 	Point(Point* parent) : Point(parent, {}, {1.0f}, {}) {}
 	Point() : Point(nullptr) {}
 
-	//Point(const Point& other) =delete;
-
 	bool isEnabled() const {
 		bool res = enabled;
 		if (parent)	res &= parent->isEnabled();

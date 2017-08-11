@@ -1,5 +1,4 @@
 #include <libpng16/png.h>
-//#include <zlib.h>
 
 #include <memory>
 

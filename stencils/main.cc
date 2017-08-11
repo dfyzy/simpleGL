@@ -58,7 +58,7 @@ void update() {
 		anchor->setScale(2/(SQRT_2 + 1) + part*(SQRT_2 - 1)/(SQRT_2 + 1));
 	}
 
-	for (int i = 0; i < 1; i++)
+	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < SPRITES_NUM; j++) {
 			int ind = j + i*SPRITES_NUM;
 
@@ -83,7 +83,7 @@ int main() {
 
 	anchor = new Point();
 
-	for (int i = 0; i < 1; i++) {
+	for (int i = 0; i < 4; i++) {
 		Color c {colorRand(), colorRand(), colorRand()};
 		Sprite* back = Sprite::Loader().texture(st).parent(anchor).position(Vector(H_H_WIN_SIZE) * offsets[i]).color(c).load();
 

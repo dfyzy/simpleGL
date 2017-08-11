@@ -35,8 +35,12 @@ void Camera::draw() {
 	framebuffer->getImage()->bind();
 
 	glDisable(GL_BLEND);
+	glDisable(GL_STENCIL_TEST);
+
 	drawObject->draw();
+
 	glEnable(GL_BLEND);
+	glEnable(GL_STENCIL_TEST);
 }
 
 }
