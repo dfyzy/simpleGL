@@ -121,7 +121,7 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 	if (instance->buttCallback)	instance->buttCallback(instance, mButton, pressed);
 }
 
-Cursor::Cursor() : UnsortedSprite({}, Data().parent(Camera::getInstance()).anchor(Center)), change(getChange()) {
+Cursor::Cursor() : UnsortedSprite(Camera::getInstance(), {}, {1.0f}, {}, {}, Center, {1}), change(getChange()) {
 	glfwSetCursorPosCallback(getWindow(), positionCallback);
 	glfwSetMouseButtonCallback(getWindow(), buttonCallback);
 }

@@ -14,10 +14,10 @@ int main() {
 
 	glfwSetKeyCallback(window, keyCallback);
 
-	Image* circle = new Image("circle/circle.png", GL_NEAREST);
+	Image* circle = (new Image(GL_NEAREST))->loadData("circle/circle.png");
 	Texture texCircle(circle);
-	new Sprite(texCircle, Data().position({-30, 0}), 0);
-	new Sprite(texCircle, Data().position({30.5, 0.5}), 0);
+	Sprite::Loader().texture(texCircle).position({-30, 0}).load();
+	Sprite::Loader().texture(texCircle).position({30.5, 0.5}).load();
 
 	draw();
 }

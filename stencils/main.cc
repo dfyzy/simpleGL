@@ -40,7 +40,7 @@ Angle angles[4] {{PI}, {PI*1.5f}, {0}, {PI*0.5f}};
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
 	if ((action == GLFW_PRESS) && (key == GLFW_KEY_ESCAPE))
-			glfwSetWindowShouldClose(window, GL_TRUE);
+		glfwSetWindowShouldClose(window, GL_TRUE);
 
 }
 
@@ -58,14 +58,14 @@ void update() {
 		anchor->setScale(2/(SQRT_2 + 1) + part*(SQRT_2 - 1)/(SQRT_2 + 1));
 	}
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 1; i++)
 		for (int j = 0; j < SPRITES_NUM; j++) {
 			int ind = j + i*SPRITES_NUM;
 
-			sprites[ind].first->translate({sprites[ind].second, 0});
+			sprites[ind].first->translate(Vector(sprites[ind].second, 0));
 
 			if (sprites[ind].first->getPosition().x > H_WIN_SIZE) {
-				sprites[ind].first->setPosition({-H_WIN_SIZE, posRand()});
+				sprites[ind].first->setPosition(Vector(-H_WIN_SIZE, posRand()));
 				sprites[ind].first->setScale({scaleRand()});
 				sprites[ind].second = speedRand();
 			}
@@ -77,21 +77,21 @@ int main() {
 
 	glfwSetKeyCallback(window, keyCallback);
 
-	Image* st = new Image("stencils/big_circle.png", GL_LINEAR);
+	Image* st = (new Image(GL_LINEAR))->loadData("stencils/big_circle.png");
 
 	Vector offsets[4] {{1, 1}, {-1, 1}, {-1, -1}, {1, -1}};
 
 	anchor = new Point();
 
-	for (int i = 0; i < 4; i++) {
-		Color c{colorRand(), colorRand(), colorRand()};
-		Sprite* back = new Sprite(st, Data().parent(anchor).position(Vector(H_H_WIN_SIZE) * offsets[i]).color(c), 0);
+	for (int i = 0; i < 1; i++) {
+		Color c {colorRand(), colorRand(), colorRand()};
+		Sprite* back = Sprite::Loader().texture(st).parent(anchor).position(Vector(H_H_WIN_SIZE) * offsets[i]).color(c).load();
 
 		Point* par = new Point(nullptr, {}, {1}, angles[i]);
 
 		for (int j = 0; j < SPRITES_NUM; j++) {
-			Sprite* sprite = new Sprite(st, Data().parent(par).position({posRand(), posRand()})
-																		.scale({scaleRand()}).color(Color(1) - c), 0);
+			Sprite* sprite = Sprite::Loader().texture(st).parent(par).position(Vector(posRand(), posRand()))
+																		.scale({scaleRand()}).color(Color(1) - c).load();
 			sprite->setStencil(back);
 			sprites[j + i*SPRITES_NUM] = {sprite, speedRand()};
 		}

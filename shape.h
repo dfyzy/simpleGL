@@ -31,11 +31,15 @@ public:
 
 	Shape* getMask() const { return mask; }
 	void setMask(Shape* shape) {
+		if (shape == mask)	return;
+
 		stopUsingMask();
 
 		mask = shape;
 
 		if (mask)	mask->masked.push_back(this);
+
+		setChanges();
 	}
 
 	bool inBounds(Vector v) {

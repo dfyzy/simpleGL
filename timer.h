@@ -157,8 +157,8 @@ protected:
 
 		(SetterTimer<Object, Value>::object->*SetterTimer<Object, Value>::set)(
 			math::lerp(SetterTimer<Object, Value>::iterator->getPast()->value,
-					SetterTimer<Object, Value>::iterator->getFuture()->value,
-						SetterTimer<Object, Value>::cursor/SetterTimer<Object, Value>::iterator->get()->duration)
+				SetterTimer<Object, Value>::iterator->getFuture()->value,
+					SetterTimer<Object, Value>::cursor/SetterTimer<Object, Value>::iterator->get()->duration)
 		);
 	}
 

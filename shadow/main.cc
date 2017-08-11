@@ -48,29 +48,27 @@ int main() {
 
 	glfwSetKeyCallback(window, keyCallback);
 
-	Lighting* light = new Lighting({}, -1, getWindowWidth(), getWindowHeight(), {0.2f});
-	// Lighting::Source* lamp = new Lighting::Source(light, {1000}, Data().parent(Cursor::getInstance()).color({0.5f}));
-	// lamp->setFragmentShader(loadShaderSource(shaderData::getLightingPow2Fragment(), GL_FRAGMENT_SHADER));
+	Lighting* light = Lighting::Loader().z(-1).bounds(getWindowWidth(), getWindowHeight()).base({0.2f}).load();
 
-	Lighting::Source* lamp2 = new Lighting::Source(light, {1000}, Data().position({250, -250}).color({0.9f, 0, 0}));
+	Lighting::Source* lamp2 = Lighting::Source::Loader().lighting(light).texture({1000}).position({250, -250}).color({0.9f, 0, 0}).load();
 	lamp2->setFragmentShader(loadShaderSource(shaderData::getLightingPow2Fragment(), GL_FRAGMENT_SHADER));
 
-	Lighting::Source* lamp3 = new Lighting::Source(light, {1000}, Data().position({-250, -250}).color({0, 0, 0.9f}));
+	Lighting::Source* lamp3 = Lighting::Source::Loader().lighting(light).texture({1000}).position({-250, -250}).color({0, 0, 0.9f}).load();
 	lamp3->setFragmentShader(loadShaderSource(shaderData::getLightingPow2Fragment(), GL_FRAGMENT_SHADER));
 
-	Lighting::Source* lamp4 = new Lighting::Source(light, {1000}, Data().position({0, 300}).color({0, 0.9f, 0}));
+	Lighting::Source* lamp4 = Lighting::Source::Loader().lighting(light).texture({1000}).position({0, 300}).color({0, 0.9f, 0}).load();
 	lamp4->setFragmentShader(loadShaderSource(shaderData::getLightingPow2Fragment(), GL_FRAGMENT_SHADER));
 
-	Lighting::Source* lamp5 = new Lighting::Source(light, {1000}, Data().position({250, 250}).color({0, 0.9f, 0.9f}));
+	Lighting::Source* lamp5 = Lighting::Source::Loader().lighting(light).texture({1000}).position({250, 250}).color({0, 0.9f, 0.9f}).load();
 	lamp5->setFragmentShader(loadShaderSource(shaderData::getLightingPow2Fragment(), GL_FRAGMENT_SHADER));
 
-	Lighting::Source* lamp6 = new Lighting::Source(light, {1000}, Data().position({-250, 250}).color({0.9f, 0.9f, 0}));
+	Lighting::Source* lamp6 = Lighting::Source::Loader().lighting(light).texture({1000}).position({-250, 250}).color({0.9f, 0.9f, 0}).load();
 	lamp6->setFragmentShader(loadShaderSource(shaderData::getLightingPow2Fragment(), GL_FRAGMENT_SHADER));
 
-	Lighting::Source* lamp7 = new Lighting::Source(light, {1000}, Data().position({0, -300}).color({0.9f, 0, 0.9f}));
+	Lighting::Source* lamp7 = Lighting::Source::Loader().lighting(light).texture({1000}).position({0, -300}).color({0.9f, 0, 0.9f}).load();
 	lamp7->setFragmentShader(loadShaderSource(shaderData::getLightingPow2Fragment(), GL_FRAGMENT_SHADER));
 
-	target = new Lighting::Shadow(light, {50}, Data().anchor(TopLeft));
+	target = Lighting::Shadow::Loader().lighting(light).bounds({50}).anchor(TopLeft).load();
 
 	setUpdate(update);
 

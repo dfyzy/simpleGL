@@ -34,7 +34,7 @@ protected:
 public:
 	Framebuffer(unsigned width, unsigned height, GLint internalFormat, GLenum format, GLenum type, bool stencil, GLenum filtering, Color base);
 	Framebuffer(unsigned width, unsigned height, GLenum format, bool stencil, GLenum filtering, Color base)
-			: Framebuffer(width, height, format, format, GL_UNSIGNED_BYTE, stencil, filtering, base) {}
+		: Framebuffer(width, height, format, format, GL_UNSIGNED_BYTE, stencil, filtering, base) {}
 
 	Image* getImage() const { return image; }
 	GLuint getMsaaFbo() const { return msaaFbo; }

@@ -73,22 +73,22 @@ int main() {
 	Image* light = (new Image(GL_LINEAR))->loadData("example/light.png");
 	Image* eye = (new Image(GL_LINEAR))->loadData("example/eye.png");
 
-	brimSprite = new Sprite(Texture(brim), Data().position({0, 68.6}), 0);
-	(new CustomButton(new Sprite(Texture(bodyFront), Data(), 0)))->setOpaque(false);
-	(new CustomButton(new Sprite(Texture(light), Data().position({0, 58.8}), 1)))->setOpaque(true);
-	new CustomButton(new Sprite(Texture(eye), Data().position({50.2, 32.1}), -1));
-	new CustomButton(new Sprite(Texture(eye), Data().position({-50.2, 32.1}), -1));
+	brimSprite = Sprite::Loader().texture(brim).position({0, 68.6}).load();
+	(new CustomButton(Sprite::Loader().texture(bodyFront).load()))->setOpaque(false);
+	(new CustomButton(Sprite::Loader().texture(light).position({0, 58.8}).z(1).load()))->setOpaque(true);
+	new CustomButton(Sprite::Loader().texture(eye).position({50.2, 32.1}).z(-1).load());
+	new CustomButton(Sprite::Loader().texture(eye).position({-50.2, 32.1}).z(-1).load());
 
 	Font* sans = new Font("example/Oranienbaum.ttf", 26);
 
 	std::string lorem("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
-	new Text(sans, lorem, Text::CENTER, 350, nullptr, Vector(0, -100), -10, 1, 0, Color(0));
+	Text::Loader().font(sans).caption(lorem).width(350).position({0, -100}).z(-10).load();
 
-	Lighting* dark = new Lighting(Data().anchor(Left).position({0, -150}), -100, 200, 200, {0});
-	new Lighting::Source(dark, {100}, Data().position(Vector(0, -150) + Vector(25)).color({0.5f, 0, 0}));
-	new Lighting::Source(dark, {100}, Data().position(Vector(0, -150) + Vector(-25)).color({0, 0.5f, 0}));
+	Lighting* dark = Lighting::Loader().anchor(Left).position({0, -150}).bounds(200, 200).z(-100).load();
+	Lighting::Source::Loader().lighting(dark).texture({100}).position(Vector(0, -150) + Vector(25)).color({0.5f, 0, 0}).load();
+	Lighting::Source::Loader().lighting(dark).texture({100}).position(Vector(0, -150) + Vector(-25)).color({0, 0.5f, 0}).load();
 
-	Sprite* back = new Sprite({300}, Data().rotation(0.25f*3.1415927f), 5);
+	Sprite* back = Sprite::Loader().texture({300}).rotation(0.25f*3.1415927f).z(5).load();
 	new CustomButton(back);
 
 	setUpdate(update);
@@ -96,7 +96,7 @@ int main() {
 	Cursor::getInstance()->setPositionCallback(cursorPosCallback);
 	Cursor::getInstance()->setMouseButtonCallback(mouseButtonCallback);
 
-	Sprite* red = new Sprite({50}, Data().parent(Cursor::getInstance()).anchor(BottomLeft).color({1, 0, 0}), -50);
+	Sprite* red = Sprite::Loader().texture({50}).parent(Cursor::getInstance()).anchor(BottomLeft).color({1, 0, 0}).z(-50).load();
 	red->setStencil(back);
 	timer = new LerpTimer<Sprite, Vector>(red, Sprite::setPosition, {});
 	timer->add(0.1, {50, 0});

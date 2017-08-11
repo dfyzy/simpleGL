@@ -16,14 +16,13 @@ Camera* Camera::getInstance() {
 	return instance;
 }
 
-Camera::Camera() : Point(),
-			framebuffer(new Framebuffer(getWindowWidth(), getWindowHeight(), GL_RGB, true, GL_NEAREST, getBackground())),
-			drawObject(new DrawObject()),
-			vertex(loadShaderSource(shaderData::getOverlayVertex(), GL_VERTEX_SHADER)),
-			fragment(loadShaderSource(shaderData::getOverlayFragment(), GL_FRAGMENT_SHADER)) {
-
-				drawObject->bindVertexData(Matrix::scale(2.0f));
-			}
+Camera::Camera()
+	: Point(), framebuffer(new Framebuffer(getWindowWidth(), getWindowHeight(), GL_RGB, true, GL_NEAREST, getBackground())),
+		drawObject(new DrawObject()),
+		vertex(loadShaderSource(shaderData::getOverlayVertex(), GL_VERTEX_SHADER)),
+		fragment(loadShaderSource(shaderData::getOverlayFragment(), GL_FRAGMENT_SHADER)) {
+	drawObject->bindVertexData(Matrix::scale(2.0f));
+}
 
 void Camera::draw() {
 	framebuffer->bind(getModelMatrix());

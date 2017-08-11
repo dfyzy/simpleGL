@@ -25,13 +25,13 @@ int main() {
 
 	glfwSetKeyCallback(window, keyCallback);
 
-	Image* st = new Image("sprites/eye.png", GL_LINEAR);
+	Image* st = (new Image(GL_LINEAR))->loadData("sprites/eye.png");
 
 	std::uniform_int_distribution<int> positionDist(-500, 500);
 	auto randomPosition = std::bind(positionDist, randEngine);
 
 	for (int i = 0; i < 10000; i++)
-		new Sprite(st, Data().position(Vector(randomPosition(), randomPosition())).color({1, 0, 0, 1}), 0);
+		Sprite::Loader().texture(st).position(Vector(randomPosition(), randomPosition())).color({1, 0, 0, 1}).load();
 
 	setUpdate(update);
 

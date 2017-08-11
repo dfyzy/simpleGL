@@ -24,15 +24,15 @@ GLuint Lighting::Source::getDefaultFragment() {
 void Lighting::Source::draw() {
 	if (!isEnabled())	return;
 
-	Vector pos = getRealPosition();
+	Vector pos = getBoxShape()->getRealPosition();
 	glProgramUniform2f(getFragmentShader(), centreLoc, pos.x, pos.y);
-	Vector b = getTexture().getBounds()*getScale();
+	Vector b = getBounds()*getScale();
 	glProgramUniform2f(getFragmentShader(), boundsLoc, b.x, b.y);
 
 	//TODO: stuff if overlapping
 	glColorMask(false, false, false, false);
 
-	setCustomStencil(GL_ALWAYS, 1, GL_REPLACE);
+	setCustomStencil(GL_ALWAYS, GL_REPLACE, 1);
 
 	UnsortedSprite::draw();
 
@@ -43,7 +43,7 @@ void Lighting::Source::draw() {
 
 	glColorMask(true, true, true, true);
 
-	setCustomStencil(GL_EQUAL, 1, GL_ZERO);
+	setCustomStencil(GL_EQUAL, GL_ZERO, 1);
 
 	UnsortedSprite::draw();
 }
@@ -51,7 +51,7 @@ void Lighting::Source::draw() {
 void Lighting::Shadow::draw(Source* source) {
 	if (!isEnabled())	return;
 
-	Matrix objModel = getModelMatrix() * Matrix::scale(bounds);
+	Matrix objModel = getBoxShape()->getModelMatrix() * Matrix::scale(getBounds());
 	object->bindVertexData(objModel);
 
 	Matrix bottomModel = objModel;
@@ -59,7 +59,7 @@ void Lighting::Shadow::draw(Source* source) {
 
 	float data[QUAD_VERTS*2];
 
-	Vector pov = source->getRealPosition();
+	Vector pov = source->getBoxShape()->getRealPosition();
 
 	Vector prj = objModel.inv() * pov;
 	std::pair<int, int> verts = SIDE_VERTS[(prj.x > 0.5f) - (prj.x < -0.5f) + 1
@@ -77,7 +77,7 @@ void Lighting::Shadow::draw(Source* source) {
 	if (cosine == 0) return;
 
 	//an approximation of a formula i'm too lazy to implement accurately
-	float length = (source->getTexture().getBounds() * source->getScale() * 0.5f).length()/cosine;
+	float length = (source->getBounds() * source->getScale() * 0.5f).length()/cosine;
 
 	(left + (left - pov).normalize()*length).load(data, &i);
 	(right + (right - pov).normalize()*length).load(data, &i);
@@ -96,12 +96,13 @@ void Lighting::Shadow::draw(Source* source) {
 	object->draw();
 }
 
-Lighting::Lighting(Data d, int z, unsigned width, unsigned height, Color base)
-				: Sprite({}, d, z) {
-	util::println("Lighting:load");
+Lighting::Lighting(Point* parent, Vector position, Vector scale, Angle rotation,
+	unsigned width, unsigned height, Anchor anchor, Color color, int z, Color base)
+		: Sprite(parent, position, scale, rotation, {}, anchor, color, z) {
+		util::println("Lighting:load");
 
-	framebuffer = new Framebuffer(width, height, GL_RGB, true, GL_LINEAR, base);
-}
+		framebuffer = new Framebuffer(width, height, GL_RGB, true, GL_LINEAR, base);
+	}
 
 Lighting::~Lighting() {
 	util::println("Lighting:unload");
@@ -133,7 +134,7 @@ void Lighting::draw() {
 	if (needToDraw) {
 		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE);
 
-		framebuffer->bind(getOffsetedModelMatrix());
+		framebuffer->bind(getBoxShape()->getModelMatrix());
 
 		for (Source* s : sources)
 			s->draw();

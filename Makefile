@@ -8,7 +8,7 @@ CPPFLAGS = -std=gnu++11 -Wall -O2 -static-libgcc -static-libstdc++
 LIBS = -Wl,-Bstatic -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lfreetype -lharfbuzz -lfreetype -lgraphite2 -lglib-2.0 \
 			-lpng16 -lz -lm -lbz2 -lsndfile -lvorbis -lvorbisenc -logg -lspeex -lflac -Wl,-Bdynamic -lopenal
 
-INCS = angle.h audio.h boxShape.h camera.h color.h cursor.h drawObject.h font.h framebuffer.h glfw.h \
+INCS = anchoredBox.h angle.h audio.h box.h camera.h color.h cursor.h drawObject.h font.h framebuffer.h glfw.h \
 			image.h lighting.h math.h matrix.h point.h shader.h shaderData.h shape.h signal.h simpleGL.h \
 				speaker.h sprite.h text.h texture.h timer.h unsortedSprite.h util.h vector.h
 OBJS = angle.o audio.o camera.o cursor.o drawObject.o font.o framebuffer.o \

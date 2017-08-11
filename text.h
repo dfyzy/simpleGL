@@ -37,11 +37,39 @@ protected:
 public:
 	static GLuint getDefaultFragment();
 
-	Text(Font* font, std::string caption, Alignment alignment, float width,
-				Point* parent, Vector position, int z, Vector scale, Angle rotation, Color color)
-					: Point(parent, position, scale, rotation), font(font), alignment(alignment), bounds(width, 0), z(z), color(color) {
-		setCaption(caption);
-	}
+	struct Loader {
+		Point* pparent {nullptr};
+		Vector pposition;
+		Vector pscale {1};
+		Angle protation;
+		Color pcolor {0};
+		int pz {0};
+		Font* pfont {nullptr};
+		std::string pcaption;
+		unsigned pwidth {0};
+		Alignment palignment {Text::CENTER};
+
+		Loader() {}
+
+		Loader& parent(Point* p) { pparent = p; return *this; }
+		Loader& position(Vector v) { pposition = v; return *this; }
+		Loader& scale(Vector v) { pscale = v; return *this; }
+		Loader& rotation(Angle f) { protation = f; return *this; }
+		Loader& color(Color c) { pcolor = c; return *this; }
+		Loader& z(int i) { pz = i; return *this; }
+		Loader& font(Font* f) { pfont = f; return *this; }
+		Loader& caption(std::string str) { pcaption = str; return *this; }
+		Loader& width(unsigned u) { pwidth = u; return *this; }
+		Loader& alignment(Alignment a) { palignment = a; return *this; }
+
+		Text* load() { return new Text(pparent, pposition, pscale, protation, pcolor, pz, pfont, pcaption, pwidth, palignment); }
+	};
+
+	Text(Point* parent, Vector position, Vector scale, Angle rotation, Color color, int z,
+		Font* font, std::string caption, float width, Alignment alignment)
+			: Point(parent, position, scale, rotation), font(font), alignment(alignment), bounds(width, 0), z(z), color(color) {
+			setCaption(caption);
+		}
 
 	Font* getFont() const { return font; }
 

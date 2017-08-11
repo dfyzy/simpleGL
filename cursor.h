@@ -69,7 +69,7 @@ protected:
 
 public:
 	Button(Shape* shape, int z);
-	Button(Sprite* sprite) : Button(sprite, sprite->getZ()) {}
+	Button(Sprite* sprite) : Button(sprite->getBoxShape(), sprite->getZ()) {}
 
 	Shape* getShape() const { return shape; }
 

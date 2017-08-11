@@ -16,7 +16,8 @@ void util::drawSprites() {
 		cs->draw();
 }
 
-Sprite::Sprite(Texture t, Data d, int z) : UnsortedSprite(t, d), z(z) {
+Sprite::Sprite(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, Anchor anchor, Color color, int z)
+	: UnsortedSprite(parent, position, scale, rotation, texture, anchor, color), z(z) {
 	sprites.insert(this);
 }
 
@@ -24,9 +25,9 @@ Sprite::~Sprite() {
 	sprites.erase(this);
 }
 
-void Sprite::setZ(int z) {
+void Sprite::setZ(int i) {
 	sprites.erase(this);
-	z = z;
+	z = i;
 	sprites.insert(this);
 }
 

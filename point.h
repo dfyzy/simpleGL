@@ -88,12 +88,12 @@ protected:
 public:
 	Point(Point* parent, Vector position, Vector scale, Angle rotation)
 		: parent(parent), position(position), scale(scale), rotation(rotation) {
-			if (parent) parent->children.push_back(this);
-		}
-	Point(Point* parent) : Point(parent, {}, {1}, {}) {}
+		if (parent) parent->children.push_back(this);
+	}
+	Point(Point* parent) : Point(parent, {}, {1.0f}, {}) {}
 	Point() : Point(nullptr) {}
 
-	Point(const Point& other) =delete;
+	//Point(const Point& other) =delete;
 
 	bool isEnabled() const {
 		bool res = enabled;

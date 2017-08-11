@@ -82,45 +82,45 @@ GLenum getStencilFormat() {
 namespace simpleGL {
 
 Framebuffer::Framebuffer(unsigned width, unsigned height, GLint internalFormat, GLenum format, GLenum type,
-									bool stencil, GLenum filtering, Color base) : base(base) {
-	if (dynamic == 0) {
-		util::println("Uniform buffer:load");
+	bool stencil, GLenum filtering, Color base) : base(base) {
+		if (dynamic == 0) {
+			util::println("Uniform buffer:load");
 
-		glGenBuffers(1, &dynamic);
-		glBindBuffer(GL_UNIFORM_BUFFER, dynamic);
-		glBindBufferBase(GL_UNIFORM_BUFFER, 0, dynamic);
+			glGenBuffers(1, &dynamic);
+			glBindBuffer(GL_UNIFORM_BUFFER, dynamic);
+			glBindBufferBase(GL_UNIFORM_BUFFER, 0, dynamic);
 
-		int size = 0;
-		for (int i = 0; i < dynUniform::COUNT; i++)	size += dynUniform::sizes[i];
-		glBufferData(GL_UNIFORM_BUFFER, size*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-		setResolution(getWindowWidth(), getWindowHeight());
+			int size = 0;
+			for (int i = 0; i < dynUniform::COUNT; i++)	size += dynUniform::sizes[i];
+			glBufferData(GL_UNIFORM_BUFFER, size*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+			setResolution(getWindowWidth(), getWindowHeight());
+		}
+
+		util::println("Framebuffer:load");
+
+		glGenFramebuffers(1, &msaaFbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo);
+
+		glGenRenderbuffers(1, &colorRbo);
+		glBindRenderbuffer(GL_RENDERBUFFER, colorRbo);
+
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, SAMPLES_NUM, internalFormat, width, height);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorRbo);
+
+		if (stencil) {
+			glGenRenderbuffers(1, &stencilRbo);
+			glBindRenderbuffer(GL_RENDERBUFFER, stencilRbo);
+
+			glRenderbufferStorageMultisample(GL_RENDERBUFFER, SAMPLES_NUM, getStencilFormat(), width, height);
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, stencilRbo);
+		}
+
+		glGenFramebuffers(1, &rectFbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, rectFbo);
+
+		image = (new Image(filtering))->loadData(width, height, internalFormat, format, type, nullptr);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, image->getId(), 0);
 	}
-
-	util::println("Framebuffer:load");
-
-	glGenFramebuffers(1, &msaaFbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo);
-
-	glGenRenderbuffers(1, &colorRbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, colorRbo);
-
-	glRenderbufferStorageMultisample(GL_RENDERBUFFER, SAMPLES_NUM, internalFormat, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorRbo);
-
-	if (stencil) {
-		glGenRenderbuffers(1, &stencilRbo);
-		glBindRenderbuffer(GL_RENDERBUFFER, stencilRbo);
-
-		glRenderbufferStorageMultisample(GL_RENDERBUFFER, SAMPLES_NUM, getStencilFormat(), width, height);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, stencilRbo);
-	}
-
-	glGenFramebuffers(1, &rectFbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, rectFbo);
-
-	image = (new Image(filtering))->loadData(width, height, internalFormat, format, type, nullptr);
-	glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, image->getId(), 0);
-}
 
 Framebuffer::~Framebuffer() {
 	util::println(std::string("Framebuffer:unload"));

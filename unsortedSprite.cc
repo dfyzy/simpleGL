@@ -1,10 +1,10 @@
 #include <queue>
 
 #include "unsortedSprite.h"
-
+#include "util.h"
 namespace {
 
-GLint stencilCount {1};
+GLint stencilCount {0};
 std::queue<GLint> deletedStencils;
 
 }
@@ -17,37 +17,40 @@ void UnsortedSprite::stopUsingStencil() {
 	stencil->stenciled.remove(this);
 
 	if (stencil->stenciled.empty()) {
-		if (stencil->stencilRef < stencilCount - 1)
-			deletedStencils.push(stencil->stencilRef);
+		if (stencil->getStencilRef() < stencilCount - 1)
+			deletedStencils.push(stencil->getStencilRef());
 		else
 			stencilCount--;
-	} else {
-		stencilOp = GL_KEEP;
+
+		stencil->setDefaultStencil();
 	}
 }
 
 void UnsortedSprite::setStencil(UnsortedSprite* spr) {
-	setMask(spr);
-
 	stopUsingStencil();
 
 	stencil = spr;
 
 	if (stencil) {
-		if (stencil->stenciled.empty()) {
-			if (!deletedStencils.empty()) {
-				stencil->stencilRef = deletedStencils.front();
-				deletedStencils.pop();
-			} else	stencil->stencilRef = stencilCount++;
+		getBoxShape()->setMask(stencil->getBoxShape());
 
-			stencil->stencilOp = GL_REPLACE;
+		if (stencil->stenciled.empty()) {
+			GLint ref;
+
+			if (!deletedStencils.empty()) {
+				ref = deletedStencils.front();
+				deletedStencils.pop();
+			} else	ref = ++stencilCount;
+
+			stencil->setCustomStencil(GL_ALWAYS, GL_REPLACE, ref);
 		}
-		stencilFunc = GL_EQUAL;
-		stencilRef = stencil->stencilRef;
+		setCustomStencil(GL_EQUAL, GL_KEEP, stencil->getStencilRef());
 
 		stencil->stenciled.push_back(this);
 	} else {
-		stencilFunc = GL_ALWAYS;
+		getBoxShape()->setMask(nullptr);
+
+		setDefaultStencil();
 	}
 }
 
@@ -61,7 +64,7 @@ void UnsortedSprite::draw() {
 
 	if (needUpdtVertices) {
 		needUpdtVertices = false;
-		drawObject->bindVertexData(getOffsetedModelMatrix() * Matrix::scale(texture.getBounds()));
+		drawObject->bindVertexData(getBoxShape()->getModelMatrix() * Matrix::scale(texture.getBounds()));
 	}
 
 	if (needUpdtColor) {
@@ -71,10 +74,10 @@ void UnsortedSprite::draw() {
 
 	texture.bind();
 
+	useShaders(vertexShader, fragmentShader);
+
 	glStencilFunc(stencilFunc, stencilRef, 0xFF);
 	glStencilOp(GL_KEEP, GL_KEEP, stencilOp);
-
-	useShaders(vertexShader, fragmentShader);
 
 	drawObject->draw();
 }
