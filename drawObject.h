@@ -51,7 +51,9 @@ public:
 	}
 	void bindColorData(Color color) const;
 
-	void draw() const;
+	void draw() const {
+		glDrawArrays(GL_TRIANGLE_STRIP, id*4, 4);
+	}
 
 	void unload() { delete this; }
 };

@@ -18,11 +18,20 @@ namespace simpleGL {
 class Point {
 public:
 	class Component {
+	private:
+		Point* point;
+
 	protected:
-		virtual ~Component() {}
+		virtual ~Component() {
+			point->components.remove(this);
+		}
 
 	public:
-		Component(Point* p) { p->components.push_back(this); }
+		Component(Point* point) : point(point) {
+			point->components.push_back(this);
+		}
+
+		Point* getPoint() const { return point; }
 
 		void unload() { delete this; }
 

@@ -48,7 +48,7 @@ public:
 			Loader& parent(Point* p) { pparent = p; return *this; }
 			Loader& position(Vector v) { pposition = v; return *this; }
 			Loader& scale(Vector v) { pscale = v; return *this; }
-			Loader& rotation(Angle f) { protation = f; return *this; }
+			Loader& rotation(Angle a) { protation = a; return *this; }
 			Loader& texture(Texture t) { ptexture = t; return *this; }
 			Loader& anchor(Anchor a) { panchor = a; return *this; }
 			Loader& color(Color c) { pcolor = c; return *this; }
@@ -116,7 +116,7 @@ public:
 			Loader& parent(Point* p) { pparent = p; return *this; }
 			Loader& position(Vector v) { pposition = v; return *this; }
 			Loader& scale(Vector v) { pscale = v; return *this; }
-			Loader& rotation(Angle f) { protation = f; return *this; }
+			Loader& rotation(Angle a) { protation = a; return *this; }
 			Loader& bounds(Vector v) { pbounds = v; return *this; }
 			Loader& anchor(Anchor a) { panchor = a; return *this; }
 			Loader& lighting(Lighting* l) { plighting = l; return *this; }
@@ -173,7 +173,7 @@ public:
 		Loader& parent(Point* p) { pparent = p; return *this; }
 		Loader& position(Vector v) { pposition = v; return *this; }
 		Loader& scale(Vector v) { pscale = v; return *this; }
-		Loader& rotation(Angle f) { protation = f; return *this; }
+		Loader& rotation(Angle a) { protation = a; return *this; }
 		Loader& bounds(unsigned u0, unsigned u1) { pwidth = u0; pheight = u1; return *this; }
 		Loader& anchor(Anchor a) { panchor = a; return *this; }
 		Loader& color(Color c) { pcolor = c; return *this; }

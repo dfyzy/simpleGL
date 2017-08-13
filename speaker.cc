@@ -9,14 +9,15 @@ Speaker::Speaker(Audio* audio, Point* parent, Vector position, Vector scale, Ang
 
 	alGenSources(1, &id);
 
-	alSourcei(id, AL_BUFFER, audio->getId());
-
+	if (audio)	audio->addSpeaker(this);
 }
 
 Speaker::~Speaker() {
 	util::println("Speaker:unload");
 
 	alDeleteSources(1, &id);
+
+	if (audio)	audio->removeSpeaker(this);
 }
 
 }

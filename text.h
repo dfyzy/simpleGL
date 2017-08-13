@@ -54,7 +54,7 @@ public:
 		Loader& parent(Point* p) { pparent = p; return *this; }
 		Loader& position(Vector v) { pposition = v; return *this; }
 		Loader& scale(Vector v) { pscale = v; return *this; }
-		Loader& rotation(Angle f) { protation = f; return *this; }
+		Loader& rotation(Angle a) { protation = a; return *this; }
 		Loader& color(Color c) { pcolor = c; return *this; }
 		Loader& z(int i) { pz = i; return *this; }
 		Loader& font(Font* f) { pfont = f; return *this; }

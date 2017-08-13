@@ -108,8 +108,4 @@ void DrawObject::bindColorData(Color color) const {
 	bindData(DataType::COLOR, data);
 }
 
-void DrawObject::draw() const {
-	glDrawArrays(GL_TRIANGLE_STRIP, id*4, 4);
-}
-
 }

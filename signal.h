@@ -1,10 +1,13 @@
+/* Sound data
+*/
+
 #ifndef SIMPLE_SIGNAL_H
 #define SIMPLE_SIGNAL_H
 
 #include <memory>
 #include <functional>
 
-#include "math.h"
+#include "angle.h"
 #include "image.h"
 #include "audio.h"
 

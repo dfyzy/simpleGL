@@ -121,11 +121,6 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 	if (instance->buttCallback)	instance->buttCallback(mButton, pressed);
 }
 
-Cursor::Cursor() : UnsortedSprite(Camera::getInstance(), {}, {1.0f}, {}, {}, Center, {1}), change(getChange()) {
-	glfwSetCursorPosCallback(getWindow(), positionCallback);
-	glfwSetMouseButtonCallback(getWindow(), buttonCallback);
-}
-
 bool Cursor::getMouseButton(int button) const {
 	if (button >= BUTTONS_MAX) {
 		util::println("error:Cursor:getMouseButton:not a valid parameter");
@@ -156,9 +151,7 @@ Button::~Button() {
 
 void Button::setZ(int i) {
 	buttons.erase(this);
-
 	z = i;
-
 	buttons.insert(this);
 }
 

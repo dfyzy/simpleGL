@@ -6,9 +6,8 @@
 #define SIMPLE_CURSOR_H
 
 #include <functional>
-#include <memory>
 
-#include "sprite.h"
+#include "simpleGL.h"
 
 namespace simpleGL {
 
@@ -33,7 +32,11 @@ private:
 
 	//TODO: custom cursor images
 
-	Cursor();
+	Cursor() : UnsortedSprite(Camera::getInstance(), {}, {1.0f}, {}, {}, Center, {1}), change(getChange()) {
+		glfwSetCursorPosCallback(getWindow(), positionCallback);
+		glfwSetMouseButtonCallback(getWindow(), buttonCallback);
+	}
+
 	~Cursor() {}
 
 public:

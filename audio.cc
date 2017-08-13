@@ -2,6 +2,7 @@
 #include <sndfile.h>
 
 #include "audio.h"
+#include "speaker.h"
 #include "util.h"
 
 namespace simpleGL {
@@ -12,21 +13,32 @@ Audio::Audio() {
 	alGenBuffers(1, &id);
 }
 
-Audio* Audio::loadData(unsigned channels, unsigned length, unsigned sampleRate, const short* data) {
+Audio* Audio::loadData(unsigned pchannels, unsigned plength, unsigned psampleRate, const short* data) {
 	util::println("Audio:loadData");
 
 	ALenum format {0};
-	if (channels == 1)		format = AL_FORMAT_MONO16;
-	else if (channels == 2)	format = AL_FORMAT_STEREO16;
-	else if (channels == 4)	format = alGetEnumValue("AL_FORMAT_QUAD16");
-	else if (channels == 6)	format = alGetEnumValue("AL_FORMAT_51CHN16");
-	else if (channels == 7)	format = alGetEnumValue("AL_FORMAT_61CHN16");
-	else if (channels == 8)	format = alGetEnumValue("AL_FORMAT_71CHN16");
+	if (pchannels == 1)			format = AL_FORMAT_MONO16;
+	else if (pchannels == 2)	format = AL_FORMAT_STEREO16;
+	else if (pchannels == 4)	format = alGetEnumValue("AL_FORMAT_QUAD16");
+	else if (pchannels == 6)	format = alGetEnumValue("AL_FORMAT_51CHN16");
+	else if (pchannels == 7)	format = alGetEnumValue("AL_FORMAT_61CHN16");
+	else if (pchannels == 8)	format = alGetEnumValue("AL_FORMAT_71CHN16");
 
 	if (format == 0) {
 		util::println("error:Audio:unsupported number of channels");
 		return this;
 	}
+
+	channels = pchannels;
+	length = plength;
+	sampleRate = psampleRate;
+
+	std::list<Speaker*> paused;
+	for (Speaker* s : speakers)
+		if (s->isPlaying()) {
+			s->pause();
+			paused.push_back(s);
+		}
 
 	alBufferData(id, format, data, length*channels*sizeof(short), sampleRate);
 
@@ -40,6 +52,14 @@ Audio* Audio::loadData(unsigned channels, unsigned length, unsigned sampleRate, 
 		else if (error == AL_OUT_OF_MEMORY)	errorString = "out of memory";
 
 		util::println("error:OpenAL:" + errorString);
+	}
+
+	for (Speaker* s : paused) {
+		unsigned pos = s->getPausePos();
+		if (pos > length*channels)	pos = 0;
+		s->setPausePos(pos);
+
+		s->play();
 	}
 
 	return this;
