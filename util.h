@@ -1,4 +1,4 @@
-/* Use this functions only if you know what you are doing
+/* Some util
 */
 
 #ifndef SIMPLE_UTIL_H
@@ -27,9 +27,6 @@ inline void println(std::string str) {
 //Util update functions are ran before and after the user update function
 void addPreUpdate(std::function<void()> updt);
 void addPostUpdate(std::function<void()> updt);
-
-//draw sprites for each texture
-void drawSprites();
 
 }
 

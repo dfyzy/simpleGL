@@ -6,7 +6,8 @@
 #include "shader.h"
 #include "sprite.h"
 #include "camera.h"
-#include "speaker.h"
+#include "soundSpeaker.h"
+#include "fileStreamSpeaker.h"
 
 namespace simpleGL {
 

@@ -5,8 +5,9 @@
 
 using namespace simpleGL;
 
-Audio* audio;
+Sound* sound;
 Signal* sig;
+Speaker* speaker;
 
 constexpr float MIN_FREQ = 100.0f;
 constexpr float MAX_FREQ = 10000.0f;
@@ -19,7 +20,7 @@ short ampl = math::lerp(MIN_AMPL, MAX_AMPL, 0.5f);
 
 void updateSig() {
 	sig->loadSine(freq, ampl);
-	sig->loadIntoAudio(audio);
+	sig->loadIntoSound(sound);
 }
 
 void freqSlider(float f) {
@@ -32,12 +33,18 @@ void amplSlider(float f) {
 	updateSig();
 }
 
+void update() {
+	//speaker->pause();
+	//speaker->play();
+}
+
+
 int main() {
 	loadWindow("signal", 1000, 700, false, true, {0.3f});
 
-	audio = new Audio();
-
-	sig = new Signal(48000);
+	//sound = new Sound();
+	//sound->loadData("signal/takenobu.flac");
+	/*sig = new Signal(48000);
 	updateSig();
 
 	Angle hpi {PI/2};
@@ -45,12 +52,14 @@ int main() {
 	freqSL->setCallback(freqSlider);
 
 	Slider* amplSL = Slider::Loader().texture({50}).color({0, 0.5f, 0}).position({100, 0}).length(200).slideRotation(hpi).load();
-	amplSL->setCallback(amplSlider);
+	amplSL->setCallback(amplSlider);*/
 
-	Speaker* speaker = new Speaker(audio, nullptr, {});
-	speaker->setLooping(true);
+	speaker = new FileStreamSpeaker(nullptr, {}, {1}, {}, "signal/takenobu.flac");
+	// speaker->setLooping(true);
 
 	speaker->play();
+
+	//setUpdate(update);
 
 	draw();
 }

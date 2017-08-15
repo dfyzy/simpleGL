@@ -9,7 +9,7 @@
 
 #include "angle.h"
 #include "image.h"
-#include "audio.h"
+#include "sound.h"
 
 namespace simpleGL {
 
@@ -68,10 +68,10 @@ public:
 		return loadFunc(frequency, [=] (float t) { return amplitude*(1.0f - t/PI); });
 	}
 
-	void loadIntoAudio(Audio* audio) const {
-		if (!audio)	return;
+	void loadIntoSound(Sound* sound) const {
+		if (!sound)	return;
 
-		audio->loadData(1, length, sampleRate, data.get());
+		sound->loadData(1, length, sampleRate, data.get());
 	}
 
 	void loadIntoImage(Image* image, unsigned width, unsigned height) const {

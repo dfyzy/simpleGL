@@ -1,10 +1,11 @@
-/* A wrapper around OpenAL speaker object
+/* Abstract wrapper class for OpenAL source object
+ * Has some positional stuff(or will have)
 */
 
 #ifndef SIMPLE_SPEAKER_H
 #define SIMPLE_SPEAKER_H
 
-#include "audio.h"
+#include "sound.h"
 #include "point.h"
 
 namespace simpleGL {
@@ -13,79 +14,33 @@ class Speaker : public Point {
 private:
 	ALuint id;
 
-	Audio* audio;
-
-	bool playing {false};
-	bool looping {false};
-
-	ALint pausePos {0};
-
 protected:
-	~Speaker();
+	~Speaker() {
+		alDeleteSources(1, &id);
+	}
 
 public:
-	Speaker(Audio* audio, Point* parent, Vector position, Vector scale, Angle rotation);
-	Speaker(Audio* audio, Point* parent, Vector position) : Speaker(audio, parent, position, {1}, {}) {}
+	Speaker(Point* parent, Vector position, Vector scale, Angle rotation) : Point(parent, position, scale, rotation) {
+		alGenSources(1, &id);
+	}
 
 	ALuint getId() const { return id; }
 
-	Audio* getAudio() const { return audio; }
-	void setAudio(Audio* a) {
-		bool pl = playing;
-		if (pl)	stop();
-
-		if (audio)	audio->removeSpeaker(this);
-
-		audio = a;
-
-		if (audio)	audio->addSpeaker(this);
-
-		if (pl)	play();
+	ALint getState() const {
+		ALint result;
+		alGetSourcei(getId(), AL_SOURCE_STATE, &result);
+		return result;
 	}
 
-	bool isPlaying() const { return playing; }
+	//TODO: looping
 
-	bool isLooping() const { return looping; }
-	void setLooping(bool b) {
-		looping = b;
-		alSourcei(id, AL_LOOPING, b ? AL_TRUE : AL_FALSE);
-	}
-
-	ALint getPausePos() const { return pausePos; }
-	void setPausePos(ALint i) { pausePos = i; }
-
-	void play() {
-		if (!audio)	return;
-
-		if (pausePos > 0)	alSourcei(id, AL_SAMPLE_OFFSET, pausePos);
-
-		alSourcei(id, AL_BUFFER, audio->getId());
-		alSourcePlay(id);
-
-		pausePos = 0;
-		playing = true;
-	}
+	virtual void play() =0;
+	//TODO
 	void pause() {
-		if (playing) {
-			alGetSourcei(id, AL_SAMPLE_OFFSET, &pausePos);
-			alSourceStop(id);
-
-			alSourcei(id, AL_BUFFER, 0);
-		}
-
-		playing = false;
-	}
-	void stop() {
-		if (playing) {
-			alSourceStop(id);
-			alSourcei(id, AL_BUFFER, 0);
-		}
-
-		pausePos = 0;
-		playing = false;
+		alSourcePause(id);
 	}
 
-	void unload() { delete this; }
+	virtual void stop() =0;
 
 };
 

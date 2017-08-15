@@ -27,7 +27,7 @@ Camera::Camera()
 void Camera::draw() {
 	framebuffer->bind(getModelMatrix());
 
-	util::drawSprites();
+	Sprite::drawAll();
 
 	framebuffer->unbind();
 

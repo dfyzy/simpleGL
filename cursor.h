@@ -52,7 +52,7 @@ public:
 
 };
 
-class Button : public Point::Component {
+class Button {
 private:
 	Shape* shape;
 	Point::Change* change;
