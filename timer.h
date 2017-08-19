@@ -34,6 +34,8 @@ public:
 template<typename Object, typename Value>
 class SetterTimer : public AbstractTimer {
 protected:
+	typedef void (Object::*Func)(Value);
+
 	struct Interval;
 	struct TimePoint {
 		Value value;
@@ -81,9 +83,9 @@ protected:
 		void next() override { Iterator::interval = Iterator::interval->past->past; }
 	};
 
-//TOTHINK: private?
+private:
 	Object* object;
-	void (Object::*set)(Value);
+	Func set;
 
 	Interval* first;
 	Interval* last {nullptr};
@@ -93,6 +95,9 @@ protected:
 	bool inverted {false};
 
 	bool playing {false};
+
+protected:
+	Iterator* getIterator() const { return iterator; }
 
 	bool step() override {
 		if (!playing)	return true;
@@ -115,9 +120,14 @@ protected:
 	}
 
 public:
-	SetterTimer(Object* object, void (Object::*set)(Value), Value firstV) : object(object), set(set) {
+	SetterTimer(Object* object, Func set, Value firstV) : object(object), set(set) {
 		first = new Interval(new TimePoint(firstV));
 	}
+
+	Object* getObject() const { return object; }
+	Func getSetter() const { return set; }
+
+	double getCursor() const { return cursor; }
 
 	bool isPlaying() const override { return playing; }
 
@@ -155,10 +165,10 @@ protected:
 	bool step() override {
 		if (SetterTimer<Object, Value>::step()) return true;
 
-		(SetterTimer<Object, Value>::object->*SetterTimer<Object, Value>::set)(
-			math::lerp(SetterTimer<Object, Value>::iterator->getPast()->value,
-				SetterTimer<Object, Value>::iterator->getFuture()->value,
-					SetterTimer<Object, Value>::cursor/SetterTimer<Object, Value>::iterator->get()->duration)
+		(SetterTimer<Object, Value>::getObject()->*SetterTimer<Object, Value>::getSetter())(
+			math::lerp(SetterTimer<Object, Value>::getIterator()->getPast()->value,
+				SetterTimer<Object, Value>::getIterator()->getFuture()->value,
+					SetterTimer<Object, Value>::getCursor()/SetterTimer<Object, Value>::getIterator()->get()->duration)
 		);
 	}
 

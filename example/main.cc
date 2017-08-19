@@ -40,12 +40,12 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 			glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
-void cursorPosCallback(Cursor* instance) {
-	Vector v = instance->getPosition()/Vector(getWindowWidth(), getWindowHeight()) + Vector(0.5);
+void cursorPosCallback() {
+	Vector v = Cursor::getInstance()->getPosition()/Vector(getWindowWidth(), getWindowHeight()) + Vector(0.5);
 	brimSprite->setColor({v.x, v.y, 0, 1});
 }
 
-void mouseButtonCallback(Cursor* instance, int button, bool pressed) {
+void mouseButtonCallback(int button, bool pressed) {
 	if (pressed)	timer->play(false);
 }
 
@@ -98,6 +98,7 @@ int main() {
 
 	Sprite* red = Sprite::Loader().texture({50}).parent(Cursor::getInstance()).anchor(BottomLeft).color({1, 0, 0}).z(-50).load();
 	red->setStencil(back);
+
 	timer = new LerpTimer<Sprite, Vector>(red, Sprite::setPosition, {});
 	timer->add(0.1, {50, 0});
 	timer->add(0.1, {0, 50});
