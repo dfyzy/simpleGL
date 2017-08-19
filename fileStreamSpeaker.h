@@ -1,4 +1,4 @@
-/* As it says on the title
+/* StreamSpeaker for files
 */
 
 #ifndef SIMPLE_FILE_STREAM_SPEAKER_H
@@ -23,7 +23,11 @@ protected:
 	}
 
 	bool getData(Sound* sound) override {
-		return file->read(sound, 4000);
+		return file->read(sound, file->getSampleRate());
+	}
+
+	void restartStream() override {
+		file->seek(0);
 	}
 
 	void closeStream() override {
@@ -32,7 +36,7 @@ protected:
 
 public:
 	FileStreamSpeaker(Point* parent, Vector position, Vector scale, Angle rotation, std::string path)
-		: StreamSpeaker(parent, position, scale, rotation), path(path) {}
+		: StreamSpeaker(parent, position, scale, rotation, 3), path(path) {}
 
 };
 

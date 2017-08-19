@@ -9,8 +9,8 @@ LIBS = -Wl,-Bstatic -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lfree
 			-lpng16 -lz -lm -lbz2 -lsndfile -lvorbis -lvorbisenc -logg -lspeex -lflac -Wl,-Bdynamic -lopenal
 
 INCS = anchoredBox.h angle.h box.h camera.h color.h cursor.h drawObject.h fileStreamSpeaker.h font.h framebuffer.h glfw.h image.h \
-			lighting.h math.h matrix.h point.h shader.h shaderData.h shape.h signal.h simpleGL.h slider.h sound.h soundFile.h soundSpeaker.h \
-				speaker.h sprite.h streamSpeaker.h text.h texture.h timer.h unsortedSprite.h util.h vector.h
+			lighting.h math.h matrix.h point.h shader.h shaderData.h shape.h signal.h signalStreamSpeaker.h simpleGL.h slider.h sound.h \
+				soundFile.h soundSpeaker.h speaker.h sprite.h streamSpeaker.h text.h texture.h timer.h unsortedSprite.h util.h vector.h
 OBJS = angle.o camera.o cursor.o drawObject.o font.o framebuffer.o image.o \
 			lighting.o matrix.o shader.o shaderData.o simpleGL.o sound.o soundFile.o \
 				sprite.o streamSpeaker.o text.o timer.o unsortedSprite.o vector.o

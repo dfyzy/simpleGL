@@ -14,6 +14,8 @@ class Speaker : public Point {
 private:
 	ALuint id;
 
+	bool looping;
+
 protected:
 	~Speaker() {
 		alDeleteSources(1, &id);
@@ -32,7 +34,8 @@ public:
 		return result;
 	}
 
-	//TODO: looping
+	virtual void setLooping(bool b) { looping = b; }
+	bool getLooping() const { return looping; }
 
 	virtual void play() =0;
 	//TODO

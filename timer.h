@@ -76,9 +76,9 @@ protected:
 	public:
 		InvertedIterator(Interval* interval) : Iterator(interval) {}
 
-		TimePoint* getPast() const { return Iterator::interval->future; }
-		TimePoint* getFuture() const { return Iterator::interval->past; }
-		void next() { Iterator::interval = Iterator::interval->past->past; }
+		TimePoint* getPast() const override { return Iterator::interval->future; }
+		TimePoint* getFuture() const override { return Iterator::interval->past; }
+		void next() override { Iterator::interval = Iterator::interval->past->past; }
 	};
 
 //TOTHINK: private?
@@ -94,7 +94,7 @@ protected:
 
 	bool playing {false};
 
-	bool step() {
+	bool step() override {
 		if (!playing)	return true;
 		cursor += getDeltaTime();
 
@@ -119,9 +119,9 @@ public:
 		first = new Interval(new TimePoint(firstV));
 	}
 
-	bool isPlaying() const { return playing; }
+	bool isPlaying() const override { return playing; }
 
-	void play(bool invert) {
+	void play(bool invert) override {
 		if (last == nullptr)	return;
 
 		playing = true;
@@ -152,7 +152,7 @@ public:
 template<typename Object, typename Value>
 class LerpTimer : public SetterTimer<Object, Value> {
 protected:
-	bool step() {
+	bool step() override {
 		if (SetterTimer<Object, Value>::step()) return true;
 
 		(SetterTimer<Object, Value>::object->*SetterTimer<Object, Value>::set)(

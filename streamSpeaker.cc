@@ -12,22 +12,40 @@ void StreamSpeaker::update() {
 
 }
 
-StreamSpeaker::StreamSpeaker(Point* parent, Vector position, Vector scale, Angle rotation) : Speaker(parent, position, scale, rotation) {
+StreamSpeaker::StreamSpeaker(Point* parent, Vector position, Vector scale, Angle rotation, int bufferSize)
+	: Speaker(parent, position, scale, rotation), bufferSize(bufferSize), sounds(new Sound*[bufferSize]) {
 	if (firstConst) {
 		firstConst = false;
 		util::addPostUpdate(update);
 	}
 
-	for (int i = 0; i < BUFFER_SIZE; i++)
+	for (int i = 0; i < bufferSize; i++)
 		sounds[i] = new Sound();
 
 	streams.push_back(this);
 }
 
-void StreamSpeaker::step() {
-	if (streaming) {
-		//check if stopped?
+void StreamSpeaker::bindData(int i) {
+	if (!streaming) return;
 
+	if (getData(sounds[i])) {
+		ALuint buffer = sounds[i]->getId();
+		alSourceQueueBuffers(getId(), 1, &buffer);
+
+	} else {
+		if (getLooping() && canLoop) {
+			restartStream();
+			canLoop = false;
+			bindData(i);
+			canLoop = true;
+		} else	streaming = false;
+	}
+}
+
+void StreamSpeaker::step() {
+	ALint stopped = getState() == AL_STOPPED;
+
+	if (streaming) {
 		ALint processed;
 		alGetSourcei(getId(), AL_BUFFERS_PROCESSED, &processed);
 
@@ -41,15 +59,49 @@ void StreamSpeaker::step() {
 
 			bindData(index);
 
-			if (++index == BUFFER_SIZE)	index = 0;
+			if (++index == bufferSize)	index = 0;
 		}
-	} else if (bound) {
-		//check if stopped!
 
+		if (stopped) {
+			alSourcePlay(getId());
+			util::println("buffering");//temp
+		}
+	} else if (stopped && bound) {
 		alSourcei(getId(), AL_BUFFER, 0);
 		bound = false;
-		closeStream();//error above
+		closeStream();
 	}
+}
+
+void StreamSpeaker::play() {
+	ALint state = getState();
+
+	if (state != AL_PAUSED) {
+
+		if (state == AL_PLAYING) {
+			alSourceStop(getId());
+			alSourcei(getId(), AL_BUFFER, 0);
+
+			restartStream();
+		} else	openStream();
+
+		streaming = true;
+		index = 0;
+
+		for (int i = 0; i < bufferSize; i++)	bindData(i);
+
+		bound = true;
+	}
+
+	alSourcePlay(getId());
+}
+
+void StreamSpeaker::stop() {
+	alSourceStop(getId());
+	streaming = false;
+	alSourcei(getId(), AL_BUFFER, 0);
+	bound = false;
+	closeStream();
 }
 
 }

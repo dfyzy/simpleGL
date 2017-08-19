@@ -9,7 +9,7 @@ Sound::Sound() {
 	alGenBuffers(1, &id);
 }
 
-Sound* Sound::loadData(unsigned pchannels, unsigned plength, unsigned psampleRate, const short* data) {
+Sound* Sound::loadData(int pchannels, unsigned psampleRate, unsigned plength, const short* data) {
 	ALenum format {0};
 	if (pchannels == 1)			format = AL_FORMAT_MONO16;
 	else if (pchannels == 2)	format = AL_FORMAT_STEREO16;

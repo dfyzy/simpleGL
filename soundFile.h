@@ -19,12 +19,17 @@ public:
 	SoundFile(std::string path);
 	~SoundFile();
 
-	bool read(Sound* sound, unsigned frames);
+	sf_count_t getLength() const { return info.frames; }
+	int getSampleRate() { return info.samplerate; }
+	int getChannels() { return info.channels; }
+	int getFormat() { return info.format; }
+
+	bool read(Sound* sound, sf_count_t frames);
 	void readAll(Sound* sound) {
 		read(sound, info.frames);
 	}
 
-	void seek(unsigned frames) {
+	void seek(sf_count_t frames) {
 		sf_seek(file, frames, SEEK_SET);
 	}
 

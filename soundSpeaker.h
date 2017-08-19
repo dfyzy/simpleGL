@@ -32,6 +32,11 @@ public:
 		alSourcei(getId(), AL_BUFFER, sound ? sound->getId() : 0);
 	}
 
+	void setLooping(bool b) override {
+		Speaker::setLooping(b);
+		alSourcei(getId(), AL_LOOPING, b ? AL_TRUE : AL_FALSE);
+	}
+
 	void play() override {
 		alSourcePlay(getId());
 	}

@@ -30,13 +30,13 @@ SoundFile::~SoundFile() {
 	sf_close(file);
 }
 
-bool SoundFile::read(Sound* sound, unsigned frames) {
+bool SoundFile::read(Sound* sound, sf_count_t frames) {
 	std::unique_ptr<short[]> data {new short[frames*info.channels]};
 
-	unsigned result = sf_readf_short(file, data.get(), frames);
+	sf_count_t result = sf_readf_short(file, data.get(), frames);
 	if (result == 0)	return false;
 
-	sound->loadData(info.channels, result, info.samplerate, data.get());
+	sound->loadData(info.channels, info.samplerate, result, data.get());
 
 	return true;
 }

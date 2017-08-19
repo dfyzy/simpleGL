@@ -13,9 +13,9 @@ class Sound {
 private:
 	ALuint id {0};
 
-	unsigned channels {0};
-	unsigned length {0};
+	int channels {0};
 	unsigned sampleRate {0};
+	unsigned length {0};
 
 protected:
 	~Sound();
@@ -23,14 +23,14 @@ protected:
 public:
 	Sound();
 
-	Sound* loadData(unsigned pchanels, unsigned plength, unsigned psampleRate, const short* data);
+	Sound* loadData(int pchannels, unsigned psampleRate, unsigned plength, const short* data);
 	Sound* loadData(std::string path);
 
 	ALuint getId() const { return id; }
 
-	unsigned getChannels() const { return channels; }
-	unsigned getLength() const { return length; }
+	int getChannels() const { return channels; }
 	unsigned getSampleRate() const { return sampleRate; }
+	unsigned getLength() const { return length; }
 
 	void unload() { delete this; }
 

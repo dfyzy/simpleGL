@@ -18,60 +18,59 @@ private:
 	std::unique_ptr<short[]> data;
 	unsigned length {0};
 
-	const unsigned sampleRate;
+	unsigned sampleRate;
 
 public:
 	Signal(unsigned sampleRate) : sampleRate(sampleRate) {}
 	Signal(unsigned sampleRate, unsigned length, short* array) : data(array), length(length), sampleRate(sampleRate) {}
+
+	Signal(const Signal& other) { operator=(other); }
 
 	const short* getData() const { return data.get(); }
 
 	unsigned getLength() const { return length; }
 	unsigned getSampleRate() const { return sampleRate; }
 
-	Signal& loadFunc(float frequency, std::function<short(float)> func) {
-		length = sampleRate/frequency;
+	Signal& loadFunc(float duration, unsigned frequency, std::function<short(float)> func) {
+		if (frequency == 0 || sampleRate == 0)	return *this;
+
+		unsigned one = sampleRate/frequency;
+		unsigned freqFunc = std::ceil(duration*frequency);
+
+		length = freqFunc*one;
+
 		data.reset(new short[length]);
-		for (unsigned i = 0; i < length; i++)
-			data[i] = func((2.0f*PI*i)/length);
+		for (unsigned k = 0; k < freqFunc; k++)
+			for (unsigned i = 0; i < one; i++)
+				data[one*k + i] = func(((float) i)/one);
 
 		return *this;
 	}
 
-	Signal& loadSine(float frequency, short amplitude) {
-		return loadFunc(frequency, [=] (float t) { return amplitude*std::sin(t); });
+	Signal& loadSine(float duration, unsigned frequency, short amplitude) {
+		return loadFunc(duration, frequency, [=] (float t) { return amplitude*std::sin(2.0f*PI*t); });
 	}
 
-	Signal& loadSquare(float frequency, short amplitude) {
-		return loadFunc(frequency, [=] (float t) { return std::copysign(amplitude, PI - t); });//only works in [0, 2*PI]
+	Signal& loadSquare(float duration, unsigned frequency, short amplitude) {
+		return loadFunc(duration, frequency, [=] (float t) { return std::copysign(amplitude, 0.5f - t); });
 	}
 
-	Signal& loadTriangle(float frequency, short amplitude) {
-		return loadFunc(frequency,
-			[=] (float t) {
-				t = t/(2.0f*PI) + 0.25f;
-				return amplitude*(1.0f - 4.0f*std::abs(t - std::floor(t) - 0.5f));
-			}
-		);
+	Signal& loadTriangle(float duration, unsigned frequency, short amplitude) {
+		return loadFunc(duration, frequency, [=] (float t) { return amplitude*(1.0f - 4.0f*std::abs(t - std::floor(t + 0.25f) - 0.25f)); });
 	}
 
-	Signal& loadSawtooth(float frequency, short amplitude) {
-		return loadFunc(frequency,
-			[=] (float t) {
-				t = t/(2.0f*PI) + 0.5f;
-				return amplitude*(2.0f*(t - std::floor(t)) - 1.0f);
-			}
-		);
+	Signal& loadSawtooth(float duration, unsigned frequency, short amplitude) {
+		return loadFunc(duration, frequency, [=] (float t) { return 2.0f*amplitude*(t - std::floor(t + 0.5f)); });
 	}
 
-	Signal& loadInverseSawtooth(float frequency, short amplitude) {
-		return loadFunc(frequency, [=] (float t) { return amplitude*(1.0f - t/PI); });
+	Signal& loadInverseSawtooth(float duration, unsigned frequency, short amplitude) {
+		return loadFunc(duration, frequency, [=] (float t) { return amplitude*(1.0f - t/PI); });//only works in [0, 2*PI]
 	}
 
 	void loadIntoSound(Sound* sound) const {
 		if (!sound)	return;
 
-		sound->loadData(1, length, sampleRate, data.get());
+		sound->loadData(1, sampleRate, length, data.get());
 	}
 
 	void loadIntoImage(Image* image, unsigned width, unsigned height) const {
@@ -83,6 +82,15 @@ public:
 	void unloadData() {
 		data.reset();
 		length = 0;
+	}
+
+	Signal& operator=(const Signal& other) {
+		length = other.length;
+		sampleRate = other.sampleRate;
+
+		data.reset(new short[length]);
+		for (unsigned i = 0; i < length; i++)
+			data[i] = other.data[i];
 	}
 
 };
