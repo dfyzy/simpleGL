@@ -3,11 +3,8 @@
 
 namespace {
 
-struct dynUniform {
-	enum E { CAMERA, RESOLUTION, COUNT };
-	static int sizes[COUNT];
-};
-int dynUniform::sizes[COUNT] {12, 2};//if adding new - change 2 to 4.
+enum class EDynamicUniform { Camera, Resolution, Count };
+int dynamicUniformSizes[(int)EDynamicUniform::Count] {12, 2};//if adding new - change 2 to 4.
 
 constexpr int SAMPLES_NUM = 4;
 
@@ -21,12 +18,12 @@ unsigned currentWidth;
 unsigned currentHeight;
 
 
-void setUniform(float* data, dynUniform::E type) {
+void setUniform(float* data, EDynamicUniform type) {
 	int offset = 0;
-	for (int i = 0; i < type; i++)
-		offset += dynUniform::sizes[i];
+	for (int i = 0; i < (int)type; i++)
+		offset += dynamicUniformSizes[i];
 
-	glBufferSubData(GL_UNIFORM_BUFFER, offset*sizeof(float), dynUniform::sizes[type]*sizeof(float), data);
+	glBufferSubData(GL_UNIFORM_BUFFER, offset*sizeof(float), dynamicUniformSizes[(int)type]*sizeof(float), data);
 }
 
 void setResolution(unsigned width, unsigned height) {
@@ -35,7 +32,7 @@ void setResolution(unsigned width, unsigned height) {
 
 	float data[] {(float)width, (float)height};
 
-	setUniform(data, dynUniform::RESOLUTION);
+	setUniform(data, EDynamicUniform::Resolution);
 	glViewport(0, 0, width, height);
 }
 
@@ -48,7 +45,7 @@ void setViewMatrix(simpleGL::Matrix view) {
 						m.get(0, 1),	m.get(1, 1),	m.get(2, 1), 0,
 						m.get(0, 2),	m.get(1, 2),	m.get(2, 2), 0};
 
-	setUniform(data, dynUniform::CAMERA);
+	setUniform(data, EDynamicUniform::Camera);
 }
 
 void setFbo(GLuint fbo) {
@@ -91,7 +88,7 @@ Framebuffer::Framebuffer(unsigned width, unsigned height, GLint internalFormat, 
 			glBindBufferBase(GL_UNIFORM_BUFFER, 0, dynamic);
 
 			int size = 0;
-			for (int i = 0; i < dynUniform::COUNT; i++)	size += dynUniform::sizes[i];
+			for (int i = 0; i < (int)EDynamicUniform::Count; i++)	size += dynamicUniformSizes[i];
 			glBufferData(GL_UNIFORM_BUFFER, size*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
 			setResolution(getWindowWidth(), getWindowHeight());
 		}

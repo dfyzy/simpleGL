@@ -18,7 +18,7 @@ private:
 		~SliderSprite() {}
 
 	public:
-		SliderSprite(Slider* parent, Vector scale, Angle rotation, Texture texture, Anchor anchor, Color color, int z)
+		SliderSprite(Slider* parent, Vector scale, Angle rotation, Texture texture, EAnchor anchor, Color color, int z)
 			: Sprite(parent, {}, scale, rotation, texture, anchor, color, z), Button(this), slider(parent) {}
 
 		void onDrag(int mouseButton) override {
@@ -49,7 +49,7 @@ public:
 		Vector pscale {1};
 		Angle protation;
 		Texture ptexture;
-		Anchor panchor {Center};
+		EAnchor panchor {EAnchor::Center};
 		Color pcolor {1};
 		int pz {0};
 		float plength {1.0f};
@@ -62,7 +62,7 @@ public:
 		Loader& scale(Vector v) { pscale = v; return *this; }
 		Loader& rotation(Angle a) { protation = a; return *this; }
 		Loader& texture(Texture t) { ptexture = t; return *this; }
-		Loader& anchor(Anchor a) { panchor = a; return *this; }
+		Loader& anchor(EAnchor a) { panchor = a; return *this; }
 		Loader& color(Color c) { pcolor = c; return *this; }
 		Loader& z(int i) { pz = i; return *this; }
 		Loader& length(float f) { plength = f; return *this; }
@@ -71,7 +71,7 @@ public:
 		Slider* load() { return new Slider(pparent, pposition, pscale, protation, ptexture, panchor, pcolor, pz, plength, pslideRotation); }
 	};
 
-	Slider(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, Anchor anchor, Color color, int z,
+	Slider(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, EAnchor anchor, Color color, int z,
 		float length, Angle slideRotation)
 			: Point(parent, position, {1.0f}, slideRotation),
 			sprite(new SliderSprite(this, scale, rotation, texture, anchor, color, z)),

@@ -82,7 +82,7 @@ void Lighting::Shadow::draw(Source* source) {
 	(left + (left - pov).normalize()*length).load(data, &i);
 	(right + (right - pov).normalize()*length).load(data, &i);
 
-	middle->bindData(DataType::VERTEX, data);
+	middle->bindData(EDataType::Vertex, data);
 
 	glStencilFunc(GL_EQUAL, 1, 0xFF);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
@@ -97,7 +97,7 @@ void Lighting::Shadow::draw(Source* source) {
 }
 
 Lighting::Lighting(Point* parent, Vector position, Vector scale, Angle rotation,
-	unsigned width, unsigned height, Anchor anchor, Color color, int z, Color base)
+	unsigned width, unsigned height, EAnchor anchor, Color color, int z, Color base)
 		: Sprite(parent, position, scale, rotation, {}, anchor, color, z) {
 		util::println("Lighting:load");
 

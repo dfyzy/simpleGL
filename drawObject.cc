@@ -7,10 +7,10 @@ namespace {
 
 constexpr int RESIZE_FACTOR = 2;
 
-GLuint vbos[simpleGL::DataType::COUNT];
+GLuint vbos[(int)simpleGL::EDataType::Count];
 bool buffersNotInited {true};
 
-int dataSize[simpleGL::DataType::COUNT] { 2, 2, 4 };
+int dataSize[(int)simpleGL::EDataType::Count] { 2, 2, 4 };
 
 std::queue<unsigned> deletedDos;
 
@@ -27,9 +27,9 @@ DrawObject::DrawObject() {
 
 		util::println("Data buffers:load");
 
-		glGenBuffers(DataType::COUNT, vbos);
+		glGenBuffers((int)EDataType::Count, vbos);
 
-		for (int i = 0; i < DataType::COUNT; i++) {
+		for (int i = 0; i < (int)EDataType::Count; i++) {
 			glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
 
 			//alocating data for objectCapacity number of objects.
@@ -49,7 +49,7 @@ DrawObject::DrawObject() {
 	if (objectCapacity < objectCount) {
 		util::println(std::string("Data buffers:resize:") + std::to_string(objectCapacity*RESIZE_FACTOR));
 
-		for (int i = 0; i < DataType::COUNT; i++) {
+		for (int i = 0; i < (int)EDataType::Count; i++) {
 			GLuint tempVbo;
 			glGenBuffers(1, &tempVbo);
 
@@ -85,27 +85,28 @@ DrawObject::~DrawObject() {
 		objectCount--;
 }
 
-void DrawObject::bindData(DataType::E type, float data[]) const {
-	if (type == DataType::COUNT) {
-		util::println("error:DrawObject:do not use DataType::COUNT");
+void DrawObject::bindData(EDataType type, float data[]) const {
+	if (type == EDataType::Count) {
+		util::println("error:DrawObject:do not use DataType::Count");
 		return;
 	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbos[type]);
+	glBindBuffer(GL_ARRAY_BUFFER, vbos[(int)type]);
 
-	int size = dataSize[type]*QUAD_VERTS*sizeof(float);
+	int size = dataSize[(int)type]*QUAD_VERTS*sizeof(float);
 	glBufferSubData(GL_ARRAY_BUFFER, id * size, size, data);
 }
 
 void DrawObject::bindColorData(Color color) const {
-	int size = dataSize[DataType::COLOR]*QUAD_VERTS;
+	int vertSize = dataSize[(int)EDataType::Color];
+	int size = vertSize*QUAD_VERTS;
 	float data[size];
 
-	for (int i = 0; i < size; i += dataSize[DataType::COLOR]) {
+	for (int i = 0; i < size; i += vertSize) {
 		data[i] = color.r; data[i + 1] = color.g; data[i + 2] = color.b; data[i + 3] = color.a;
 	}
 
-	bindData(DataType::COLOR, data);
+	bindData(EDataType::Color, data);
 }
 
 }

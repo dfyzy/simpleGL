@@ -11,7 +11,7 @@ namespace simpleGL {
 
 class Text : public Point {
 public:
-	enum Alignment { LEFT, CENTER, RIGHT, JUSTIFIED };
+	enum class EAlignment { Left, Center, Right, Justified };
 
 private:
 	static GLuint textFragmentShader;
@@ -19,7 +19,7 @@ private:
 	Font* font;
 
 	std::string caption;
-	Alignment alignment;
+	EAlignment alignment;
 
 	Vector bounds;
 
@@ -47,7 +47,7 @@ public:
 		Font* pfont {nullptr};
 		std::string pcaption;
 		unsigned pwidth {0};
-		Alignment palignment {Text::CENTER};
+		EAlignment palignment {EAlignment::Center};
 
 		Loader() {}
 
@@ -60,13 +60,13 @@ public:
 		Loader& font(Font* f) { pfont = f; return *this; }
 		Loader& caption(std::string str) { pcaption = str; return *this; }
 		Loader& width(unsigned u) { pwidth = u; return *this; }
-		Loader& alignment(Alignment a) { palignment = a; return *this; }
+		Loader& alignment(EAlignment a) { palignment = a; return *this; }
 
 		Text* load() { return new Text(pparent, pposition, pscale, protation, pcolor, pz, pfont, pcaption, pwidth, palignment); }
 	};
 
 	Text(Point* parent, Vector position, Vector scale, Angle rotation, Color color, int z,
-		Font* font, std::string caption, float width, Alignment alignment)
+		Font* font, std::string caption, float width, EAlignment alignment)
 			: Point(parent, position, scale, rotation), font(font), alignment(alignment), bounds(width, 0), z(z), color(color) {
 			setCaption(caption);
 		}
@@ -95,7 +95,7 @@ public:
 
 	void addCaption(std::string string);
 
-	Alignment getAlignment() const { return alignment; }
+	EAlignment getAlignment() const { return alignment; }
 
 	Vector getBounds() const { return bounds; }
 

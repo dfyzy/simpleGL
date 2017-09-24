@@ -84,7 +84,7 @@ int main() {
 	std::string lorem("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
 	Text::Loader().font(sans).caption(lorem).width(350).position({0, -100}).z(-10).load();
 
-	Lighting* dark = Lighting::Loader().anchor(Left).position({0, -150}).bounds(200, 200).z(-100).load();
+	Lighting* dark = Lighting::Loader().anchor(EAnchor::Left).position({0, -150}).bounds(200, 200).z(-100).load();
 	Lighting::Source::Loader().lighting(dark).texture({100}).position(Vector(0, -150) + Vector(25)).color({0.5f, 0, 0}).load();
 	Lighting::Source::Loader().lighting(dark).texture({100}).position(Vector(0, -150) + Vector(-25)).color({0, 0.5f, 0}).load();
 
@@ -96,7 +96,7 @@ int main() {
 	Cursor::getInstance()->setPositionCallback(cursorPosCallback);
 	Cursor::getInstance()->setMouseButtonCallback(mouseButtonCallback);
 
-	Sprite* red = Sprite::Loader().texture({50}).parent(Cursor::getInstance()).anchor(BottomLeft).color({1, 0, 0}).z(-50).load();
+	Sprite* red = Sprite::Loader().texture({50}).parent(Cursor::getInstance()).anchor(EAnchor::BottomLeft).color({1, 0, 0}).z(-50).load();
 	red->setStencil(back);
 
 	timer = new LerpTimer<Sprite, Vector>(red, Sprite::setPosition, {});

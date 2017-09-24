@@ -8,18 +8,18 @@
 
 namespace simpleGL {
 
-enum Anchor {	TopRight,		Top,		TopLeft,
-					Right,			Center,	Left,
-					BottomRight,	Bottom,	BottomLeft};
+enum class EAnchor {TopRight,		Top,		TopLeft,
+							Right,			Center,	Left,
+							BottomRight,	Bottom,	BottomLeft};
 
-inline Vector anchorToFactor(Anchor anchor) {
-	return (Vector(anchor % 3, anchor / 3) - 1);
+inline Vector anchorToFactor(EAnchor anchor) {
+	return (Vector((int)anchor % 3, (int)anchor / 3) - 1);
 }
 
 class AnchoredBox : public Point {
 private:
 	Box* box;
-	Anchor anchor;
+	EAnchor anchor;
 
 	void updateAnchor() {
 		box->setPosition(anchorToFactor(anchor)*box->getBounds()*0.5f);
@@ -30,7 +30,7 @@ protected:
 	~AnchoredBox() {}
 
 public:
-	AnchoredBox(Point* parent, Vector position, Vector scale, Angle rotation, Vector bounds, Anchor anchor)
+	AnchoredBox(Point* parent, Vector position, Vector scale, Angle rotation, Vector bounds, EAnchor anchor)
 		: Point(parent, position, scale, rotation), box(new Box(this, bounds)), anchor(anchor) {
 		updateAnchor();
 	}
@@ -45,8 +45,8 @@ public:
 		updateAnchor();
 	}
 
-	Anchor getAnchor() const { return anchor; }
-	void setAnchor(Anchor a) {
+	EAnchor getAnchor() const { return anchor; }
+	void setAnchor(EAnchor a) {
 		if (anchor == a)	return;
 
 		anchor = a;

@@ -18,7 +18,7 @@ constexpr Vector QUAD[] = {{-0.5f, 0.5f},
 
 constexpr int QUAD_VERTS = 4;
 
-struct DataType { enum E { VERTEX, TEXTURE, COLOR, COUNT }; };
+enum class EDataType { Vertex, Texture, Color, Count };
 
 class DrawObject {
 private:
@@ -31,9 +31,9 @@ public:
 
 	unsigned getId() const { return id; }
 
-	void bindData(DataType::E type, float data[]) const;
+	void bindData(EDataType type, float data[]) const;
 
-	void bindQuadData(DataType::E type, Matrix model) const {
+	void bindQuadData(EDataType type, Matrix model) const {
 		float data[QUAD_VERTS*2];
 		int offset = 0;
 
@@ -44,10 +44,10 @@ public:
 	}
 
 	void bindVertexData(Matrix model) const {
-		bindQuadData(DataType::VERTEX, model);
+		bindQuadData(EDataType::Vertex, model);
 	}
 	void bindTextureData(Texture texture) const {
-		bindQuadData(DataType::TEXTURE, texture.getMatrix());
+		bindQuadData(EDataType::Texture, texture.getMatrix());
 	}
 	void bindColorData(Color color) const;
 

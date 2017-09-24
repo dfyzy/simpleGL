@@ -68,7 +68,7 @@ int main() {
 	Lighting::Source* lamp7 = Lighting::Source::Loader().lighting(light).texture({1000}).position({0, -300}).color({0.9f, 0, 0.9f}).load();
 	lamp7->setFragmentShader(loadShaderSource(shaderData::getLightingPow2Fragment(), GL_FRAGMENT_SHADER));
 
-	target = Lighting::Shadow::Loader().lighting(light).bounds({50}).anchor(TopLeft).load();
+	target = Lighting::Shadow::Loader().lighting(light).bounds({50}).anchor(EAnchor::TopLeft).load();
 
 	setUpdate(update);
 

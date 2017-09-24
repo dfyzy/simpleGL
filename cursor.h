@@ -32,7 +32,7 @@ private:
 
 	//TODO: custom cursor images
 
-	Cursor() : UnsortedSprite(Camera::getInstance(), {}, {1.0f}, {}, {}, Center, {1}), change(getChange()) {
+	Cursor() : UnsortedSprite(Camera::getInstance(), {}, {1.0f}, {}, {}, EAnchor::Center, {1}), change(getChange()) {
 		glfwSetCursorPosCallback(getWindow(), positionCallback);
 		glfwSetMouseButtonCallback(getWindow(), buttonCallback);
 	}

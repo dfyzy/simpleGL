@@ -61,7 +61,7 @@ public:
 		Vector pscale {1};
 		Angle protation;
 		Texture ptexture;
-		Anchor panchor {Center};
+		EAnchor panchor {EAnchor::Center};
 		Color pcolor {1};
 
 		Loader() {}
@@ -71,13 +71,13 @@ public:
 		Loader& scale(Vector v) { pscale = v; return *this; }
 		Loader& rotation(Angle a) { protation = a; return *this; }
 		Loader& texture(Texture t) { ptexture = t; return *this; }
-		Loader& anchor(Anchor a) { panchor = a; return *this; }
+		Loader& anchor(EAnchor a) { panchor = a; return *this; }
 		Loader& color(Color c) { pcolor = c; return *this; }
 
 		UnsortedSprite* load() { return new UnsortedSprite(pparent, pposition, pscale, protation, ptexture, panchor, pcolor); }
 	};
 
-	UnsortedSprite(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, Anchor anchor, Color color)
+	UnsortedSprite(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, EAnchor anchor, Color color)
 		: AnchoredBox(parent, position, scale, rotation, texture.getBounds(), anchor),
 			drawObject(new DrawObject()), texture(texture), color(color), vertexShader(getDefaultVertexShader()) {
 		setDefaultFragmentShader();

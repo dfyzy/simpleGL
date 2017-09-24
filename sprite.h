@@ -42,7 +42,7 @@ public:
 		Vector pscale {1};
 		Angle protation;
 		Texture ptexture;
-		Anchor panchor {Center};
+		EAnchor panchor {EAnchor::Center};
 		Color pcolor {1};
 		int pz {0};
 
@@ -53,14 +53,14 @@ public:
 		Loader& scale(Vector v) { pscale = v; return *this; }
 		Loader& rotation(Angle a) { protation = a; return *this; }
 		Loader& texture(Texture t) { ptexture = t; return *this; }
-		Loader& anchor(Anchor a) { panchor = a; return *this; }
+		Loader& anchor(EAnchor a) { panchor = a; return *this; }
 		Loader& color(Color c) { pcolor = c; return *this; }
 		Loader& z(int i) { pz = i; return *this; }
 
 		Sprite* load() { return new Sprite(pparent, pposition, pscale, protation, ptexture, panchor, pcolor, pz); }
 	};
 
-	Sprite(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, Anchor anchor, Color color, int z)
+	Sprite(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, EAnchor anchor, Color color, int z)
 		: UnsortedSprite(parent, position, scale, rotation, texture, anchor, color), z(z) {
 		sprites.insert(this);
 	}

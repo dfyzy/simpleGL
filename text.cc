@@ -54,7 +54,7 @@ void Text::addCaption(std::string string) {
 
 			lineWidth += glyph->advance;
 
-			float spss = spaces*spaceWidth*(alignment == JUSTIFIED ? MIN_JUSTIFIED_SPACE : 1);
+			float spss = spaces*spaceWidth*(alignment == EAlignment::Justified ? MIN_JUSTIFIED_SPACE : 1);
 			if ((bounds.x != 0) && (lineEnd != cursorStr) && (lineWidth + spss > bounds.x)) {//hard way(overflow)
 				//substracting width of overflowing word
 				for (unsigned s = lineEnd; s != c;) {
@@ -81,7 +81,7 @@ void Text::addCaption(std::string string) {
 
 		float offset = 0;
 
-		if (alignment == JUSTIFIED) {
+		if (alignment == EAlignment::Justified) {
 			if (notEOS) {
 				if (spaces != 0)	spaceWidth += (bounds.x - lineWidth)/spaces;
 				lineWidth = bounds.x;
@@ -89,8 +89,8 @@ void Text::addCaption(std::string string) {
 				offset -= (bounds.x - lineWidth)/2;//this will depend on language default alignment.
 		}
 
-		if (alignment != LEFT)
-			offset -= lineWidth/(2 - (alignment == RIGHT));
+		if (alignment != EAlignment::Left)
+			offset -= lineWidth/(2 - (alignment == EAlignment::Right));
 
 		//actually setting sprite position
 		if (notEOS)	lineEnd++;
@@ -106,7 +106,8 @@ void Text::addCaption(std::string string) {
 			Vector position = Vector(offset, -bounds.y) + glyph->offset;
 
 			if (cursorSpr == sprites.end()) {
-				Sprite* spr = Sprite::Loader().texture(glyph->texture).anchor(TopLeft).parent(this).position(position).color(color).z(z).load();
+				Sprite* spr = Sprite::Loader().texture(glyph->texture).anchor(EAnchor::TopLeft).parent(this)
+															.position(position).color(color).z(z).load();
 				spr->setFragmentShader(getDefaultFragment());
 				sprites.push_back(spr);
 
