@@ -7,8 +7,8 @@
 #ifndef SIMPLE_LIGHTING_H
 #define SIMPLE_LIGHTING_H
 
+#include "glfw.h"
 #include "sprite.h"
-#include "framebuffer.h"
 
 namespace simpleGL {
 
@@ -92,14 +92,7 @@ public:
 		Change* change;
 
 	protected:
-		~Shadow() {
-			object->unload();
-
-			bottom->unload();
-			middle->unload();
-
-			lighting->shadows.remove(this);
-		}
+		~Shadow();
 
 	public:
 		struct Loader {
@@ -124,15 +117,7 @@ public:
 			Shadow* load() { return new Shadow(pparent, pposition, pscale, protation, pbounds, panchor, plighting); }
 		};
 
-		Shadow(Point* parent, Vector position, Vector scale, Angle rotation, Vector bounds, EAnchor anchor, Lighting* lighting)
-			: AnchoredBox(parent, position, scale, rotation, bounds, anchor),
-				lighting(lighting), object(new DrawObject()), bottom(new DrawObject()), middle(new DrawObject()), change(getChange()) {
-			object->bindTextureData(bounds);
-			bottom->bindTextureData({});
-			middle->bindTextureData({});
-
-			if (lighting)	lighting->shadows.push_back(this);
-		}
+		Shadow(Point* parent, Vector position, Vector scale, Angle rotation, Vector bounds, EAnchor anchor, Lighting* lighting);
 
 		bool getChanged() {
 			bool result = change->get();
@@ -144,7 +129,7 @@ public:
 	};
 
 private:
-	Framebuffer* framebuffer;
+	class Framebuffer* framebuffer;
 
 	std::list<Source*> sources;
 	std::list<Shadow*> shadows;
@@ -186,7 +171,7 @@ public:
 	Lighting(Point* parent, Vector position, Vector scale, Angle rotation,
 		unsigned width, unsigned height, EAnchor anchor, Color color, int z, Color base);
 
-	Image* getImage() const { return framebuffer->getImage(); }
+	Image* getImage() const;
 
 	void draw() override;
 

@@ -4,6 +4,7 @@
 #ifndef SIMPLE_SLIDER_H
 #define SIMPLE_SLIDER_H
 
+#include "sprite.h"
 #include "cursor.h"
 
 namespace simpleGL {

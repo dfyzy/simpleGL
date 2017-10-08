@@ -6,7 +6,7 @@
 
 #include <sndfile.h>
 
-#include "sound.h"
+#include <string>
 
 namespace simpleGL {
 
@@ -24,7 +24,7 @@ public:
 	int getChannels() { return info.channels; }
 	int getFormat() { return info.format; }
 
-	bool read(Sound* sound, sf_count_t frames);
+	bool read(class Sound* sound, sf_count_t frames);
 	void readAll(Sound* sound) {
 		read(sound, info.frames);
 	}

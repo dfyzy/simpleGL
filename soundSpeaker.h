@@ -4,14 +4,13 @@
 #ifndef SIMPLE_SOUND_SPEAKER_H
 #define SIMPLE_SOUND_SPEAKER_H
 
-#include "sound.h"
 #include "speaker.h"
 
 namespace simpleGL {
 
 class SoundSpeaker : public Speaker {
 private:
-	Sound* sound {nullptr};
+	class Sound* sound {nullptr};
 
 protected:
 	~SoundSpeaker() {
@@ -25,12 +24,7 @@ public:
 	}
 
 	Sound* getSound() const { return sound; }
-	void setSound(Sound* s) {
-		sound = s;
-
-		stop();
-		alSourcei(getId(), AL_BUFFER, sound ? sound->getId() : 0);
-	}
+	void setSound(Sound* s);
 
 	void setLooping(bool b) override {
 		Speaker::setLooping(b);

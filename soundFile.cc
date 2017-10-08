@@ -1,6 +1,7 @@
 #include <memory>
 
 #include "soundFile.h"
+#include "sound.h"
 #include "util.h"
 
 namespace simpleGL {

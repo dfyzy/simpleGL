@@ -1,4 +1,6 @@
 #include <simpleGL/simpleGL.h>
+#include <simpleGL/image.h>
+#include <simpleGL/sprite.h>
 
 using namespace simpleGL;
 

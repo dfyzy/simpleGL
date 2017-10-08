@@ -6,21 +6,17 @@
 
 #include <memory>
 
-#include "sound.h"
 #include "speaker.h"
+#include "updatable.h"
 
 namespace simpleGL {
 
 
-class StreamSpeaker : public Speaker {
+class StreamSpeaker : public Speaker, public Updatable<EUpdateType::PostTick> {
 private:
-	static std::list<simpleGL::StreamSpeaker*> streams;
-	static bool firstConst;
-	static void update();
-
 	const int bufferSize;
 
-	std::unique_ptr<Sound*[]> sounds;
+	std::unique_ptr<class Sound*[]> sounds;
 	int index {0};
 
 	bool streaming {false};
@@ -28,19 +24,12 @@ private:
 
 	bool canLoop {true};
 
-	void step();
+	void update() override;
 
 	void bindData(int i);
 
 protected:
-	~StreamSpeaker() {
-		stop();
-
-		for (int i = 0; i < bufferSize; i++)
-			sounds[i]->unload();
-
-		streams.remove(this);
-	}
+	~StreamSpeaker();
 
 	virtual void openStream() =0;
 	virtual bool getData(Sound* sound) =0;

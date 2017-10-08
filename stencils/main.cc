@@ -1,4 +1,7 @@
 #include <simpleGL/simpleGL.h>
+#include <simpleGL/sprite.h>
+#include <simpleGL/image.h>
+#include <simpleGL/updatable.h>
 #include <random>
 #include <functional>
 #include <ctime>
@@ -44,33 +47,35 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 
 }
 
-void update() {
-	int dir = (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) - (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS);
-	if (dir) {
-		Angle newRot = anchor->getRotation() - 0.025f*dir;
-		anchor->setRotation(newRot);
+class MainTick : public Updatable<EUpdateType::Tick> {
+	void update() {
+		int dir = (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) - (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS);
+		if (dir) {
+			Angle newRot = anchor->getRotation() - 0.025f*dir;
+			anchor->setRotation(newRot);
 
-		float ang = newRot.get()/(PI*0.5f);
-		float part = ang - std::floor(ang);
-		if (part > 0.5f)	part = 1 - part;
-		part = std::pow(1 - part*2, 2);
+			float ang = newRot.get()/(PI*0.5f);
+			float part = ang - std::floor(ang);
+			if (part > 0.5f)	part = 1 - part;
+			part = std::pow(1 - part*2, 2);
 
-		anchor->setScale(2/(SQRT_2 + 1) + part*(SQRT_2 - 1)/(SQRT_2 + 1));
-	}
-
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < SPRITES_NUM; j++) {
-			int ind = j + i*SPRITES_NUM;
-
-			sprites[ind].first->translate(Vector(sprites[ind].second, 0));
-
-			if (sprites[ind].first->getPosition().x > H_WIN_SIZE) {
-				sprites[ind].first->setPosition(Vector(-H_WIN_SIZE, posRand()));
-				sprites[ind].first->setScale({scaleRand()});
-				sprites[ind].second = speedRand();
-			}
+			anchor->setScale(2/(SQRT_2 + 1) + part*(SQRT_2 - 1)/(SQRT_2 + 1));
 		}
-}
+
+		for (int i = 0; i < 4; i++)
+			for (int j = 0; j < SPRITES_NUM; j++) {
+				int ind = j + i*SPRITES_NUM;
+
+				sprites[ind].first->translate(Vector(sprites[ind].second, 0));
+
+				if (sprites[ind].first->getPosition().x > H_WIN_SIZE) {
+					sprites[ind].first->setPosition(Vector(-H_WIN_SIZE, posRand()));
+					sprites[ind].first->setScale({scaleRand()});
+					sprites[ind].second = speedRand();
+				}
+			}
+	}
+};
 
 int main() {
 	window = loadWindow("Title", WIN_SIZE, WIN_SIZE, false, true, {0});
@@ -97,7 +102,7 @@ int main() {
 		}
 	}
 
-	setUpdate(update);
+	MainTick tick;
 
 	draw();
 }

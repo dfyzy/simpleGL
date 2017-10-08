@@ -5,7 +5,7 @@
 #ifndef SIMPLE_SPEAKER_H
 #define SIMPLE_SPEAKER_H
 
-#include "sound.h"
+#include <AL/alext.h>
 #include "point.h"
 
 namespace simpleGL {

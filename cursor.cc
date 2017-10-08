@@ -1,6 +1,9 @@
 #include <set>
 
 #include "cursor.h"
+#include "camera.h"
+#include "sprite.h"
+#include "box.h"
 #include "simpleGL.h"
 #include "util.h"
 
@@ -32,25 +35,29 @@ Cursor* Cursor::getInstance() {
 		util::println("Cursor:load");
 
 		instance = new Cursor();
-		util::addPreUpdate(updatePosition);
 	}
 
 	return instance;
 }
 
-void Cursor::updatePosition() {
-	if (instance->changed() && instance->posCallback) instance->posCallback();
+Cursor::Cursor() : UnsortedSprite(Camera::getInstance(), {}, {1.0f}, {}, {}, EAnchor::Center, {1}), change(getChange()) {
+	glfwSetCursorPosCallback(getWindow(), positionCallback);
+	glfwSetMouseButtonCallback(getWindow(), buttonCallback);
+}
+
+void Cursor::update() {
+	if (changed() && posCallback) posCallback();
 
 	std::list<std::pair<Press*, int>> drag;
 
 	for (int i = 0; i < Cursor::BUTTONS_MAX; i++)
 		for (Press& cl : presses[i])
-			if (instance->changed() || cl.button->changed())
+			if (changed() || cl.button->changed())
 				drag.push_back({&cl, i});
 
 	for (std::pair<Press*, int> dr : drag) {
 		if (!dr.first->dragging) {
-			if (((dr.first->button->getShape()->getModelMatrix().inv()*instance->getRealPosition())
+			if (((dr.first->button->getShape()->getModelMatrix().inv()*getRealPosition())
 					- dr.first->position).length() < dr.first->button->getDragBound())
 						continue;
 
@@ -67,7 +74,7 @@ void Cursor::updatePosition() {
 		if (b->isOn() && b->isOpaque())	notBlocked = false;
 	}
 
-	instance->change->reset();
+	change->reset();
 
 	for (Button* b : buttons)
 		b->callback();
@@ -137,6 +144,8 @@ Button::Button(Shape* shape, int z) : shape(shape), change(shape->getChange()), 
 	buttons.insert(this);
 }
 
+Button::Button(class Sprite* sprite) : Button(sprite->getBoxShape(), sprite->getZ()) {}
+
 Button::~Button() {
 	util::println("Button:unload");
 
@@ -153,6 +162,15 @@ void Button::setZ(int i) {
 	buttons.erase(this);
 	z = i;
 	buttons.insert(this);
+}
+
+bool Button::isEntered() {
+	if (Cursor::getInstance()->changed() || changed())
+		entered = shape->inBounds(Cursor::getInstance()->getRealPosition());
+
+	change->reset();
+
+	return entered;
 }
 
 }

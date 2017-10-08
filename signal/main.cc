@@ -1,4 +1,5 @@
 #include <simpleGL/simpleGL.h>
+#include <simpleGL/signalStreamSpeaker.h>
 #include <simpleGL/slider.h>
 #include <simpleGL/signal.h>
 #include <simpleGL/math.h>
@@ -18,7 +19,7 @@ unsigned freq = math::lerp(MIN_FREQ, MAX_FREQ, 0.5f);
 short ampl = math::lerp(MIN_AMPL, MAX_AMPL, 0.5f);
 
 void updateSig() {
-	sig->loadSine(0.025f, freq, ampl);
+	sig->loadSine(0.03f, freq, ampl);
 	speaker->setSignal(*sig);
 }
 

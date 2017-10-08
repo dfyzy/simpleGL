@@ -1,15 +1,10 @@
 #ifndef SIMPLE_GL_H
 #define SIMPLE_GL_H
 
-#include <functional>
+#include <string>
 
-#include "shader.h"
-#include "sprite.h"
-#include "camera.h"
-
-#include "soundSpeaker.h"
-#include "fileStreamSpeaker.h"
-#include "signalStreamSpeaker.h"
+#include "glfw.h"
+#include "color.h"
 
 namespace simpleGL {
 
@@ -51,8 +46,6 @@ unsigned getWindowHeight();
 Color getBackground();
 
 double getDeltaTime();
-
-void setUpdate(std::function<void()> func);
 
 /*
  *	Checks if this OpenGL context has an extension 'ext'

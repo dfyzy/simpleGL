@@ -4,14 +4,13 @@
 #ifndef SIMPLE_TEXTURE_H
 #define SIMPLE_TEXTURE_H
 
-#include "image.h"
 #include "matrix.h"
 
 namespace simpleGL {
 
 class Texture {
 protected:
-	Image* image {nullptr};
+	class Image* image {nullptr};
 	Vector position;
 	Vector bounds {1};
 
@@ -20,7 +19,7 @@ public:
 	Texture(Vector bounds) : bounds(bounds) {}
 
 	Texture(Image* image, Vector position, Vector bounds) : image(image), position(position), bounds(bounds) {}
-	Texture(Image* image) : image(image), bounds(image != nullptr ? Vector(image->getWidth(), image->getHeight()) : 0) {}
+	Texture(Image* image);
 
 	Image* getImage() const { return image; }
 
@@ -34,10 +33,7 @@ public:
 		return Matrix::translate(position + bounds*0.5f) * Matrix::scale(bounds);
 	}
 
-	void bind() {
-		if (image)	image->bind();
-		else			Image::unbind();
-	}
+	void bind();
 
 	bool operator==(const Texture& t) const {
 		return image == t.image && position == t.position && bounds == t.bounds;

@@ -1,4 +1,8 @@
 #include <simpleGL/simpleGL.h>
+#include <simpleGL/camera.h>
+#include <simpleGL/sprite.h>
+#include <simpleGL/image.h>
+#include <simpleGL/updatable.h>
 #include <random>
 #include <functional>
 #include <ctime>
@@ -14,11 +18,13 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 
 }
 
-void update() {
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		Camera::getInstance()->setRotation(Camera::getInstance()->getRotation() + 0.05f);
+class MainTick : public Updatable<EUpdateType::Tick> {
+	void update() {
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+			Camera::getInstance()->setRotation(Camera::getInstance()->getRotation() + 0.05f);
+		}
 	}
-}
+};
 
 int main() {
 	window = loadFullscreenWindow("Title", true, Color(1));
@@ -33,7 +39,7 @@ int main() {
 	for (int i = 0; i < 10000; i++)
 		Sprite::Loader().texture(st).position(Vector(randomPosition(), randomPosition())).color({1, 0, 0, 1}).load();
 
-	setUpdate(update);
+	MainTick tick;
 
 	draw();
 }

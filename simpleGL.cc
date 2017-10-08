@@ -4,7 +4,12 @@
 #include <set>
 
 #include "simpleGL.h"
+#include "camera.h"
+#include "updatable.h"
 #include "util.h"
+
+//temp
+#include <AL/alext.h>
 
 #ifdef FPS_COUNTER
 	#include <iostream>
@@ -23,11 +28,6 @@ GLuint vao;
 
 Clock::time_point previous;
 double deltaTime = 0;
-
-std::function<void()> update;
-
-std::list<std::function<void()>> utilPreUpdates;
-std::list<std::function<void()>> utilPostUpdates;
 
 }
 
@@ -101,6 +101,7 @@ inline void loadWindow(std::string title, GLFWmonitor* monitor, Color background
 	glBindVertexArray(vao);
 
 
+	util::println("OpenAL:load");
 	ALCdevice* device = alcOpenDevice(NULL);
 
 	if (!device) {
@@ -177,18 +178,6 @@ double getDeltaTime() {
 	return deltaTime;
 }
 
-void setUpdate(std::function<void()> func) {
-	update = func;
-}
-
-void util::addPreUpdate(std::function<void()> updt) {
-	utilPreUpdates.push_back(updt);
-}
-
-void util::addPostUpdate(std::function<void()> updt) {
-	utilPostUpdates.push_back(updt);
-}
-
 void draw() {
 	util::println("simpleGL:start of draw cycle");
 
@@ -222,13 +211,11 @@ void draw() {
 
 		glBindVertexArray(vao);
 
-		for (auto upu : utilPreUpdates)
-			upu();
+		Updatable<EUpdateType::PreTick>::updateAll();
 
-		if (update)	update();
+		Updatable<EUpdateType::Tick>::updateAll();
 
-		for (auto uu : utilPostUpdates)
-			uu();
+		Updatable<EUpdateType::PostTick>::updateAll();
 
 		Camera::getInstance()->draw();
 

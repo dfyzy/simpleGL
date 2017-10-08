@@ -4,8 +4,11 @@
 #ifndef SIMPLE_TEXT_H
 #define SIMPLE_TEXT_H
 
-#include "sprite.h"
-#include "font.h"
+#include <string>
+
+#include "glfw.h"
+#include "point.h"
+#include "color.h"
 
 namespace simpleGL {
 
@@ -16,7 +19,7 @@ public:
 private:
 	static GLuint textFragmentShader;
 
-	Font* font;
+	class Font* font;
 
 	std::string caption;
 	EAlignment alignment;
@@ -27,7 +30,7 @@ private:
 	Color color;
 
 	unsigned lastLineStr;
-	std::list<Sprite*>::const_iterator lastLineSpr;
+	std::list<class Sprite*>::const_iterator lastLineSpr;
 
 	std::list<Sprite*> sprites;
 
@@ -74,18 +77,10 @@ public:
 	Font* getFont() const { return font; }
 
 	int getZ() const { return z; }
-	void setZ(int pz) {
-		z = pz;
-		for (Sprite* sprite : sprites)
-			sprite->setZ(z);
-	}
+	void setZ(int pz);
 
 	Color getColor() const { return color; }
-	void setColor(Color c) {
-		color = c;
-		for (Sprite* sprite : sprites)
-			sprite->setColor(color);
-	}
+	void setColor(Color c);
 
 	std::string getCaption() const { return caption; }
 	void setCaption(std::string str) {
@@ -101,17 +96,7 @@ public:
 
 	const std::list<Sprite*>& getSprites() const { return sprites; }
 
-	void clear() {
-		for (Sprite* sprite : sprites)
-			sprite->unload();
-
-		sprites.clear();
-		caption.clear();
-
-		bounds.y = font->getLineSpacing();
-		lastLineStr = 0;
-		lastLineSpr = sprites.begin();
-	}
+	void clear();
 
 };
 

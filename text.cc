@@ -1,4 +1,7 @@
 #include "text.h"
+#include "font.h"
+#include "sprite.h"
+#include "shader.h"
 #include "shaderData.h"
 #include "util.h"
 
@@ -17,6 +20,18 @@ GLuint Text::getDefaultFragment() {
 		textFragmentShader = loadShaderSource(shaderData::getTextFragment(), GL_FRAGMENT_SHADER);
 
 	return textFragmentShader;
+}
+
+void Text::setZ(int pz) {
+	z = pz;
+	for (Sprite* sprite : sprites)
+		sprite->setZ(z);
+}
+
+void Text::setColor(Color c) {
+	color = c;
+	for (Sprite* sprite : sprites)
+		sprite->setColor(color);
 }
 
 void Text::addCaption(std::string string) {
@@ -124,6 +139,18 @@ void Text::addCaption(std::string string) {
 
 		bounds.y += font->getLineSpacing();
 	}
+}
+
+void Text::clear() {
+	for (Sprite* sprite : sprites)
+		sprite->unload();
+
+	sprites.clear();
+	caption.clear();
+
+	bounds.y = font->getLineSpacing();
+	lastLineStr = 0;
+	lastLineSpr = sprites.begin();
 }
 
 }

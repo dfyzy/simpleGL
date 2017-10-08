@@ -7,8 +7,8 @@
 #ifndef SIMPLE_CAMERA_H
 #define SIMPLE_CAMERA_H
 
-#include "unsortedSprite.h"
-#include "framebuffer.h"
+#include "glfw.h"
+#include "point.h"
 
 namespace simpleGL {
 
@@ -16,17 +16,14 @@ class Camera : public Point {
 private:
 	static Camera* instance;
 
-	Framebuffer* framebuffer;
-	DrawObject* drawObject;
+	class Framebuffer* framebuffer;
+	class DrawObject* drawObject;
 
 	const GLuint vertex;
 	GLuint fragment;
 
 	Camera();
-	~Camera() {
-		framebuffer->unload();
-		drawObject->unload();
-	}
+	~Camera();
 
 public:
 	static Camera* getInstance();

@@ -7,7 +7,9 @@
 #ifndef SIMPLE_FRAMEBUFFER_H
 #define SIMPLE_FRAMEBUFFER_H
 
-#include "unsortedSprite.h"
+#include "glfw.h"
+#include "color.h"
+#include "matrix.h"
 
 namespace simpleGL {
 
@@ -19,7 +21,7 @@ private:
 	GLuint colorRbo;
 	GLuint stencilRbo {0};
 
-	Image* image;
+	class Image* image;
 
 	Color base;
 

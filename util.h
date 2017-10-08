@@ -24,10 +24,6 @@ inline void println(std::string str) {
 	print(str + "\n");
 }
 
-//Util update functions are ran before and after the user update function
-void addPreUpdate(std::function<void()> updt);
-void addPostUpdate(std::function<void()> updt);
-
 }
 
 }

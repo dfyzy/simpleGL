@@ -1,7 +1,10 @@
 #include <queue>
 
 #include "unsortedSprite.h"
-#include "util.h"
+#include "box.h"
+#include "drawObject.h"
+#include "shader.h"
+
 namespace {
 
 GLint stencilCount {0};
@@ -10,6 +13,30 @@ std::queue<GLint> deletedStencils;
 }
 
 namespace simpleGL {
+
+UnsortedSprite::UnsortedSprite(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, EAnchor anchor, Color color)
+	: AnchoredBox(parent, position, scale, rotation, texture.getBounds(), anchor),
+		drawObject(new DrawObject()), texture(texture), color(color), vertexShader(getDefaultVertexShader()) {
+	setDefaultFragmentShader();
+}
+
+UnsortedSprite::~UnsortedSprite() {
+	stopUsingStencil();
+	for (UnsortedSprite* st : stenciled)
+		st->setStencil(nullptr);
+
+	drawObject->unload();
+}
+
+unsigned UnsortedSprite::getId() const {
+	return drawObject->getId();
+}
+
+void UnsortedSprite::setDefaultFragmentShader() {
+	fragmentShader = getDefaultFragmentShader(texture.getImage() == nullptr);
+
+	defaultFrag = true;
+}
 
 void UnsortedSprite::stopUsingStencil() {
 	if (!stencil)	return;

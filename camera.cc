@@ -1,5 +1,11 @@
-#include "simpleGL.h"
+#include "camera.h"
+#include "framebuffer.h"
+#include "sprite.h"
+#include "image.h"
+#include "drawObject.h"
+#include "shader.h"
 #include "shaderData.h"
+#include "simpleGL.h"
 #include "util.h"
 
 namespace simpleGL {
@@ -22,6 +28,11 @@ Camera::Camera()
 		vertex(loadShaderSource(shaderData::getOverlayVertex(), GL_VERTEX_SHADER)),
 		fragment(loadShaderSource(shaderData::getOverlayFragment(), GL_FRAGMENT_SHADER)) {
 	drawObject->bindVertexData(Matrix::scale(2.0f));
+}
+
+Camera::~Camera() {
+	framebuffer->unload();
+	drawObject->unload();
 }
 
 void Camera::draw() {

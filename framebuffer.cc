@@ -1,3 +1,5 @@
+#include "framebuffer.h"
+#include "image.h"
 #include "simpleGL.h"
 #include "util.h"
 

@@ -1,28 +1,20 @@
 #include "streamSpeaker.h"
+#include "sound.h"
 #include "util.h"
 
 namespace simpleGL {
 
-std::list<StreamSpeaker*> StreamSpeaker::streams;
-bool StreamSpeaker::firstConst = true;
-
-void StreamSpeaker::update() {
-	for (StreamSpeaker* stream : streams)
-		stream->step();
-
-}
-
 StreamSpeaker::StreamSpeaker(Point* parent, Vector position, Vector scale, Angle rotation, int bufferSize)
 	: Speaker(parent, position, scale, rotation), bufferSize(bufferSize), sounds(new Sound*[bufferSize]) {
-	if (firstConst) {
-		firstConst = false;
-		util::addPostUpdate(update);
-	}
-
 	for (int i = 0; i < bufferSize; i++)
 		sounds[i] = new Sound();
+}
 
-	streams.push_back(this);
+StreamSpeaker::~StreamSpeaker() {
+	stop();
+
+	for (int i = 0; i < bufferSize; i++)
+		sounds[i]->unload();
 }
 
 void StreamSpeaker::bindData(int i) {
@@ -42,7 +34,7 @@ void StreamSpeaker::bindData(int i) {
 	}
 }
 
-void StreamSpeaker::step() {
+void StreamSpeaker::update() {
 	ALint stopped = getState() == AL_STOPPED;
 
 	if (streaming) {
@@ -64,7 +56,7 @@ void StreamSpeaker::step() {
 
 		if (stopped) {
 			alSourcePlay(getId());
-			util::println("buffering");//temp
+			util::println("warning:StreamSpeaker:stream stopped before it should, maybe you should increase buffersize or length of signals");
 		}
 	} else if (stopped && bound) {
 		alSourcei(getId(), AL_BUFFER, 0);

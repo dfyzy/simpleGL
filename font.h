@@ -7,6 +7,8 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include <string>
+
 #include "texture.h"
 
 namespace simpleGL {
@@ -33,7 +35,7 @@ private:
 	float lineSpacing;
 	unsigned spaceWidth;
 
-	~Font() { image->unload(); }
+	~Font();
 
 public:
 	static FT_Library getFTLibrary();

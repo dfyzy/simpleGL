@@ -4,7 +4,7 @@
 #ifndef SIMPLE_ANCHORED_BOX_H
 #define SIMPLE_ANCHORED_BOX_H
 
-#include "box.h"
+#include "point.h"
 
 namespace simpleGL {
 
@@ -18,32 +18,21 @@ inline Vector anchorToFactor(EAnchor anchor) {
 
 class AnchoredBox : public Point {
 private:
-	Box* box;
+	class Box* box;
 	EAnchor anchor;
 
-	void updateAnchor() {
-		box->setPosition(anchorToFactor(anchor)*box->getBounds()*0.5f);
-		setChanges();
-	}
+	void updateAnchor();
 
 protected:
 	~AnchoredBox() {}
 
 public:
-	AnchoredBox(Point* parent, Vector position, Vector scale, Angle rotation, Vector bounds, EAnchor anchor)
-		: Point(parent, position, scale, rotation), box(new Box(this, bounds)), anchor(anchor) {
-		updateAnchor();
-	}
+	AnchoredBox(Point* parent, Vector position, Vector scale, Angle rotation, Vector bounds, EAnchor anchor);
 
-	Shape* getBoxShape() const { return box; }
+	Box* getBoxShape() const { return box; }
 
-	Vector getBounds() const { return box->getBounds(); }
-	void setBounds(Vector bounds) {
-		if (bounds == box->getBounds())	return;
-
-		box->setBounds(bounds);
-		updateAnchor();
-	}
+	Vector getBounds() const;
+	void setBounds(Vector bounds);
 
 	EAnchor getAnchor() const { return anchor; }
 	void setAnchor(EAnchor a) {

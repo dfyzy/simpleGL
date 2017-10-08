@@ -1,5 +1,8 @@
 #include <simpleGL/simpleGL.h>
+#include <simpleGL/camera.h>
+#include <simpleGL/image.h>
 #include <simpleGL/lighting.h>
+#include <simpleGL/font.h>
 #include <simpleGL/text.h>
 #include <simpleGL/cursor.h>
 #include <simpleGL/timer.h>
@@ -49,17 +52,19 @@ void mouseButtonCallback(int button, bool pressed) {
 	if (pressed)	timer->play(false);
 }
 
-void update() {
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-		rotation += 0.03f;
-		Camera::getInstance()->setRotation(rotation);
-	}
+class MainTick : public Updatable<EUpdateType::Tick> {
+	void update() override {
+		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+			rotation += 0.03f;
+			Camera::getInstance()->setRotation(rotation);
+		}
 
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-		scale -= 0.01f;
-		Camera::getInstance()->setScale(scale);
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+			scale -= 0.01f;
+			Camera::getInstance()->setScale(scale);
+		}
 	}
-}
+};
 
 int main() {
 	int width = 1000;
@@ -91,7 +96,7 @@ int main() {
 	Sprite* back = Sprite::Loader().texture({300}).rotation(0.25f*3.1415927f).z(5).load();
 	new CustomButton(back);
 
-	setUpdate(update);
+	MainTick mainTick;
 
 	Cursor::getInstance()->setPositionCallback(cursorPosCallback);
 	Cursor::getInstance()->setMouseButtonCallback(mouseButtonCallback);

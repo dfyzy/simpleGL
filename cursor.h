@@ -7,18 +7,17 @@
 
 #include <functional>
 
-#include "simpleGL.h"
+#include "unsortedSprite.h"
+#include "updatable.h"
 
 namespace simpleGL {
 
-class Cursor : public UnsortedSprite {
+class Cursor : public UnsortedSprite, public Updatable<EUpdateType::PreTick> {
 public:
 	static constexpr int BUTTONS_MAX = 8;
 
 private:
 	static Cursor* instance;
-
-	static void updatePosition();
 
 	static void positionCallback(GLFWwindow* window, double xpos, double ypos);
 	static void buttonCallback(GLFWwindow* window, int button, int action, int mods);
@@ -32,12 +31,10 @@ private:
 
 	//TODO: custom cursor images
 
-	Cursor() : UnsortedSprite(Camera::getInstance(), {}, {1.0f}, {}, {}, EAnchor::Center, {1}), change(getChange()) {
-		glfwSetCursorPosCallback(getWindow(), positionCallback);
-		glfwSetMouseButtonCallback(getWindow(), buttonCallback);
-	}
-
+	Cursor();
 	~Cursor() {}
+
+	void update() override;
 
 public:
 	static Cursor* getInstance();
@@ -54,7 +51,7 @@ public:
 
 class Button {
 private:
-	Shape* shape;
+	class Shape* shape;
 	Point::Change* change;
 
 	bool opaque {true};
@@ -72,7 +69,7 @@ protected:
 
 public:
 	Button(Shape* shape, int z);
-	Button(Sprite* sprite) : Button(sprite->getBoxShape(), sprite->getZ()) {}
+	Button(class Sprite* sprite);
 
 	Shape* getShape() const { return shape; }
 
@@ -87,14 +84,7 @@ public:
 	float getDragBound() const { return dragBound; }
 	void setDragBound(float f) { dragBound = f; }
 
-	bool isEntered() {
-		if (Cursor::getInstance()->changed() || changed())
-			entered = shape->inBounds(Cursor::getInstance()->getRealPosition());
-
-		change->reset();
-
-		return entered;
-	}
+	bool isEntered();
 
 	bool isOn() const { return on; }
 	void setOn(bool notBlocked) { on = isEntered() && notBlocked; }

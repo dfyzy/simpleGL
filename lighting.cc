@@ -1,4 +1,8 @@
 #include "lighting.h"
+#include "framebuffer.h"
+#include "box.h"
+#include "drawObject.h"
+#include "shader.h"
 #include "shaderData.h"
 #include "util.h"
 
@@ -46,6 +50,25 @@ void Lighting::Source::draw() {
 	setCustomStencil(GL_EQUAL, GL_ZERO, 1);
 
 	UnsortedSprite::draw();
+}
+
+Lighting::Shadow::Shadow(Point* parent, Vector position, Vector scale, Angle rotation, Vector bounds, EAnchor anchor, Lighting* lighting)
+	: AnchoredBox(parent, position, scale, rotation, bounds, anchor),
+		lighting(lighting), object(new DrawObject()), bottom(new DrawObject()), middle(new DrawObject()), change(getChange()) {
+	object->bindTextureData(bounds);
+	bottom->bindTextureData({});
+	middle->bindTextureData({});
+
+	if (lighting)	lighting->shadows.push_back(this);
+}
+
+Lighting::Shadow::~Shadow() {
+	object->unload();
+
+	bottom->unload();
+	middle->unload();
+
+	lighting->shadows.remove(this);
 }
 
 void Lighting::Shadow::draw(Source* source) {
@@ -114,6 +137,10 @@ Lighting::~Lighting() {
 		s->unload();
 
 	framebuffer->unload();
+}
+
+Image* Lighting::getImage() const {
+	return framebuffer->getImage();
 }
 
 void Lighting::draw() {

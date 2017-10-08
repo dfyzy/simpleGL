@@ -7,24 +7,22 @@
 
 #include <functional>
 
+#include "updatable.h"
 #include "simpleGL.h"
 #include "math.h"
 
 namespace simpleGL {
 
-class AbstractTimer {
-protected:
-	static std::list<AbstractTimer*> timers;
-	static bool firstConst;
-	static void update();
+class AbstractTimer : public Updatable<EUpdateType::PostTick> {
+private:
+	void update() override {
+		step();
+	}
 
+protected:
 	virtual bool step() =0;
 
 public:
-	AbstractTimer();
-
-	~AbstractTimer() { timers.remove(this); }
-
 	virtual bool isPlaying() const =0;
 
 	virtual void play(bool invert) =0;

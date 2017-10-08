@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "font.h"
+#include "image.h"
 #include "util.h"
 
 namespace {
@@ -100,5 +101,7 @@ Font::Font(std::string path, int size) {
 
 	FT_Done_Face(face);
 }
+
+Font::~Font() { image->unload(); }
 
 }

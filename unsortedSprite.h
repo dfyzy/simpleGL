@@ -5,15 +5,16 @@
 #ifndef SIMPLE_UNSORTED_SPRITE_H
 #define SIMPLE_UNSORTED_SPRITE_H
 
+#include "glfw.h" 
 #include "anchoredBox.h"
-#include "drawObject.h"
-#include "shader.h"
+#include "texture.h"
+#include "color.h"
 
 namespace simpleGL {
 
 class UnsortedSprite : public AnchoredBox {
 private:
-	DrawObject* drawObject;
+	class DrawObject* drawObject;
 
 	Texture texture;
 
@@ -46,13 +47,7 @@ protected:
 		AnchoredBox::updateModel();
 	}
 
-	~UnsortedSprite() {
-		stopUsingStencil();
-		for (UnsortedSprite* st : stenciled)
-			st->setStencil(nullptr);
-
-		drawObject->unload();
-	}
+	~UnsortedSprite();
 
 public:
 	struct Loader {
@@ -77,13 +72,9 @@ public:
 		UnsortedSprite* load() { return new UnsortedSprite(pparent, pposition, pscale, protation, ptexture, panchor, pcolor); }
 	};
 
-	UnsortedSprite(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, EAnchor anchor, Color color)
-		: AnchoredBox(parent, position, scale, rotation, texture.getBounds(), anchor),
-			drawObject(new DrawObject()), texture(texture), color(color), vertexShader(getDefaultVertexShader()) {
-		setDefaultFragmentShader();
-	}
+	UnsortedSprite(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, EAnchor anchor, Color color);
 
-	unsigned getId() const { return drawObject->getId(); }
+	unsigned getId() const;
 
 	Texture getTexture() const { return texture; }
 	virtual void setTexture(Texture t) {
@@ -115,11 +106,7 @@ public:
 	GLuint getFragmentShader() const { return fragmentShader; }
 	virtual void setFragmentShader(GLuint sh) { fragmentShader = sh; defaultFrag = false; }
 
-	void setDefaultFragmentShader() {
-		fragmentShader = getDefaultFragmentShader(texture.getImage() == nullptr);
-
-		defaultFrag = true;
-	}
+	void setDefaultFragmentShader();
 
 	GLenum getStencilFunc() const { return stencilFunc; }
 	GLenum getStencilOp() const { return stencilOp; }

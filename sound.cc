@@ -1,3 +1,4 @@
+#include "sound.h"
 #include "soundFile.h"
 #include "util.h"
 
