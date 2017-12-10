@@ -35,7 +35,7 @@ public:
 		return loadData(pwidth, pheight, pformat, pformat, GL_UNSIGNED_BYTE, data);
 	}
 
-	Image* loadData(std::string path);
+	Image* loadData(const std::string& path);
 
 	GLuint getId() const { return id; }
 

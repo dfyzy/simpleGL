@@ -14,29 +14,29 @@ enum class EUpdateType {
 template<EUpdateType updateType>
 class Updatable {
 private:
-	static std::list<Updatable<updateType>*> objectList;
+	static std::list<Updatable<updateType>*> updatableList;
 
 protected:
 	virtual void update() =0;
 
 public:
 	static void updateAll() {
-		for (Updatable<updateType>* updatable : objectList)
+		for (Updatable<updateType>* updatable : updatableList)
 			updatable->update();
 	}
 
 	Updatable() {
-		objectList.push_back(this);
+		updatableList.push_back(this);
 	}
 	virtual ~Updatable()
 	{
-		objectList.remove(this);
+		updatableList.remove(this);
 	}
 
 };
 
 template<EUpdateType updateType>
-std::list<Updatable<updateType>*> Updatable<updateType>::objectList;
+std::list<Updatable<updateType>*> Updatable<updateType>::updatableList;
 
 }
 

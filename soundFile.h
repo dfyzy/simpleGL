@@ -16,7 +16,7 @@ private:
 	SNDFILE* file;
 
 public:
-	SoundFile(std::string path);
+	SoundFile(const std::string& path);
 	~SoundFile();
 
 	sf_count_t getLength() const { return info.frames; }

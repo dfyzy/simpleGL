@@ -34,7 +34,7 @@ void Text::setColor(Color c) {
 		sprite->setColor(color);
 }
 
-void Text::addCaption(std::string string) {
+void Text::addCaption(const std::string& string) {
 	util::println("Text:addCaption");
 
 	caption += string;

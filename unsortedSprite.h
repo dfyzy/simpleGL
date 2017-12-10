@@ -5,16 +5,18 @@
 #ifndef SIMPLE_UNSORTED_SPRITE_H
 #define SIMPLE_UNSORTED_SPRITE_H
 
-#include "glfw.h" 
+#include "glfw.h"
 #include "anchoredBox.h"
 #include "texture.h"
 #include "color.h"
 
 namespace simpleGL {
 
+class DrawObject;
+
 class UnsortedSprite : public AnchoredBox {
 private:
-	class DrawObject* drawObject;
+	DrawObject* drawObject;
 
 	Texture texture;
 

@@ -13,6 +13,8 @@
 
 namespace simpleGL {
 
+class Image;
+
 class Framebuffer {
 private:
 	GLuint msaaFbo;
@@ -21,7 +23,7 @@ private:
 	GLuint colorRbo;
 	GLuint stencilRbo {0};
 
-	class Image* image;
+	Image* image;
 
 	Color base;
 
@@ -41,6 +43,9 @@ public:
 	Image* getImage() const { return image; }
 	GLuint getMsaaFbo() const { return msaaFbo; }
 	GLuint getRectFbo() const { return rectFbo; }
+
+	Color getBaseColor() const { return base;}
+	void setBaseColor(Color c) { base = c; }
 
 	void bind(Matrix view);
 	void unbind();

@@ -6,13 +6,28 @@ TOFIX:
 -Text fractions blur
 
 TODO:
--Listener class
--Futher buffer manipulation
--Futher source manipulation
--Sound position and attenuation
--Dopler effect
--Proper exiting
+-ui for editor
+
+-cmake
+
+-wrapper around any usefull glfw stuff
+	-Window resizability
+
+-separate Cursor and Button into diff headers
+
+-Timer cleanup
+
+-input system
+
+-Sounds
+	-Listener class
+	-Futher buffer manipulation
+	-Futher source manipulation
+	-Sound position and attenuation
+	-Dopler effect
+	-Proper exiting
+
 -Trigger sprites
--Window resizability
 -Particles(if there is a need for further optimization)
--Networking
+
+-(maybe) Networking

@@ -4,7 +4,7 @@
 #include "camera.h"
 #include "sprite.h"
 #include "box.h"
-#include "simpleGL.h"
+#include "window.h"
 #include "util.h"
 
 namespace {
@@ -21,7 +21,8 @@ std::list<Press> presses[simpleGL::Cursor::BUTTONS_MAX];
 
 
 simpleGL::Vector glfwToSimple(double xpos, double ypos) {
-	return simpleGL::Vector(xpos - simpleGL::getWindowWidth()/2, simpleGL::getWindowHeight()/2 - ypos);
+	simpleGL::Window* current = simpleGL::Window::getCurrent();
+	return simpleGL::Vector(xpos - current->getWidth()/2.0f, current->getHeight()/2.0f - ypos);
 }
 
 }
@@ -41,8 +42,10 @@ Cursor* Cursor::getInstance() {
 }
 
 Cursor::Cursor() : UnsortedSprite(Camera::getInstance(), {}, {1.0f}, {}, {}, EAnchor::Center, {1}), change(getChange()) {
-	glfwSetCursorPosCallback(getWindow(), positionCallback);
-	glfwSetMouseButtonCallback(getWindow(), buttonCallback);
+	Window* current = Window::getCurrent();
+
+	glfwSetCursorPosCallback(current->getWindow(), positionCallback);
+	glfwSetMouseButtonCallback(current->getWindow(), buttonCallback);
 }
 
 void Cursor::update() {
@@ -89,7 +92,7 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 	instance->mouseButtons[mButton] = pressed;
 
 	double xpos, ypos;
-	glfwGetCursorPos(getWindow(), &xpos, &ypos);
+	glfwGetCursorPos(Window::getCurrent()->getWindow(), &xpos, &ypos);
 	instance->setPosition(glfwToSimple(xpos, ypos));
 
 	std::list<Button*> on;

@@ -12,6 +12,8 @@
 
 namespace simpleGL {
 
+class Framebuffer;
+
 class Lighting : public Sprite {
 public:
 	class Source : public UnsortedSprite {
@@ -129,7 +131,7 @@ public:
 	};
 
 private:
-	class Framebuffer* framebuffer;
+	Framebuffer* framebuffer;
 
 	std::list<Source*> sources;
 	std::list<Shadow*> shadows;

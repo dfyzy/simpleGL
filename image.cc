@@ -61,7 +61,7 @@ Image* Image::loadData(unsigned pwidth, unsigned pheight, GLenum pformat, GLint 
 	return this;
 }
 
-Image* Image::loadData(std::string path) {
+Image* Image::loadData(const std::string& path) {
 	util::println("Image:load file:" + path);
 
 	FILE *file = fopen(path.c_str(), "rb");

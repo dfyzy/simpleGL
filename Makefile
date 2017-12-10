@@ -3,7 +3,7 @@ prefix ?= C:/msys64/mingw64
 INCPATH = $(prefix)/include
 LIBPATH = $(prefix)/lib
 
-CPPFLAGS = -std=gnu++11 -Wall -O2 -static-libgcc -static-libstdc++
+CPPFLAGS = -g -std=gnu++11 -Wall -O2 -static-libgcc -static-libstdc++
 
 LIBS = -Wl,-Bstatic -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lfreetype -lharfbuzz -lfreetype -lgraphite2 -lglib-2.0 \
 			-lpng16 -lz -lm -lbz2 -lsndfile -lvorbis -lvorbisenc -logg -lspeex -lflac -Wl,-Bdynamic -lopenal

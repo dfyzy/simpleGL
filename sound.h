@@ -24,7 +24,7 @@ public:
 	Sound();
 
 	Sound* loadData(int pchannels, unsigned psampleRate, unsigned plength, const short* data);
-	Sound* loadData(std::string path);
+	Sound* loadData(const std::string& path);
 
 	ALuint getId() const { return id; }
 

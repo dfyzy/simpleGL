@@ -45,7 +45,7 @@ Sound* Sound::loadData(int pchannels, unsigned psampleRate, unsigned plength, co
 	return this;
 }
 
-Sound* Sound::loadData(std::string path) {
+Sound* Sound::loadData(const std::string& path) {
 	SoundFile soundFile(path);
 	soundFile.readAll(this);
 

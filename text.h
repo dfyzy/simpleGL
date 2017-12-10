@@ -12,6 +12,9 @@
 
 namespace simpleGL {
 
+class Font;
+class Sprite;
+
 class Text : public Point {
 public:
 	enum class EAlignment { Left, Center, Right, Justified };
@@ -19,7 +22,7 @@ public:
 private:
 	static GLuint textFragmentShader;
 
-	class Font* font;
+	Font* font;
 
 	std::string caption;
 	EAlignment alignment;
@@ -30,7 +33,7 @@ private:
 	Color color;
 
 	unsigned lastLineStr;
-	std::list<class Sprite*>::const_iterator lastLineSpr;
+	std::list<Sprite*>::const_iterator lastLineSpr;
 
 	std::list<Sprite*> sprites;
 
@@ -83,12 +86,12 @@ public:
 	void setColor(Color c);
 
 	std::string getCaption() const { return caption; }
-	void setCaption(std::string str) {
+	void setCaption(const std::string& str) {
 		clear();
 		addCaption(str);
 	}
 
-	void addCaption(std::string string);
+	void addCaption(const std::string& string);
 
 	EAlignment getAlignment() const { return alignment; }
 

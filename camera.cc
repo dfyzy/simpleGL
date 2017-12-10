@@ -5,7 +5,7 @@
 #include "drawObject.h"
 #include "shader.h"
 #include "shaderData.h"
-#include "simpleGL.h"
+#include "window.h"
 #include "util.h"
 
 namespace simpleGL {
@@ -23,7 +23,14 @@ Camera* Camera::getInstance() {
 }
 
 Camera::Camera()
-	: Point(), framebuffer(new Framebuffer(getWindowWidth(), getWindowHeight(), GL_RGB, true, GL_NEAREST, getBackground())),
+	: Point(), framebuffer(new Framebuffer(
+										Window::getCurrent()->getWidth(),
+										Window::getCurrent()->getHeight(),
+										GL_RGB,
+										true,
+										GL_NEAREST,
+										Color(0.0f)
+									)),
 		drawObject(new DrawObject()),
 		vertex(loadShaderSource(shaderData::getOverlayVertex(), GL_VERTEX_SHADER)),
 		fragment(loadShaderSource(shaderData::getOverlayFragment(), GL_FRAGMENT_SHADER)) {
@@ -33,6 +40,14 @@ Camera::Camera()
 Camera::~Camera() {
 	framebuffer->unload();
 	drawObject->unload();
+}
+
+Color Camera::getBaseColor() const {
+	return framebuffer->getBaseColor();
+}
+
+void Camera::setBaseColor(Color c) {
+	framebuffer->setBaseColor(c);
 }
 
 void Camera::draw() {

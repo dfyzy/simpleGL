@@ -9,15 +9,19 @@
 
 #include "glfw.h"
 #include "point.h"
+#include "color.h"
 
 namespace simpleGL {
+
+class Framebuffer;
+class DrawObject;
 
 class Camera : public Point {
 private:
 	static Camera* instance;
 
-	class Framebuffer* framebuffer;
-	class DrawObject* drawObject;
+	Framebuffer* framebuffer;
+	DrawObject* drawObject;
 
 	const GLuint vertex;
 	GLuint fragment;
@@ -29,6 +33,9 @@ public:
 	static Camera* getInstance();
 
 	Framebuffer* getFramebuffer() const { return framebuffer; }
+
+	Color getBaseColor() const;
+	void setBaseColor(Color c);
 
 	void setFragmentShader(GLuint sh) { fragment = sh; }
 

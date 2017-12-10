@@ -14,13 +14,13 @@ namespace simpleGL {
 
 namespace util {
 
-inline void print(std::string str) {
+inline void print(const std::string& str) {
 	#ifdef DEBUG
 		std::cout << str << std::flush;
 	#endif
 }
 
-inline void println(std::string str) {
+inline void println(const std::string& str) {
 	print(str + "\n");
 }
 

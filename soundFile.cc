@@ -6,7 +6,7 @@
 
 namespace simpleGL {
 
-SoundFile::SoundFile(std::string path) {
+SoundFile::SoundFile(const std::string& path) {
 	util::println("SoundFile:load:" + path);
 
 	file = sf_open(path.c_str(), SFM_READ, &info);

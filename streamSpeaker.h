@@ -11,12 +11,13 @@
 
 namespace simpleGL {
 
+class Sound;
 
 class StreamSpeaker : public Speaker, public Updatable<EUpdateType::PostTick> {
 private:
 	const int bufferSize;
 
-	std::unique_ptr<class Sound*[]> sounds;
+	std::unique_ptr<Sound*[]> sounds;
 	int index {0};
 
 	bool streaming {false};

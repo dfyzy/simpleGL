@@ -8,9 +8,11 @@
 
 namespace simpleGL {
 
+class Image;
+
 class Texture {
 protected:
-	class Image* image {nullptr};
+	Image* image {nullptr};
 	Vector position;
 	Vector bounds {1};
 

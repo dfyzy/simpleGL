@@ -49,9 +49,12 @@ public:
 
 };
 
+class Shape;
+class Sprite;
+
 class Button {
 private:
-	class Shape* shape;
+	Shape* shape;
 	Point::Change* change;
 
 	bool opaque {true};
@@ -69,7 +72,7 @@ protected:
 
 public:
 	Button(Shape* shape, int z);
-	Button(class Sprite* sprite);
+	Button(Sprite* sprite);
 
 	Shape* getShape() const { return shape; }
 

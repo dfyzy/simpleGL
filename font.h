@@ -40,7 +40,7 @@ private:
 public:
 	static FT_Library getFTLibrary();
 
-	Font(std::string path, int size);
+	Font(const std::string& path, int size);
 
 	Image* getImage() const { return image; }
 

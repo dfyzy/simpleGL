@@ -54,7 +54,7 @@ GLuint getDefaultFragmentShader(bool empty) {
 	}
 }
 
-GLuint loadShaderSource(std::string source, GLenum type) {
+GLuint loadShaderSource(const std::string& source, GLenum type) {
 	if (pipeline == 0) {
 		util::println("Shader pipeline:load");
 
@@ -92,7 +92,7 @@ GLuint loadShaderSource(std::string source, GLenum type) {
 	return program;
 }
 
-GLuint loadShaderPath(std::string path, GLenum type) {
+GLuint loadShaderPath(const std::string& path, GLenum type) {
 	util::println(std::string("Shader:load file:") + path);
 
 	std::ifstream file(path);

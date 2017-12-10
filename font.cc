@@ -43,7 +43,7 @@ FT_Library Font::getFTLibrary() {
 //	FT_Done_FreeType(ftLibrary);
 //}
 
-Font::Font(std::string path, int size) {
+Font::Font(const std::string& path, int size) {
 	util::println(std::string("Font:load:") + path);
 
 	FT_Face face;

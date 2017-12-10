@@ -8,6 +8,8 @@
 
 namespace simpleGL {
 
+class Box;
+
 enum class EAnchor {TopRight,		Top,		TopLeft,
 							Right,			Center,	Left,
 							BottomRight,	Bottom,	BottomLeft};
@@ -18,7 +20,7 @@ inline Vector anchorToFactor(EAnchor anchor) {
 
 class AnchoredBox : public Point {
 private:
-	class Box* box;
+	Box* box;
 	EAnchor anchor;
 
 	void updateAnchor();

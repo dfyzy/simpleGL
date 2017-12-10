@@ -1,4 +1,6 @@
 #include <simpleGL/simpleGL.h>
+#include <simpleGL/window.h>
+#include <simpleGL/glfw.h>
 #include <simpleGL/camera.h>
 #include <simpleGL/image.h>
 #include <simpleGL/lighting.h>
@@ -32,7 +34,6 @@ public:
 
 Sprite* brimSprite;
 
-GLFWwindow* window;
 float rotation = 0;
 float scale = 1;
 
@@ -44,7 +45,8 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 }
 
 void cursorPosCallback() {
-	Vector v = Cursor::getInstance()->getPosition()/Vector(getWindowWidth(), getWindowHeight()) + Vector(0.5);
+	Window* current = Window::getCurrent();
+	Vector v = Cursor::getInstance()->getPosition()/Vector(current->getWidth(), current->getHeight()) + Vector(0.5);
 	brimSprite->setColor({v.x, v.y, 0, 1});
 }
 
@@ -54,6 +56,8 @@ void mouseButtonCallback(int button, bool pressed) {
 
 class MainTick : public Updatable<EUpdateType::Tick> {
 	void update() override {
+		GLFWwindow* window = Window::getCurrent()->getWindow();
+		
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 			rotation += 0.03f;
 			Camera::getInstance()->setRotation(rotation);
@@ -69,9 +73,11 @@ class MainTick : public Updatable<EUpdateType::Tick> {
 int main() {
 	int width = 1000;
 	int height = 700;
-	window = loadWindow("Title", width, height, false, true, Color(0.5f));
+	Window::load("Title", width, height, false, true);
 
-	glfwSetKeyCallback(window, keyCallback);
+	Camera::getInstance()->setBaseColor(Color(0.5f));
+
+	glfwSetKeyCallback(Window::getCurrent()->getWindow(), keyCallback);
 
 	Image* bodyFront = (new Image(GL_LINEAR))->loadData("example/body_front.png");
 	Image* brim = (new Image(GL_LINEAR))->loadData("example/brim.png");

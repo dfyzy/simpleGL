@@ -1,6 +1,6 @@
 #include "framebuffer.h"
 #include "image.h"
-#include "simpleGL.h"
+#include "window.h"
 #include "util.h"
 
 namespace {
@@ -92,7 +92,9 @@ Framebuffer::Framebuffer(unsigned width, unsigned height, GLint internalFormat, 
 			int size = 0;
 			for (int i = 0; i < (int)EDynamicUniform::Count; i++)	size += dynamicUniformSizes[i];
 			glBufferData(GL_UNIFORM_BUFFER, size*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-			setResolution(getWindowWidth(), getWindowHeight());
+
+			Window* current = Window::getCurrent();
+			setResolution(current->getWidth(), current->getHeight());
 		}
 
 		util::println("Framebuffer:load");

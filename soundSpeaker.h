@@ -8,9 +8,11 @@
 
 namespace simpleGL {
 
+class Sound;
+
 class SoundSpeaker : public Speaker {
 private:
-	class Sound* sound {nullptr};
+	Sound* sound {nullptr};
 
 protected:
 	~SoundSpeaker() {
