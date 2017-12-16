@@ -54,7 +54,7 @@ void Lighting::Source::draw() {
 
 Lighting::Shadow::Shadow(Point* parent, Vector position, Vector scale, Angle rotation, Vector bounds, EAnchor anchor, Lighting* lighting)
 	: AnchoredBox(parent, position, scale, rotation, bounds, anchor),
-		lighting(lighting), object(new DrawObject()), bottom(new DrawObject()), middle(new DrawObject()), change(getChange()) {
+		lighting(lighting), object(new DrawObject()), bottom(new DrawObject()), middle(new DrawObject()) {
 	object->bindTextureData(bounds);
 	bottom->bindTextureData({});
 	middle->bindTextureData({});

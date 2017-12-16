@@ -41,7 +41,7 @@ Cursor* Cursor::getInstance() {
 	return instance;
 }
 
-Cursor::Cursor() : UnsortedSprite(Camera::getInstance(), {}, {1.0f}, {}, {}, EAnchor::Center, {1}), change(getChange()) {
+Cursor::Cursor() : UnsortedSprite(Camera::getInstance(), {}, {1.0f}, {}, {}, EAnchor::Center, {1}) {
 	Window* current = Window::getCurrent();
 
 	glfwSetCursorPosCallback(current->getWindow(), positionCallback);
@@ -49,18 +49,18 @@ Cursor::Cursor() : UnsortedSprite(Camera::getInstance(), {}, {1.0f}, {}, {}, EAn
 }
 
 void Cursor::update() {
-	if (changed() && posCallback) posCallback();
+	if (hasChanged() && posCallback) posCallback();
 
 	std::list<std::pair<Press*, int>> drag;
 
 	for (int i = 0; i < Cursor::BUTTONS_MAX; i++)
 		for (Press& cl : presses[i])
-			if (changed() || cl.button->changed())
+			if (hasChanged() || cl.button->hasChanged())
 				drag.push_back({&cl, i});
 
 	for (std::pair<Press*, int> dr : drag) {
 		if (!dr.first->dragging) {
-			if (((dr.first->button->getShape()->getModelMatrix().inv()*getRealPosition())
+			if (((dr.first->button->getOwner()->getModelMatrix().inv()*getRealPosition())
 					- dr.first->position).length() < dr.first->button->getDragBound())
 						continue;
 
@@ -77,7 +77,7 @@ void Cursor::update() {
 		if (b->isOn() && b->isOpaque())	notBlocked = false;
 	}
 
-	change->reset();
+	changed.reset();
 
 	for (Button* b : buttons)
 		b->callback();
@@ -105,12 +105,12 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 			if (b->isOpaque())	notBlocked = false;
 		}
 
-	instance->change->reset();
+	instance->changed.reset();
 
 	for (Button* b : on)
 		if (pressed) {
 			b->onPress(mButton);
-			presses[mButton].push_back({b, false, b->getShape()->getModelMatrix().inv()*instance->getRealPosition()});
+			presses[mButton].push_back({b, false, b->getOwner()->getModelMatrix().inv()*instance->getRealPosition()});
 		} else {
 			b->onRelease(mButton);
 
@@ -140,14 +140,14 @@ bool Cursor::getMouseButton(int button) const {
 	return mouseButtons[button];
 }
 
-Button::Button(Shape* shape, int z) : shape(shape), change(shape->getChange()), z(z) {
+Button::Button(Shape* shape, int z) : Component<Shape>(shape), z(z) {
 	util::println("Button:load");
 
 	Cursor::getInstance();
 	buttons.insert(this);
 }
 
-Button::Button(class Sprite* sprite) : Button(sprite->getBoxShape(), sprite->getZ()) {}
+Button::Button(Sprite* sprite) : Button(sprite->getBoxShape(), sprite->getZ()) {}
 
 Button::~Button() {
 	util::println("Button:unload");
@@ -168,10 +168,10 @@ void Button::setZ(int i) {
 }
 
 bool Button::isEntered() {
-	if (Cursor::getInstance()->changed() || changed())
-		entered = shape->inBounds(Cursor::getInstance()->getRealPosition());
+	if (Cursor::getInstance()->hasChanged() || hasChanged())
+		entered = getOwner()->inBounds(Cursor::getInstance()->getRealPosition());
 
-	change->reset();
+	ownerChanged.reset();
 
 	return entered;
 }

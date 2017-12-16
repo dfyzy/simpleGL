@@ -99,7 +99,7 @@ public:
 		color = c;
 
 		needUpdtColor = true;
-		setChanges();
+		onChange();
 	}
 
 	GLuint getVertexShader() const { return vertexShader; }

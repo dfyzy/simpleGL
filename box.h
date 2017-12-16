@@ -34,7 +34,7 @@ public:
 
 		bounds = v;
 
-		setChanges();
+		onChange();
 	}
 
 };

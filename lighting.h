@@ -25,8 +25,6 @@ public:
 		GLint centreLoc;
 		GLint boundsLoc;
 
-		Change* change;
-
 	protected:
 		~Source() {
 			lighting->sources.remove(this);
@@ -60,15 +58,15 @@ public:
 		};
 
 		Source(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, EAnchor anchor, Color color, Lighting* lighting)
-			: UnsortedSprite(parent, position, scale, rotation, texture, anchor, color), lighting(lighting), change(getChange()) {
+			: UnsortedSprite(parent, position, scale, rotation, texture, anchor, color), lighting(lighting) {
 			setFragmentShader(getDefaultFragment());
 
 			if (lighting)	lighting->sources.push_back(this);
 		}
 
 		bool getChanged() {
-			bool result = change->get();
-			change->reset();
+			bool result = changed.get();
+			changed.reset();
 			return result;
 		}
 
@@ -90,8 +88,6 @@ public:
 
 		DrawObject* bottom;
 		DrawObject* middle;
-
-		Change* change;
 
 	protected:
 		~Shadow();
@@ -122,8 +118,8 @@ public:
 		Shadow(Point* parent, Vector position, Vector scale, Angle rotation, Vector bounds, EAnchor anchor, Lighting* lighting);
 
 		bool getChanged() {
-			bool result = change->get();
-			change->reset();
+			bool result = changed.get();
+			changed.reset();
 			return result;
 		}
 

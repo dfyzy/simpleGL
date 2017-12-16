@@ -1,9 +1,5 @@
 /* The base unit for spatial simulation
  * Basically, a 2D model matrix with some usefull stuff
- *
- * Component class allows you to bind the lifetime of an object to a lifetime of a point
- *
- * Value of Change class object is set to true every time the point's properties change
 */
 
 #ifndef SIMPLE_POINT_H
@@ -12,39 +8,33 @@
 #include <list>
 
 #include "matrix.h"
+#include "trigger.h"
 
 namespace simpleGL {
 
 class Point {
 public:
-	class Component {
+	class BaseComponent {
 	private:
-		Point* point;
+		Point* owner;
 
 	protected:
-		virtual ~Component() {
-			point->components.remove(this);
+		BaseComponent(Point* owner) : owner(owner) {
+			owner->components.push_back(this);
 		}
+
+		virtual ~BaseComponent() {
+			owner->components.remove(this);
+		}
+
+		Trigger ownerChanged;
+
+		Point* getOwnerBase() const { return owner; }
 
 	public:
-		Component(Point* point) : point(point) {
-			point->components.push_back(this);
-		}
-
-		Point* getPoint() const { return point; }
+		void onOwnerChange() { ownerChanged.set(); }
 
 		void unload() { delete this; }
-
-	};
-
-	class Change {
-	private:
-		bool change {false};
-
-	public:
-		bool get() const { return change; }
-		void set() { change = true; }
-		void reset() { change = false; }
 
 	};
 
@@ -61,24 +51,26 @@ private:
 	Matrix model;
 	bool needUpdtModel {true};
 
-	std::list<Component*> components;
-
-	std::list<Change> changes;
+	std::list<BaseComponent*> components;
 
 protected:
-	void setChanges() {
-		for (Change& ch : changes)
-			ch.set();
+	Trigger changed;
+
+	void onChange() {
+		changed.set();
+
+		for (BaseComponent* c : components)
+			c->onOwnerChange();
 	}
 
-	void setChangesDown() {
-		setChanges();
+	void onChangeDown() {
+		onChange();
 		for (Point* ch : children)
-			ch->setChangesDown();
+			ch->onChangeDown();
 	}
 
 	virtual void updateModel() {
-		setChanges();
+		onChange();
 		needUpdtModel = true;
 
 		for (Point* obj : children)
@@ -86,7 +78,7 @@ protected:
 	}
 
 	virtual ~Point() {
-		for (Component* c : components)
+		for (BaseComponent* c : components)
 			c->unload();
 
 		parent->children.remove(this);
@@ -112,7 +104,7 @@ public:
 
 		enabled = b;
 
-		setChangesDown();
+		onChangeDown();
 	}
 
 	Vector getPosition() const { return position; }
@@ -179,16 +171,21 @@ public:
 
 	int getChildrenCount() const { return children.size(); }
 
-	Change* getChange() {
-		changes.emplace_back();
-		return &*(--changes.end());
-	}
-
 	void translate(Vector v) {
 		setPosition(getPosition() + v.rotate(rotation));
 	}
 
 	void unload() { delete this; }
+
+};
+
+template<typename OwnerClass>
+class Component : public Point::BaseComponent
+{
+public:
+	Component(OwnerClass* owner) : Point::BaseComponent(owner) {}
+
+	OwnerClass* getOwner() const { return static_cast<OwnerClass*>(getOwnerBase()); }
 
 };
 

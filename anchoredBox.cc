@@ -10,7 +10,7 @@ AnchoredBox::AnchoredBox(Point* parent, Vector position, Vector scale, Angle rot
 
 void AnchoredBox::updateAnchor() {
 	box->setPosition(anchorToFactor(anchor)*box->getBounds()*0.5f);
-	setChanges();
+	onChange();
 }
 
 Vector AnchoredBox::getBounds() const {

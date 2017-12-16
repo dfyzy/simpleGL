@@ -39,7 +39,7 @@ public:
 
 		if (mask)	mask->masked.push_back(this);
 
-		setChanges();
+		onChange();
 	}
 
 	bool inBounds(Vector v) {

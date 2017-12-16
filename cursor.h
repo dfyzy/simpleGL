@@ -27,8 +27,6 @@ private:
 	std::function<void()> posCallback;
 	std::function<void(int, bool)> buttCallback;
 
-	Point::Change* change;
-
 	//TODO: custom cursor images
 
 	Cursor();
@@ -39,7 +37,7 @@ private:
 public:
 	static Cursor* getInstance();
 
-	bool changed() const { return change->get(); }
+	bool hasChanged() const { return changed.get(); }
 
 	//0 = left; 1 = right; 2 = middle;
 	bool getMouseButton(int button) const;
@@ -52,11 +50,8 @@ public:
 class Shape;
 class Sprite;
 
-class Button {
+class Button : public Component<Shape> {
 private:
-	Shape* shape;
-	Point::Change* change;
-
 	bool opaque {true};
 
 	int z;
@@ -74,9 +69,7 @@ public:
 	Button(Shape* shape, int z);
 	Button(Sprite* sprite);
 
-	Shape* getShape() const { return shape; }
-
-	bool changed() const { return change->get(); }
+	bool hasChanged() const { return ownerChanged.get(); }
 
 	bool isOpaque() const { return opaque; }
 	void setOpaque(bool b) { opaque = b; }
