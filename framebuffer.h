@@ -25,6 +25,8 @@ private:
 
 	Image* image;
 
+	GLint internalFormat;
+
 	Color base;
 
 	unsigned lastWidth;
@@ -43,6 +45,8 @@ public:
 	Image* getImage() const { return image; }
 	GLuint getMsaaFbo() const { return msaaFbo; }
 	GLuint getRectFbo() const { return rectFbo; }
+
+	void resize(unsigned width, unsigned height);
 
 	Color getBaseColor() const { return base;}
 	void setBaseColor(Color c) { base = c; }

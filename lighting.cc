@@ -144,19 +144,20 @@ Image* Lighting::getImage() const {
 }
 
 void Lighting::draw() {
-	bool needToDraw = false;
+	if (first) {
+		first = false;
+
+		setTexture(framebuffer->getImage());
+	}
+
+	bool needToDraw = changed.get();
+	changed.reset();
+
 	for (Shadow* sh : shadows)
 		needToDraw |= sh->getChanged();
 
 	for (Source* src : sources)
 		needToDraw |= src->getChanged();
-
-	if (first) {
-		first = false;
-
-		setTexture(framebuffer->getImage());
-		needToDraw = true;
-	}
 
 	if (needToDraw) {
 		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE);

@@ -17,6 +17,8 @@ private:
 	static bool init();
 	static Window* load(const std::string& title, unsigned width, unsigned height, GLFWmonitor* monitor);
 
+	static void onResize(GLFWwindow* window, int width, int height);
+
 	GLFWwindow* window;
 
 	unsigned width;

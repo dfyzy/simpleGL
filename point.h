@@ -7,6 +7,7 @@
 
 #include <list>
 
+#include "boolVector.h"
 #include "matrix.h"
 #include "trigger.h"
 
@@ -19,6 +20,8 @@ public:
 		Point* owner;
 
 	protected:
+		Trigger ownerChanged;
+
 		BaseComponent(Point* owner) : owner(owner) {
 			owner->components.push_back(this);
 		}
@@ -26,8 +29,6 @@ public:
 		virtual ~BaseComponent() {
 			owner->components.remove(this);
 		}
-
-		Trigger ownerChanged;
 
 		Point* getOwnerBase() const { return owner; }
 
@@ -39,19 +40,36 @@ public:
 	};
 
 private:
+	static std::list<Point*> points;
+
 	bool enabled {true};
 
 	Point* parent = nullptr;
 	std::list<Point*> children;
 
 	Vector position;
+	BoolVector resizePosition;
+
 	Vector scale;
+	BoolVector resizeScale;
+
 	Angle rotation;
 
 	Matrix model;
 	bool needUpdtModel {true};
 
 	std::list<BaseComponent*> components;
+
+	bool resizeVector(Vector& vector, Vector factor, BoolVector shouldResize) {
+		if (shouldResize.x) {
+			vector.x *= factor.x;
+		}
+		if (shouldResize.y) {
+			vector.y *= factor.y;
+		}
+
+		return shouldResize.getOr();
+	}
 
 protected:
 	Trigger changed;
@@ -78,6 +96,8 @@ protected:
 	}
 
 	virtual ~Point() {
+		points.remove(this);
+
 		for (BaseComponent* c : components)
 			c->unload();
 
@@ -87,17 +107,24 @@ protected:
 	}
 
 public:
+	static void notifyOnResize(Vector factor) {
+		for (Point* point : points)
+			if (point->onResize(factor)) {
+				point->updateModel();
+			}
+	}
+
 	Point(Point* parent, Vector position, Vector scale, Angle rotation)
 		: parent(parent), position(position), scale(scale), rotation(rotation) {
 		if (parent) parent->children.push_back(this);
+
+		points.push_back(this);
 	}
 	Point(Point* parent) : Point(parent, {}, {1.0f}, {}) {}
 	Point() : Point(nullptr) {}
 
 	bool isEnabled() const {
-		bool res = enabled;
-		if (parent)	res &= parent->isEnabled();
-		return res;
+		return (parent == nullptr || parent->isEnabled()) && enabled;
 	}
 	void setEnabled(bool b) {
 		if (b == enabled) return;
@@ -121,6 +148,9 @@ public:
 		setPosition(getPosition() + v);
 	}
 
+	BoolVector getResizePosition() const { return resizePosition; }
+	void setResizePosition(BoolVector bv) { resizePosition = bv; }
+
 	Vector getScale() const { return scale; }
 	void setScale(Vector v) {
 		if (scale == v)	return;
@@ -129,6 +159,9 @@ public:
 
 		updateModel();
 	}
+
+	BoolVector getResizeScale() const { return resizeScale; }
+	void setResizeScale(BoolVector bv) { resizeScale = bv; }
 
 	Angle getRotation() const { return rotation; }
 	void setRotation(Angle a) {
@@ -169,10 +202,12 @@ public:
 
 	const std::list<Point*>& getChildren() const { return children; }
 
-	int getChildrenCount() const { return children.size(); }
-
 	void translate(Vector v) {
 		setPosition(getPosition() + v.rotate(rotation));
+	}
+
+	virtual bool onResize(Vector factor) {
+		return resizeVector(position, factor, resizePosition) | resizeVector(scale, factor, resizeScale);
 	}
 
 	void unload() { delete this; }

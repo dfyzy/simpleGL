@@ -11,7 +11,7 @@ TODO:
 -cmake
 
 -wrapper around any usefull glfw stuff
-	-Window resizability
+	-Keys
 
 -separate Cursor and Button into diff headers
 

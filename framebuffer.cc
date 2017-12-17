@@ -81,7 +81,7 @@ GLenum getStencilFormat() {
 namespace simpleGL {
 
 Framebuffer::Framebuffer(unsigned width, unsigned height, GLint internalFormat, GLenum format, GLenum type,
-	bool stencil, GLenum filtering, Color base) : base(base) {
+	bool stencil, GLenum filtering, Color base) : internalFormat(internalFormat), base(base) {
 		if (dynamic == 0) {
 			util::println("Uniform buffer:load");
 
@@ -131,6 +131,20 @@ Framebuffer::~Framebuffer() {
 	image->unload();
 	glDeleteFramebuffers(1, &msaaFbo);
 	glDeleteFramebuffers(1, &rectFbo);
+}
+
+void Framebuffer::resize(unsigned width, unsigned height) {
+	setResolution(width, height);
+
+	glBindRenderbuffer(GL_RENDERBUFFER, colorRbo);
+	glRenderbufferStorageMultisample(GL_RENDERBUFFER, SAMPLES_NUM, internalFormat, width, height);
+
+	if (stencilRbo) {
+		glBindRenderbuffer(GL_RENDERBUFFER, stencilRbo);
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, SAMPLES_NUM, getStencilFormat(), width, height);
+	}
+
+	image->loadData(width, height, internalFormat, image->getFormat(), image->getDataType(), nullptr);
 }
 
 void Framebuffer::bind(Matrix view) {

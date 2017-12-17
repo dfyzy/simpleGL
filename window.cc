@@ -1,6 +1,8 @@
 #include "window.h"
-#include "simpleGL.h"
 #include "glfw.h"
+#include "simpleGL.h"
+#include "camera.h"
+#include "framebuffer.h"
 #include "util.h"
 
 namespace {
@@ -77,6 +79,8 @@ Window* Window::load(const std::string& title, unsigned width, unsigned height, 
 		return nullptr;
 	}
 
+	glfwSetWindowSizeCallback(window, Window::onResize);
+
 	Window* result = new Window(window, width, height);
 
 	glfwMakeContextCurrent(window);
@@ -90,6 +94,22 @@ void Window::terminate() {
 	if (current)	delete current;
 
 	glfwTerminate();
+}
+
+void Window::onResize(GLFWwindow* window, int width, int height) {
+	if (width == 0 || height == 0) {
+		//window is now minimized
+		return;
+	}
+
+	Camera::getInstance()->getFramebuffer()->resize(width, height);
+
+	Vector factor {(float)width/current->width, (float)height/current->height};
+
+	current->width = width;
+	current->height = height;
+
+	Point::notifyOnResize(factor);
 }
 
 void Window::maximize() {

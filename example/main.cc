@@ -57,7 +57,7 @@ void mouseButtonCallback(int button, bool pressed) {
 class MainTick : public Updatable<EUpdateType::Tick> {
 	void update() override {
 		GLFWwindow* window = Window::getCurrent()->getWindow();
-		
+
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 			rotation += 0.03f;
 			Camera::getInstance()->setRotation(rotation);
@@ -73,7 +73,7 @@ class MainTick : public Updatable<EUpdateType::Tick> {
 int main() {
 	int width = 1000;
 	int height = 700;
-	Window::load("Title", width, height, false, true);
+	Window::load("Title", width, height, true, true);
 
 	Camera::getInstance()->setBaseColor(Color(0.5f));
 
@@ -95,11 +95,14 @@ int main() {
 	std::string lorem("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
 	Text::Loader().font(sans).caption(lorem).width(350).position({0, -100}).z(-10).load();
 
-	Lighting* dark = Lighting::Loader().anchor(EAnchor::Left).position({0, -150}).bounds(200, 200).z(-100).load();
+	Lighting* dark = Lighting::Loader().anchor(EAnchor::BottomRight).position({498, -348}).bounds(500, 350).z(-100).load();
+	dark->setResizeScale({true});
+	dark->setResizePosition({true});
 	Lighting::Source::Loader().lighting(dark).texture({100}).position(Vector(0, -150) + Vector(25)).color({0.5f, 0, 0}).load();
 	Lighting::Source::Loader().lighting(dark).texture({100}).position(Vector(0, -150) + Vector(-25)).color({0, 0.5f, 0}).load();
 
 	Sprite* back = Sprite::Loader().texture({300}).rotation(0.25f*3.1415927f).z(5).load();
+	//back->setResizeScale({true, false});
 	new CustomButton(back);
 
 	MainTick mainTick;
@@ -108,7 +111,7 @@ int main() {
 	Cursor::getInstance()->setMouseButtonCallback(mouseButtonCallback);
 
 	Sprite* red = Sprite::Loader().texture({50}).parent(Cursor::getInstance()).anchor(EAnchor::BottomLeft).color({1, 0, 0}).z(-50).load();
-	red->setStencil(back);
+	//red->setStencil(back);
 
 	timer = new LerpTimer<Sprite, Vector>(red, Sprite::setPosition, {});
 	timer->add(0.1, {50, 0});
