@@ -102,14 +102,11 @@ void Window::onResize(GLFWwindow* window, int width, int height) {
 		return;
 	}
 
-	Camera::getInstance()->getFramebuffer()->resize(width, height);
-
-	Vector factor {(float)width/current->width, (float)height/current->height};
-
 	current->width = width;
 	current->height = height;
 
-	Point::notifyOnResize(factor);
+	//properly resize camera?
+	Camera::getInstance()->getFramebuffer()->resize(width, height);
 }
 
 void Window::maximize() {

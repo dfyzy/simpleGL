@@ -95,14 +95,11 @@ int main() {
 	std::string lorem("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.");
 	Text::Loader().font(sans).caption(lorem).width(350).position({0, -100}).z(-10).load();
 
-	Lighting* dark = Lighting::Loader().anchor(EAnchor::BottomRight).position({498, -348}).bounds(500, 350).z(-100).load();
-	dark->setResizeScale({true});
-	dark->setResizePosition({true});
+	Lighting* dark = Lighting::Loader().pivot({1.0f, -1.0f}).position({498, -348}).bounds(500, 350).z(-100).load();
 	Lighting::Source::Loader().lighting(dark).texture({100}).position(Vector(0, -150) + Vector(25)).color({0.5f, 0, 0}).load();
 	Lighting::Source::Loader().lighting(dark).texture({100}).position(Vector(0, -150) + Vector(-25)).color({0, 0.5f, 0}).load();
 
 	Sprite* back = Sprite::Loader().texture({300}).rotation(0.25f*3.1415927f).z(5).load();
-	//back->setResizeScale({true, false});
 	new CustomButton(back);
 
 	MainTick mainTick;
@@ -110,8 +107,8 @@ int main() {
 	Cursor::getInstance()->setPositionCallback(cursorPosCallback);
 	Cursor::getInstance()->setMouseButtonCallback(mouseButtonCallback);
 
-	Sprite* red = Sprite::Loader().texture({50}).parent(Cursor::getInstance()).anchor(EAnchor::BottomLeft).color({1, 0, 0}).z(-50).load();
-	//red->setStencil(back);
+	Sprite* red = Sprite::Loader().texture({50}).parent(Cursor::getInstance()).pivot({-1.0f}).color({1, 0, 0}).z(-50).load();
+	red->setStencil(back);
 
 	timer = new LerpTimer<Sprite, Vector>(red, Sprite::setPosition, {});
 	timer->add(0.1, {50, 0});

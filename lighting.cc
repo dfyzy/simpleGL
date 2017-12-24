@@ -1,6 +1,5 @@
 #include "lighting.h"
 #include "framebuffer.h"
-#include "box.h"
 #include "drawObject.h"
 #include "shader.h"
 #include "shaderData.h"
@@ -28,7 +27,7 @@ GLuint Lighting::Source::getDefaultFragment() {
 void Lighting::Source::draw() {
 	if (!isEnabled())	return;
 
-	Vector pos = getBoxShape()->getRealPosition();
+	Vector pos = getCenter()->getRealPosition();
 	glProgramUniform2f(getFragmentShader(), centreLoc, pos.x, pos.y);
 	Vector b = getBounds()*getScale();
 	glProgramUniform2f(getFragmentShader(), boundsLoc, b.x, b.y);
@@ -52,8 +51,8 @@ void Lighting::Source::draw() {
 	UnsortedSprite::draw();
 }
 
-Lighting::Shadow::Shadow(Point* parent, Vector position, Vector scale, Angle rotation, Vector bounds, EAnchor anchor, Lighting* lighting)
-	: AnchoredBox(parent, position, scale, rotation, bounds, anchor),
+Lighting::Shadow::Shadow(Point* parent, Vector position, Vector scale, Angle rotation, Vector bounds, Vector pivot, Lighting* lighting)
+	: Rectangle(parent, position, scale, rotation, bounds, pivot),
 		lighting(lighting), object(new DrawObject()), bottom(new DrawObject()), middle(new DrawObject()) {
 	object->bindTextureData(bounds);
 	bottom->bindTextureData({});
@@ -74,7 +73,7 @@ Lighting::Shadow::~Shadow() {
 void Lighting::Shadow::draw(Source* source) {
 	if (!isEnabled())	return;
 
-	Matrix objModel = getBoxShape()->getModelMatrix() * Matrix::scale(getBounds());
+	Matrix objModel = getCenter()->getModelMatrix() * Matrix::scale(getBounds());
 	object->bindVertexData(objModel);
 
 	Matrix bottomModel = objModel;
@@ -82,7 +81,7 @@ void Lighting::Shadow::draw(Source* source) {
 
 	float data[QUAD_VERTS*2];
 
-	Vector pov = source->getBoxShape()->getRealPosition();
+	Vector pov = source->getCenter()->getRealPosition();
 
 	Vector prj = objModel.inv() * pov;
 	std::pair<int, int> verts = SIDE_VERTS[(prj.x > 0.5f) - (prj.x < -0.5f) + 1
@@ -120,8 +119,8 @@ void Lighting::Shadow::draw(Source* source) {
 }
 
 Lighting::Lighting(Point* parent, Vector position, Vector scale, Angle rotation,
-	unsigned width, unsigned height, EAnchor anchor, Color color, int z, Color base)
-		: Sprite(parent, position, scale, rotation, {}, anchor, color, z) {
+	unsigned width, unsigned height, Vector pivot, Color color, int z, Color base)
+		: Sprite(parent, position, scale, rotation, {}, pivot, color, z) {
 		util::println("Lighting:load");
 
 		framebuffer = new Framebuffer(width, height, GL_RGB, true, GL_LINEAR, base);
@@ -130,11 +129,8 @@ Lighting::Lighting(Point* parent, Vector position, Vector scale, Angle rotation,
 Lighting::~Lighting() {
 	util::println("Lighting:unload");
 
-	for (Source* s : sources)
-		s->unload();
-
-	for (Shadow* s : shadows)
-		s->unload();
+	util::unloadList(sources);
+	util::unloadList(shadows);
 
 	framebuffer->unload();
 }
@@ -162,7 +158,7 @@ void Lighting::draw() {
 	if (needToDraw) {
 		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE);
 
-		framebuffer->bind(getBoxShape()->getModelMatrix());
+		framebuffer->bind(getCenter()->getModelMatrix());
 
 		for (Source* s : sources)
 			s->draw();

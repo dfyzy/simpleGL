@@ -6,7 +6,7 @@
 #define SIMPLE_UNSORTED_SPRITE_H
 
 #include "glfw.h"
-#include "anchoredBox.h"
+#include "rectangle.h"
 #include "texture.h"
 #include "color.h"
 
@@ -14,7 +14,7 @@ namespace simpleGL {
 
 class DrawObject;
 
-class UnsortedSprite : public AnchoredBox {
+class UnsortedSprite : public Rectangle {
 private:
 	DrawObject* drawObject;
 
@@ -46,7 +46,7 @@ protected:
 	void updateModel() override {
 		needUpdtVertices = true;
 
-		AnchoredBox::updateModel();
+		Rectangle::updateModel();
 	}
 
 	~UnsortedSprite();
@@ -58,7 +58,7 @@ public:
 		Vector pscale {1};
 		Angle protation;
 		Texture ptexture;
-		EAnchor panchor {EAnchor::Center};
+		Vector ppivot;
 		Color pcolor {1};
 
 		Loader() {}
@@ -68,13 +68,13 @@ public:
 		Loader& scale(Vector v) { pscale = v; return *this; }
 		Loader& rotation(Angle a) { protation = a; return *this; }
 		Loader& texture(Texture t) { ptexture = t; return *this; }
-		Loader& anchor(EAnchor a) { panchor = a; return *this; }
+		Loader& pivot(Vector v) { ppivot = v; return *this; }
 		Loader& color(Color c) { pcolor = c; return *this; }
 
-		UnsortedSprite* load() { return new UnsortedSprite(pparent, pposition, pscale, protation, ptexture, panchor, pcolor); }
+		UnsortedSprite* load() { return new UnsortedSprite(pparent, pposition, pscale, protation, ptexture, ppivot, pcolor); }
 	};
 
-	UnsortedSprite(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, EAnchor anchor, Color color);
+	UnsortedSprite(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, Vector pivot, Color color);
 
 	unsigned getId() const;
 

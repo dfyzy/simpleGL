@@ -47,10 +47,10 @@ public:
 
 };
 
-class Shape;
+class Rectangle;
 class Sprite;
 
-class Button : public Component<Shape> {
+class Button : public Component<Rectangle> {
 private:
 	bool opaque {true};
 
@@ -66,7 +66,7 @@ protected:
 	~Button();
 
 public:
-	Button(Shape* shape, int z);
+	Button(Rectangle* rect, int z);
 	Button(Sprite* sprite);
 
 	bool hasChanged() const { return ownerChanged.get(); }

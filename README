@@ -6,9 +6,14 @@ TOFIX:
 -Text fractions blur
 
 TODO:
+-pivot/anchor stuff
+-frame - sprite frame
+
 -ui for editor
 
--cmake
+-second pass at resizing window
+
+-research cmake
 
 -wrapper around any usefull glfw stuff
 	-Keys

@@ -121,7 +121,7 @@ void Text::addCaption(const std::string& string) {
 			Vector position = Vector(offset, -bounds.y) + glyph->offset;
 
 			if (cursorSpr == sprites.end()) {
-				Sprite* spr = Sprite::Loader().texture(glyph->texture).anchor(EAnchor::TopLeft).parent(this)
+				Sprite* spr = Sprite::Loader().texture(glyph->texture).pivot({-1.0f, 1.0f}).parent(this)
 															.position(position).color(color).z(z).load();
 				spr->setFragmentShader(getDefaultFragment());
 				sprites.push_back(spr);

@@ -78,7 +78,7 @@ int main() {
 
 	glfwSetKeyCallback(window, keyCallback);
 
-	parent = Sprite::Loader().texture({200}).color({0.6f}).anchor(EAnchor::TopLeft).load();
+	parent = Sprite::Loader().texture({200}).color({0.6f}).pivot({-1.0f, 1.0f}).load();
 	new CustomButton(parent);
 	new CustomButton(Sprite::Loader().texture({{75, 50}}).parent(parent).position({50, -50}).color({1, 0, 0}).z(-10).load());
 	new CustomButton(Sprite::Loader().texture({50}).parent(parent).position({-100, 50}).rotation(PI/4).color({0, 1, 0}).load());

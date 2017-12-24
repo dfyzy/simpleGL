@@ -15,6 +15,7 @@ namespace simpleGL {
 class Font;
 class Sprite;
 
+//TODO parent rect
 class Text : public Point {
 public:
 	enum class EAlignment { Left, Center, Right, Justified };

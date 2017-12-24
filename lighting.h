@@ -39,7 +39,7 @@ public:
 			Vector pscale {1};
 			Angle protation;
 			Texture ptexture;
-			EAnchor panchor {EAnchor::Center};
+			Vector ppivot;
 			Color pcolor {1};
 			Lighting* plighting {nullptr};
 
@@ -50,15 +50,15 @@ public:
 			Loader& scale(Vector v) { pscale = v; return *this; }
 			Loader& rotation(Angle a) { protation = a; return *this; }
 			Loader& texture(Texture t) { ptexture = t; return *this; }
-			Loader& anchor(EAnchor a) { panchor = a; return *this; }
+			Loader& pivot(Vector v) { ppivot = v; return *this; }
 			Loader& color(Color c) { pcolor = c; return *this; }
 			Loader& lighting(Lighting* l) { plighting = l; return *this; }
 
-			Source* load() { return new Source(pparent, pposition, pscale, protation, ptexture, panchor, pcolor, plighting); }
+			Source* load() { return new Source(pparent, pposition, pscale, protation, ptexture, ppivot, pcolor, plighting); }
 		};
 
-		Source(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, EAnchor anchor, Color color, Lighting* lighting)
-			: UnsortedSprite(parent, position, scale, rotation, texture, anchor, color), lighting(lighting) {
+		Source(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, Vector pivot, Color color, Lighting* lighting)
+			: UnsortedSprite(parent, position, scale, rotation, texture, pivot, color), lighting(lighting) {
 			setFragmentShader(getDefaultFragment());
 
 			if (lighting)	lighting->sources.push_back(this);
@@ -80,7 +80,7 @@ public:
 
 	};
 
-	class Shadow : public AnchoredBox {
+	class Shadow : public Rectangle {
 	private:
 		Lighting* lighting;
 
@@ -99,7 +99,7 @@ public:
 			Vector pscale {1};
 			Angle protation;
 			Vector pbounds;
-			EAnchor panchor {EAnchor::Center};
+			Vector ppivot;
 			Lighting* plighting {nullptr};
 
 			Loader() {}
@@ -109,13 +109,13 @@ public:
 			Loader& scale(Vector v) { pscale = v; return *this; }
 			Loader& rotation(Angle a) { protation = a; return *this; }
 			Loader& bounds(Vector v) { pbounds = v; return *this; }
-			Loader& anchor(EAnchor a) { panchor = a; return *this; }
+			Loader& pivot(Vector v) { ppivot = v; return *this; }
 			Loader& lighting(Lighting* l) { plighting = l; return *this; }
 
-			Shadow* load() { return new Shadow(pparent, pposition, pscale, protation, pbounds, panchor, plighting); }
+			Shadow* load() { return new Shadow(pparent, pposition, pscale, protation, pbounds, ppivot, plighting); }
 		};
 
-		Shadow(Point* parent, Vector position, Vector scale, Angle rotation, Vector bounds, EAnchor anchor, Lighting* lighting);
+		Shadow(Point* parent, Vector position, Vector scale, Angle rotation, Vector bounds, Vector pivot, Lighting* lighting);
 
 		bool getChanged() {
 			bool result = changed.get();
@@ -146,7 +146,7 @@ public:
 		Angle protation;
 		unsigned pwidth {1};
 		unsigned pheight {1};
-		EAnchor panchor {EAnchor::Center};
+		Vector ppivot;
 		Color pcolor {1};
 		int pz {0};
 		Color pbase {0};
@@ -158,16 +158,16 @@ public:
 		Loader& scale(Vector v) { pscale = v; return *this; }
 		Loader& rotation(Angle a) { protation = a; return *this; }
 		Loader& bounds(unsigned u0, unsigned u1) { pwidth = u0; pheight = u1; return *this; }
-		Loader& anchor(EAnchor a) { panchor = a; return *this; }
+		Loader& pivot(Vector v) { ppivot = v; return *this; }
 		Loader& color(Color c) { pcolor = c; return *this; }
 		Loader& z(int i) { pz = i; return *this; }
 		Loader& base(Color c) { pbase = c; return *this; }
 
-		Lighting* load() { return new Lighting(pparent, pposition, pscale, protation, pwidth, pheight, panchor, pcolor, pz, pbase); }
+		Lighting* load() { return new Lighting(pparent, pposition, pscale, protation, pwidth, pheight, ppivot, pcolor, pz, pbase); }
 	};
 
 	Lighting(Point* parent, Vector position, Vector scale, Angle rotation,
-		unsigned width, unsigned height, EAnchor anchor, Color color, int z, Color base);
+		unsigned width, unsigned height, Vector pivot, Color color, int z, Color base);
 
 	Image* getImage() const;
 

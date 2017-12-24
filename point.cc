@@ -1,7 +1,13 @@
 #include "point.h"
+#include "util.h"
 
 namespace simpleGL {
 
-std::list<Point*> Point::points;
+Point::~Point() {
+	util::unloadList(components);
+
+	parent->children.remove(this);
+	util::unloadList(children);
+}
 
 }

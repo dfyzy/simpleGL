@@ -3,7 +3,6 @@
 #include "cursor.h"
 #include "camera.h"
 #include "sprite.h"
-#include "box.h"
 #include "window.h"
 #include "util.h"
 
@@ -41,7 +40,7 @@ Cursor* Cursor::getInstance() {
 	return instance;
 }
 
-Cursor::Cursor() : UnsortedSprite(Camera::getInstance(), {}, {1.0f}, {}, {}, EAnchor::Center, {1}) {
+Cursor::Cursor() : UnsortedSprite(Camera::getInstance(), {}, {1.0f}, {}, {}, {0.0f}, {1}) {
 	Window* current = Window::getCurrent();
 
 	glfwSetCursorPosCallback(current->getWindow(), positionCallback);
@@ -140,14 +139,14 @@ bool Cursor::getMouseButton(int button) const {
 	return mouseButtons[button];
 }
 
-Button::Button(Shape* shape, int z) : Component<Shape>(shape), z(z) {
+Button::Button(Rectangle* rect, int z) : Component<Rectangle>(rect), z(z) {
 	util::println("Button:load");
 
 	Cursor::getInstance();
 	buttons.insert(this);
 }
 
-Button::Button(Sprite* sprite) : Button(sprite->getBoxShape(), sprite->getZ()) {}
+Button::Button(Sprite* sprite) : Button(sprite, sprite->getZ()) {}
 
 Button::~Button() {
 	util::println("Button:unload");
