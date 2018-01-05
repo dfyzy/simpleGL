@@ -9,6 +9,7 @@
 
 #include <string>
 
+#include "image.h"
 #include "texture.h"
 
 namespace simpleGL {
@@ -28,21 +29,20 @@ private:
 	static FT_Library ftLibrary;
 	static float dpiX, dpiY;
 
-	Image* image;
+	Image image {GL_LINEAR};
 
 	Glyph glyphs[LAST_CHAR - FIRST_CHAR + 1];
 
 	float lineSpacing;
 	unsigned spaceWidth;
 
-	~Font();
-
 public:
 	static FT_Library getFTLibrary();
 
 	Font(const std::string& path, int size);
+	~Font();
 
-	Image* getImage() const { return image; }
+	const Image* getImage() const { return &image; }
 
 	float getLineSpacing() const { return lineSpacing; }
 	unsigned getSpaceWidth() const { return spaceWidth; }
@@ -53,8 +53,6 @@ public:
 		*data = glyphs + (c - FIRST_CHAR);
 		return true;
 	}
-
-	void unload() { delete this; }
 
 };
 

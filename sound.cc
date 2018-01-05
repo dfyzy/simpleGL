@@ -10,7 +10,13 @@ Sound::Sound() {
 	alGenBuffers(1, &id);
 }
 
-Sound* Sound::loadData(int pchannels, unsigned psampleRate, unsigned plength, const short* data) {
+Sound::~Sound() {
+	util::println("Sound:unload");
+
+	alDeleteBuffers(1, &id);
+}
+
+void Sound::loadData(int pchannels, unsigned psampleRate, unsigned plength, const short* data) {
 	ALenum format {0};
 	if (pchannels == 1)			format = AL_FORMAT_MONO16;
 	else if (pchannels == 2)	format = AL_FORMAT_STEREO16;
@@ -21,7 +27,7 @@ Sound* Sound::loadData(int pchannels, unsigned psampleRate, unsigned plength, co
 
 	if (format == 0) {
 		util::println("error:Sound:unsupported number of channels");
-		return this;
+		return;
 	}
 
 	channels = pchannels;
@@ -42,20 +48,14 @@ Sound* Sound::loadData(int pchannels, unsigned psampleRate, unsigned plength, co
 		util::println("error:OpenAL:" + errorString);
 	}
 
-	return this;
+	return;
 }
 
-Sound* Sound::loadData(const std::string& path) {
+void Sound::loadData(const std::string& path) {
 	SoundFile soundFile(path);
-	soundFile.readAll(this);
+	soundFile.readAll(*this);
 
-	return this;
-}
-
-Sound::~Sound() {
-	util::println("Sound:unload");
-
-	alDeleteBuffers(1, &id);
+	return;
 }
 
 }

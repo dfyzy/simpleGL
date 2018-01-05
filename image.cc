@@ -37,7 +37,13 @@ Image::Image(GLenum filtering) {
 	glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }
 
-Image* Image::loadData(unsigned pwidth, unsigned pheight, GLenum pformat, GLint pinternal, GLenum ptype, const void* data) {
+Image::~Image() {
+	util::println("Image:unload");
+
+	glDeleteTextures(1, &id);
+}
+
+void Image::loadData(unsigned pwidth, unsigned pheight, GLenum pformat, GLint pinternal, GLenum ptype, const void* data) {
 	util::println("Image:loadData");
 
 	width = pwidth;
@@ -57,17 +63,15 @@ Image* Image::loadData(unsigned pwidth, unsigned pheight, GLenum pformat, GLint 
 
 		util::println("error:OpenGL:" + errorString);
 	}
-
-	return this;
 }
 
-Image* Image::loadData(const std::string& path) {
+void Image::loadData(const std::string& path) {
 	util::println("Image:load file:" + path);
 
 	FILE *file = fopen(path.c_str(), "rb");
 	if (!file) {
 		util::println("error:Image:failed to open file");
-		return this;
+		return;
 	}
 
 	png_byte header[8];
@@ -75,14 +79,14 @@ Image* Image::loadData(const std::string& path) {
 	if (png_sig_cmp(header, 0, 8)) {
 		util::println("error:Image:file is not a png");
 		fclose(file);
-		return this;
+		return;
 	}
 
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	if (!png_ptr) {
 		util::println("error:Image:failed to create read struct");
 		fclose(file);
-		return this;
+		return;
 	}
 
 	png_infop info_ptr = png_create_info_struct(png_ptr);
@@ -90,14 +94,14 @@ Image* Image::loadData(const std::string& path) {
 		util::println("error:Image:failed to create info struct");
 		png_destroy_read_struct(&png_ptr, nullptr, nullptr);
 		fclose(file);
-		return this;
+		return;
 	}
 
 	if (setjmp(png_jmpbuf(png_ptr))) {
 		util::println("error:Image:libpng error");
 		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 		fclose(file);
-		return this;
+		return;
 	}
 
 	png_init_io(png_ptr, file);
@@ -121,7 +125,7 @@ Image* Image::loadData(const std::string& path) {
 	png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 	fclose(file);
 
-	return this;
+	return;
 }
 
 void Image::setFiltering(GLenum gle) {
@@ -140,12 +144,6 @@ void Image::setFiltering(GLenum gle) {
 
 void Image::bind() const {
 	bindImage(id);
-}
-
-Image::~Image() {
-	util::println("Image:unload");
-
-	glDeleteTextures(1, &id);
 }
 
 }

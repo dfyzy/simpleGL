@@ -1,41 +1,56 @@
-/* Sprite, sorted by z and drawn every frame
+/* Base sprite class
+ * Doesn't draw automatically
 */
 
 #ifndef SIMPLE_SPRITE_H
 #define SIMPLE_SPRITE_H
 
-#include <set>
-
-#include "unsortedSprite.h"
+#include "glfw.h"
+#include "rectangle.h"
+#include "texture.h"
+#include "color.h"
+#include "drawObject.h"
 
 namespace simpleGL {
 
-class Sprite : public UnsortedSprite {
+class Sprite : public Rectangle {
 private:
-	struct Comparer {
-		bool operator()(const Sprite* lhs, const Sprite* rhs) {
-			if (lhs->z != rhs->z)
-				return lhs->z > rhs->z;
+	DrawObject drawObject;
 
-			if (lhs->getTexture().getImage() != rhs->getTexture().getImage())
-				return lhs->getTexture().getImage() < rhs->getTexture().getImage();
+	Texture texture;
 
-			return lhs->getId() < rhs->getId();
-		}
-	};
+	Color color;
 
-	static std::set<simpleGL::Sprite*, simpleGL::Sprite::Comparer> sprites;
+	bool needUpdtVertices {true};
+	bool needUpdtTexture {true};
+	bool needUpdtColor {true};
 
-	int z;
+	GLuint vertexShader;
+	GLuint fragmentShader;
+
+	bool defaultFrag {true};
+
+	GLenum stencilFunc = GL_ALWAYS;
+	GLenum stencilOp = GL_KEEP;
+	GLint stencilRef {0};
+
+	Sprite* stencil {nullptr};
+	std::list<Sprite*> stenciled;
+
+	void stopUsingStencil();
 
 protected:
-	~Sprite() {
-		sprites.erase(this);
+	const DrawObject* getDrawObject() const { return &drawObject; }
+
+	void updateModel() override {
+		needUpdtVertices = true;
+
+		Rectangle::updateModel();
 	}
 
-public:
-	static void drawAll();
+	~Sprite();
 
+public:
 	struct Loader {
 		Point* pparent {nullptr};
 		Vector pposition;
@@ -44,7 +59,6 @@ public:
 		Texture ptexture;
 		Vector ppivot;
 		Color pcolor {1};
-		int pz {0};
 
 		Loader() {}
 
@@ -55,28 +69,59 @@ public:
 		Loader& texture(Texture t) { ptexture = t; return *this; }
 		Loader& pivot(Vector v) { ppivot = v; return *this; }
 		Loader& color(Color c) { pcolor = c; return *this; }
-		Loader& z(int i) { pz = i; return *this; }
 
-		Sprite* load() { return new Sprite(pparent, pposition, pscale, protation, ptexture, ppivot, pcolor, pz); }
+		Sprite* load() { return new Sprite(pparent, pposition, pscale, protation, ptexture, ppivot, pcolor); }
 	};
 
-	Sprite(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, Vector pivot, Color color, int z)
-		: UnsortedSprite(parent, position, scale, rotation, texture, pivot, color), z(z) {
-		sprites.insert(this);
+	Sprite(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, Vector pivot, Color color);
+
+	unsigned getId() const;
+
+	Texture getTexture() const { return texture; }
+	void setTexture(Texture t) {
+		if (texture == t)	return;
+
+		texture = t;
+
+		needUpdtTexture = true;
+		needUpdtVertices = true;
+
+		setBounds(t.getBounds());
+
+		if (defaultFrag) setDefaultFragmentShader();
 	}
 
-	int getZ() const { return z; }
-	void setZ(int i) {
-		sprites.erase(this);
-		z = i;
-		sprites.insert(this);
+	Color getColor() const { return color; }
+	void setColor(Color c) {
+		if (color == c)	return;
+
+		color = c;
+
+		needUpdtColor = true;
+		onChange();
 	}
 
-	void setTexture(Texture t) override {
-		sprites.erase(this);
-		UnsortedSprite::setTexture(t);
-		sprites.insert(this);
+	GLuint getVertexShader() const { return vertexShader; }
+	void setVertexShader(GLuint sh) { vertexShader = sh; }
+
+	GLuint getFragmentShader() const { return fragmentShader; }
+	virtual void setFragmentShader(GLuint sh) { fragmentShader = sh; defaultFrag = false; }
+
+	void setDefaultFragmentShader();
+
+	GLenum getStencilFunc() const { return stencilFunc; }
+	GLenum getStencilOp() const { return stencilOp; }
+	GLint getStencilRef() const { return stencilRef; }
+
+	void setStencil(Sprite* spr);
+	void setCustomStencil(GLenum func, GLenum op, GLint ref) {
+		stencilFunc = func;
+		stencilOp = op;
+		stencilRef = ref;
 	}
+	void setDefaultStencil() { setCustomStencil(GL_ALWAYS, GL_KEEP, 0); }
+
+	virtual void draw();
 
 };
 

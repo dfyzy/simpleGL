@@ -10,6 +10,8 @@
 
 namespace simpleGL {
 
+class Sound;
+
 class SoundFile {
 private:
 	SF_INFO info;
@@ -24,8 +26,8 @@ public:
 	int getChannels() { return info.channels; }
 	int getFormat() { return info.format; }
 
-	bool read(class Sound* sound, sf_count_t frames);
-	void readAll(Sound* sound) {
+	bool read(Sound& sound, sf_count_t frames);
+	void readAll(Sound& sound) {
 		read(sound, info.frames);
 	}
 

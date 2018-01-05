@@ -106,7 +106,7 @@ void Window::onResize(GLFWwindow* window, int width, int height) {
 	current->height = height;
 
 	//properly resize camera?
-	Camera::getInstance()->getFramebuffer()->resize(width, height);
+	Camera::getInstance()->resize(width, height);
 }
 
 void Window::maximize() {

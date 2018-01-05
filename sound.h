@@ -17,22 +17,21 @@ private:
 	unsigned sampleRate {0};
 	unsigned length {0};
 
-protected:
-	~Sound();
-
 public:
 	Sound();
 
-	Sound* loadData(int pchannels, unsigned psampleRate, unsigned plength, const short* data);
-	Sound* loadData(const std::string& path);
+	Sound(const Sound& other) =delete;
+
+	~Sound();
+
+	void loadData(int pchannels, unsigned psampleRate, unsigned plength, const short* data);
+	void loadData(const std::string& path);
 
 	ALuint getId() const { return id; }
 
 	int getChannels() const { return channels; }
 	unsigned getSampleRate() const { return sampleRate; }
 	unsigned getLength() const { return length; }
-
-	void unload() { delete this; }
 
 };
 

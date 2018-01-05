@@ -1,6 +1,6 @@
 #include "text.h"
 #include "font.h"
-#include "sprite.h"
+#include "sortedSprite.h"
 #include "shader.h"
 #include "shaderData.h"
 #include "util.h"
@@ -24,13 +24,13 @@ GLuint Text::getDefaultFragment() {
 
 void Text::setZ(int pz) {
 	z = pz;
-	for (Sprite* sprite : sprites)
+	for (SortedSprite* sprite : sprites)
 		sprite->setZ(z);
 }
 
 void Text::setColor(Color c) {
 	color = c;
-	for (Sprite* sprite : sprites)
+	for (SortedSprite* sprite : sprites)
 		sprite->setColor(color);
 }
 
@@ -121,7 +121,7 @@ void Text::addCaption(const std::string& string) {
 			Vector position = Vector(offset, -bounds.y) + glyph->offset;
 
 			if (cursorSpr == sprites.end()) {
-				Sprite* spr = Sprite::Loader().texture(glyph->texture).pivot({-1.0f, 1.0f}).parent(this)
+				SortedSprite* spr = SortedSprite::Loader().texture(glyph->texture).pivot({-1.0f, 1.0f}).parent(this)
 															.position(position).color(color).z(z).load();
 				spr->setFragmentShader(getDefaultFragment());
 				sprites.push_back(spr);
@@ -142,7 +142,7 @@ void Text::addCaption(const std::string& string) {
 }
 
 void Text::clear() {
-	for (Sprite* sprite : sprites)
+	for (SortedSprite* sprite : sprites)
 		sprite->unload();
 
 	sprites.clear();

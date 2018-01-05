@@ -3,10 +3,8 @@
 
 namespace simpleGL {
 
-void Signal::loadIntoSound(Sound* sound) const {
-	if (!sound)	return;
-
-	sound->loadData(1, sampleRate, length, data.get());
+void Signal::loadIntoSound(Sound& sound) const {
+	sound.loadData(1, sampleRate, length, data.get());
 }
 
 }

@@ -2,7 +2,6 @@
 #include <memory>
 
 #include "font.h"
-#include "image.h"
 #include "util.h"
 
 namespace {
@@ -76,7 +75,7 @@ Font::Font(const std::string& path, int size) {
 	}
 	width -= TEX_GAP;
 
-	image = (new Image(GL_LINEAR))->loadData(width, height, GL_RED, nullptr);
+	image.loadData(width, height, GL_RED, nullptr);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -86,7 +85,7 @@ Font::Font(const std::string& path, int size) {
 
 		FT_Bitmap& bitmap = face->glyph->bitmap;
 
-		glyphs[i - FIRST_CHAR] = Glyph {Texture(image, Vector(offset, 0), Vector(bitmap.width, bitmap.rows)),
+		glyphs[i - FIRST_CHAR] = Glyph {Texture(&image, Vector(offset, 0), Vector(bitmap.width, bitmap.rows)),
 													Vector(face->glyph->bitmap_left, face->glyph->bitmap_top), face->glyph->advance.x >> 6};
 
 		std::unique_ptr<unsigned char[]> data(new unsigned char[bitmap.width * bitmap.rows]);
@@ -101,7 +100,5 @@ Font::Font(const std::string& path, int size) {
 
 	FT_Done_Face(face);
 }
-
-Font::~Font() { image->unload(); }
 
 }

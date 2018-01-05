@@ -23,47 +23,28 @@ Camera* Camera::getInstance() {
 }
 
 Camera::Camera()
-	: Point(), framebuffer(new Framebuffer(
-										Window::getCurrent()->getWidth(),
-										Window::getCurrent()->getHeight(),
-										GL_RGB,
-										true,
-										GL_NEAREST,
-										Color(0.0f)
-									)),
-		drawObject(new DrawObject()),
+	: Point(), frame(	Window::getCurrent()->getWidth(),
+									Window::getCurrent()->getHeight(),
+									GL_RGB,
+									true,
+									GL_NEAREST,
+									Color(0.0f)
+								),
 		vertex(loadShaderSource(shaderData::getOverlayVertex(), GL_VERTEX_SHADER)),
 		fragment(loadShaderSource(shaderData::getOverlayFragment(), GL_FRAGMENT_SHADER)) {
-	drawObject->bindVertexData(Matrix::scale(2.0f));
-}
-
-Camera::~Camera() {
-	framebuffer->unload();
-	drawObject->unload();
-}
-
-Color Camera::getBaseColor() const {
-	return framebuffer->getBaseColor();
-}
-
-void Camera::setBaseColor(Color c) {
-	framebuffer->setBaseColor(c);
+	drawObject.bindVertexData(Matrix::scale(2.0f));
 }
 
 void Camera::draw() {
-	framebuffer->bind(getModelMatrix());
-
-	Sprite::drawAll();
-
-	framebuffer->unbind();
+	frame.draw(getModelMatrix());
 
 	useShaders(vertex, fragment);
-	framebuffer->getImage()->bind();
+	frame.getImage()->bind();
 
 	glDisable(GL_BLEND);
 	glDisable(GL_STENCIL_TEST);
 
-	drawObject->draw();
+	drawObject.draw();
 
 	glEnable(GL_BLEND);
 	glEnable(GL_STENCIL_TEST);

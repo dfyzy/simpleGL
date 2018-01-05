@@ -5,23 +5,18 @@
 namespace simpleGL {
 
 StreamSpeaker::StreamSpeaker(Point* parent, Vector position, Vector scale, Angle rotation, int bufferSize)
-	: Speaker(parent, position, scale, rotation), bufferSize(bufferSize), sounds(new Sound*[bufferSize]) {
-	for (int i = 0; i < bufferSize; i++)
-		sounds[i] = new Sound();
+	: Speaker(parent, position, scale, rotation), bufferSize(bufferSize), sounds(new Sound[bufferSize]) {
 }
 
 StreamSpeaker::~StreamSpeaker() {
 	stop();
-
-	for (int i = 0; i < bufferSize; i++)
-		sounds[i]->unload();
 }
 
 void StreamSpeaker::bindData(int i) {
 	if (!streaming) return;
 
 	if (getData(sounds[i])) {
-		ALuint buffer = sounds[i]->getId();
+		ALuint buffer = sounds[i].getId();
 		alSourceQueueBuffers(getId(), 1, &buffer);
 
 	} else {
@@ -44,7 +39,7 @@ void StreamSpeaker::update() {
 		while (processed--) {
 			ALuint buff;
 			alSourceUnqueueBuffers(getId(), 1, &buff);
-			if (buff != sounds[index]->getId())	{
+			if (buff != sounds[index].getId())	{
 				util::println("error:StreamSpeaker:welp");//temp
 				streaming = false;
 			}

@@ -7,12 +7,12 @@
 
 #include <functional>
 
-#include "unsortedSprite.h"
+#include "sprite.h"
 #include "updatable.h"
 
 namespace simpleGL {
 
-class Cursor : public UnsortedSprite, public Updatable<EUpdateType::PreTick> {
+class Cursor : public Sprite, public Updatable<EUpdateType::PreTick> {
 public:
 	static constexpr int BUTTONS_MAX = 8;
 
@@ -48,9 +48,19 @@ public:
 };
 
 class Rectangle;
-class Sprite;
+class SortedSprite;
 
 class Button : public Component<Rectangle> {
+public:
+	struct Comparer {
+		bool operator()(const Button* lhs, const Button* rhs) {
+			if (lhs->z != rhs->z)
+				return lhs->z < rhs->z;
+
+			return lhs < rhs;
+		}
+	};
+
 private:
 	bool opaque {true};
 
@@ -67,7 +77,7 @@ protected:
 
 public:
 	Button(Rectangle* rect, int z);
-	Button(Sprite* sprite);
+	Button(SortedSprite* sprite);
 
 	bool hasChanged() const { return ownerChanged.get(); }
 
@@ -104,15 +114,6 @@ public:
 
 	virtual void onEnter() {}
 	virtual void onExit() {}
-
-	struct Comparer {
-		bool operator()(const Button* lhs, const Button* rhs) {
-			if (lhs->z != rhs->z)
-				return lhs->z < rhs->z;
-
-			return lhs < rhs;
-		}
-	};
 };
 
 }

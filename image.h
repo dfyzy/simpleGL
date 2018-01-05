@@ -19,9 +19,6 @@ private:
 	GLenum filtering;
 	unsigned width {0}, height {0};
 
-protected:
-	~Image();
-
 public:
 	static void unbind();
 
@@ -30,12 +27,16 @@ public:
 	 */
 	Image(GLenum filtering);
 
-	Image* loadData(unsigned pwidth, unsigned pheight, GLenum pformat, GLint pinternal, GLenum ptype, const void* data);
-	Image* loadData(unsigned pwidth, unsigned pheight, GLenum pformat, const unsigned char* data) {
+	Image(const Image& other) =delete;
+
+	~Image();
+
+	void loadData(unsigned pwidth, unsigned pheight, GLenum pformat, GLint pinternal, GLenum ptype, const void* data);
+	void loadData(unsigned pwidth, unsigned pheight, GLenum pformat, const unsigned char* data) {
 		return loadData(pwidth, pheight, pformat, pformat, GL_UNSIGNED_BYTE, data);
 	}
 
-	Image* loadData(const std::string& path);
+	void loadData(const std::string& path);
 
 	GLuint getId() const { return id; }
 
@@ -53,8 +54,6 @@ public:
 	void setFiltering(GLenum gle);
 
 	void bind() const;
-
-	void unload() { delete this; }
 
 };
 

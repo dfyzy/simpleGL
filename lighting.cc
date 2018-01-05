@@ -37,7 +37,7 @@ void Lighting::Source::draw() {
 
 	setCustomStencil(GL_ALWAYS, GL_REPLACE, 1);
 
-	UnsortedSprite::draw();
+	Sprite::draw();
 
 	useShaders(getDefaultVertexShader(), getDefaultFragmentShader(true));
 
@@ -48,25 +48,20 @@ void Lighting::Source::draw() {
 
 	setCustomStencil(GL_EQUAL, GL_ZERO, 1);
 
-	UnsortedSprite::draw();
+	Sprite::draw();
 }
 
 Lighting::Shadow::Shadow(Point* parent, Vector position, Vector scale, Angle rotation, Vector bounds, Vector pivot, Lighting* lighting)
 	: Rectangle(parent, position, scale, rotation, bounds, pivot),
-		lighting(lighting), object(new DrawObject()), bottom(new DrawObject()), middle(new DrawObject()) {
-	object->bindTextureData(bounds);
-	bottom->bindTextureData({});
-	middle->bindTextureData({});
+		lighting(lighting) {
+	object.bindTextureData(bounds);
+	bottom.bindTextureData({});
+	middle.bindTextureData({});
 
 	if (lighting)	lighting->shadows.push_back(this);
 }
 
 Lighting::Shadow::~Shadow() {
-	object->unload();
-
-	bottom->unload();
-	middle->unload();
-
 	lighting->shadows.remove(this);
 }
 
@@ -74,10 +69,10 @@ void Lighting::Shadow::draw(Source* source) {
 	if (!isEnabled())	return;
 
 	Matrix objModel = getCenter()->getModelMatrix() * Matrix::scale(getBounds());
-	object->bindVertexData(objModel);
+	object.bindVertexData(objModel);
 
 	Matrix bottomModel = objModel;
-	bottom->bindVertexData(bottomModel);
+	bottom.bindVertexData(bottomModel);
 
 	float data[QUAD_VERTS*2];
 
@@ -104,46 +99,30 @@ void Lighting::Shadow::draw(Source* source) {
 	(left + (left - pov).normalize()*length).load(data, &i);
 	(right + (right - pov).normalize()*length).load(data, &i);
 
-	middle->bindData(EDataType::Vertex, data);
+	middle.bindData(EDataType::Vertex, data);
 
 	glStencilFunc(GL_EQUAL, 1, 0xFF);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO);
 
-	bottom->draw();
-	middle->draw();
+	bottom.draw();
+	middle.draw();
 
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-	object->draw();
+	object.draw();
 }
-
-Lighting::Lighting(Point* parent, Vector position, Vector scale, Angle rotation,
-	unsigned width, unsigned height, Vector pivot, Color color, int z, Color base)
-		: Sprite(parent, position, scale, rotation, {}, pivot, color, z) {
-		util::println("Lighting:load");
-
-		framebuffer = new Framebuffer(width, height, GL_RGB, true, GL_LINEAR, base);
-	}
 
 Lighting::~Lighting() {
-	util::println("Lighting:unload");
-
 	util::unloadList(sources);
 	util::unloadList(shadows);
-
-	framebuffer->unload();
-}
-
-Image* Lighting::getImage() const {
-	return framebuffer->getImage();
 }
 
 void Lighting::draw() {
 	if (first) {
 		first = false;
 
-		setTexture(framebuffer->getImage());
+		setTexture(framebuffer.getImage());
 	}
 
 	bool needToDraw = changed.get();
@@ -158,17 +137,17 @@ void Lighting::draw() {
 	if (needToDraw) {
 		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE);
 
-		framebuffer->bind(getCenter()->getModelMatrix());
+		framebuffer.bind(getCenter()->getModelMatrix());
 
 		for (Source* s : sources)
 			s->draw();
 
-		framebuffer->unbind();
+		framebuffer.unbind();
 	}
 
 	glBlendFunc(GL_ZERO, GL_SRC_COLOR);
 
-	Sprite::draw();
+	SortedSprite::draw();
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

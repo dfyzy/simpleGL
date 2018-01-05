@@ -11,6 +11,8 @@
 
 namespace simpleGL {
 
+class Sound;
+
 class Signal {
 private:
 	std::unique_ptr<short[]> data;
@@ -65,7 +67,7 @@ public:
 		return loadFunc(duration, frequency, [=] (float t) { return amplitude*(1.0f - t/PI); });//only works in [0, 2*PI]
 	}
 
-	void loadIntoSound(class Sound* sound) const;
+	void loadIntoSound(Sound& sound) const;
 
 	//TODO
 	//void loadIntoImage(Image* image, unsigned width, unsigned height) const

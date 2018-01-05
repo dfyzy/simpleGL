@@ -17,7 +17,7 @@ class StreamSpeaker : public Speaker, public Updatable<EUpdateType::PostTick> {
 private:
 	const int bufferSize;
 
-	std::unique_ptr<Sound*[]> sounds;
+	std::unique_ptr<Sound[]> sounds;
 	int index {0};
 
 	bool streaming {false};
@@ -33,7 +33,7 @@ protected:
 	~StreamSpeaker();
 
 	virtual void openStream() =0;
-	virtual bool getData(Sound* sound) =0;
+	virtual bool getData(Sound& sound) =0;
 	virtual void restartStream() =0;
 	virtual void closeStream() =0;
 

@@ -12,7 +12,7 @@ class Image;
 
 class Texture {
 protected:
-	Image* image {nullptr};
+	const Image* image {nullptr};
 	Vector position;
 	Vector bounds {1};
 
@@ -20,10 +20,10 @@ public:
 	Texture() {}
 	Texture(Vector bounds) : bounds(bounds) {}
 
-	Texture(Image* image, Vector position, Vector bounds) : image(image), position(position), bounds(bounds) {}
-	Texture(Image* image);
+	Texture(const Image* image, Vector position, Vector bounds) : image(image), position(position), bounds(bounds) {}
+	Texture(const Image* image);
 
-	Image* getImage() const { return image; }
+	const Image* getImage() const { return image; }
 
 	Vector getPosition() const { return position; }
 	void setPosition(Vector v) { position = v; }

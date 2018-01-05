@@ -22,7 +22,7 @@ protected:
 
 	}
 
-	bool getData(Sound* sound) override {
+	bool getData(Sound& sound) override {
 		return file->read(sound, file->getSampleRate());
 	}
 

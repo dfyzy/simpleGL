@@ -3,8 +3,13 @@
 
 namespace simpleGL {
 
+class SortedFrame;
+
 double getDeltaTime();
 
+SortedFrame* getMainFrame();
+
+//should probably move this somewhere
 void loadGLContext();
 
 /*

@@ -4,14 +4,14 @@
 #ifndef SIMPLE_SLIDER_H
 #define SIMPLE_SLIDER_H
 
-#include "sprite.h"
+#include "sortedSprite.h"
 #include "cursor.h"
 
 namespace simpleGL {
 
 class Slider : public Point {
 private:
-	class SliderSprite : public Sprite, public Button {
+	class SliderSprite : public SortedSprite, public Button {
 	private:
 		Slider* slider;
 
@@ -19,8 +19,8 @@ private:
 		~SliderSprite() {}
 
 	public:
-		SliderSprite(Slider* parent, Vector scale, Angle rotation, Texture texture, EAnchor anchor, Color color, int z)
-			: Sprite(parent, {}, scale, rotation, texture, anchor, color, z), Button(this), slider(parent) {}
+		SliderSprite(Slider* parent, Vector scale, Angle rotation, Texture texture, Vector pivot, Color color, SortedFrame* frame, int z)
+			: SortedSprite(parent, {}, scale, rotation, texture, pivot, color, frame, z), Button(this), slider(parent) {}
 
 		void onDrag(int mouseButton) override {
 			Vector pos = slider->getModelMatrix().inv()*Cursor::getInstance()->getRealPosition();
@@ -50,8 +50,9 @@ public:
 		Vector pscale {1};
 		Angle protation;
 		Texture ptexture;
-		EAnchor panchor {EAnchor::Center};
+		Vector ppivot;
 		Color pcolor {1};
+		SortedFrame* pframe {getMainFrame()};
 		int pz {0};
 		float plength {1.0f};
 		Angle pslideRotation;
@@ -63,19 +64,20 @@ public:
 		Loader& scale(Vector v) { pscale = v; return *this; }
 		Loader& rotation(Angle a) { protation = a; return *this; }
 		Loader& texture(Texture t) { ptexture = t; return *this; }
-		Loader& anchor(EAnchor a) { panchor = a; return *this; }
+		Loader& pivot(Vector v) { ppivot = v; return *this; }
 		Loader& color(Color c) { pcolor = c; return *this; }
+		Loader& frame(SortedFrame* f) { pframe = f; return *this; }
 		Loader& z(int i) { pz = i; return *this; }
 		Loader& length(float f) { plength = f; return *this; }
 		Loader& slideRotation(Angle a) { pslideRotation = a; return *this; }
 
-		Slider* load() { return new Slider(pparent, pposition, pscale, protation, ptexture, panchor, pcolor, pz, plength, pslideRotation); }
+		Slider* load() { return new Slider(pparent, pposition, pscale, protation, ptexture, ppivot, pcolor, pframe, pz, plength, pslideRotation); }
 	};
 
-	Slider(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, EAnchor anchor, Color color, int z,
+	Slider(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, Vector pivot, Color color, SortedFrame* frame, int z,
 		float length, Angle slideRotation)
 			: Point(parent, position, {1.0f}, slideRotation),
-			sprite(new SliderSprite(this, scale, rotation, texture, anchor, color, z)),
+			sprite(new SliderSprite(this, scale, rotation, texture, pivot, color, frame, z)),
 			length(length) {}
 
 	float getLength() const { return length; }

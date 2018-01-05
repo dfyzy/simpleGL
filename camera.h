@@ -1,43 +1,41 @@
-/* A singleton class which does 2 things:
- * 1.	It's the view matrix
- * 2.	It's the framebuffer on which all the draw calls are made
- * 	After that, it draws the resulting image object on the screen, using assigned fragment shader
-*/
-
 #ifndef SIMPLE_CAMERA_H
 #define SIMPLE_CAMERA_H
 
 #include "glfw.h"
 #include "point.h"
-#include "color.h"
+#include "sortedFrame.h"
 
 namespace simpleGL {
-
-class Framebuffer;
-class DrawObject;
 
 class Camera : public Point {
 private:
 	static Camera* instance;
 
-	Framebuffer* framebuffer;
-	DrawObject* drawObject;
+	SortedFrame frame;
+	DrawObject drawObject;
 
 	const GLuint vertex;
 	GLuint fragment;
 
 	Camera();
-	~Camera();
 
 public:
 	static Camera* getInstance();
 
-	Framebuffer* getFramebuffer() const { return framebuffer; }
+	SortedFrame* getFrame() { return &frame; }
 
-	Color getBaseColor() const;
-	void setBaseColor(Color c);
+	Color getBaseColor() const {
+		return frame.getBaseColor();
+	}
+	void setBaseColor(Color c) {
+		frame.setBaseColor(c);
+	}
 
 	void setFragmentShader(GLuint sh) { fragment = sh; }
+
+	void resize(unsigned width, unsigned height) {
+		frame.resize(width, height);
+	}
 
 	void draw();
 

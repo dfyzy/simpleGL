@@ -53,7 +53,7 @@ public:
 		onCreation();
 	}
 
-	~PresetObjectFactory(){
+	~PresetObjectFactory() {
 		if (!defaultObject)
 		{
 			onDestruction();

@@ -24,10 +24,9 @@ class DrawObject {
 private:
 	unsigned id;
 
-	~DrawObject();
-
 public:
 	DrawObject();
+	~DrawObject();
 
 	unsigned getId() const { return id; }
 
@@ -52,8 +51,6 @@ public:
 	void bindColorData(Color color) const;
 
 	void draw() const;
-
-	void unload() { delete this; }
 };
 
 }

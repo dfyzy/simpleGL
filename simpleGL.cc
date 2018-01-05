@@ -33,6 +33,10 @@ double getDeltaTime() {
 	return deltaTime;
 }
 
+SortedFrame* getMainFrame() {
+	return Camera::getInstance()->getFrame();
+}
+
 void loadGLContext() {
 	if (!Window::getCurrent()) {
 		util::println("error:simpleGL:initGLContext is for internal uses only");

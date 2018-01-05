@@ -8,15 +8,14 @@
 #define SIMPLE_LIGHTING_H
 
 #include "glfw.h"
-#include "sprite.h"
+#include "sortedSprite.h"
+#include "framebuffer.h"
 
 namespace simpleGL {
 
-class Framebuffer;
-
-class Lighting : public Sprite {
+class Lighting : public SortedSprite {
 public:
-	class Source : public UnsortedSprite {
+	class Source : public Sprite {
 	private:
 		static GLuint lightingFragmentShader;
 
@@ -58,7 +57,7 @@ public:
 		};
 
 		Source(Point* parent, Vector position, Vector scale, Angle rotation, Texture texture, Vector pivot, Color color, Lighting* lighting)
-			: UnsortedSprite(parent, position, scale, rotation, texture, pivot, color), lighting(lighting) {
+			: Sprite(parent, position, scale, rotation, texture, pivot, color), lighting(lighting) {
 			setFragmentShader(getDefaultFragment());
 
 			if (lighting)	lighting->sources.push_back(this);
@@ -71,7 +70,7 @@ public:
 		}
 
 		void setFragmentShader(GLuint sh) override {
-			UnsortedSprite::setFragmentShader(sh);
+			Sprite::setFragmentShader(sh);
 			centreLoc = glGetUniformLocation(sh, "centre");
 			boundsLoc = glGetUniformLocation(sh, "bounds");
 		}
@@ -84,10 +83,10 @@ public:
 	private:
 		Lighting* lighting;
 
-		DrawObject* object;
+		DrawObject object;
 
-		DrawObject* bottom;
-		DrawObject* middle;
+		DrawObject bottom;
+		DrawObject middle;
 
 	protected:
 		~Shadow();
@@ -127,7 +126,7 @@ public:
 	};
 
 private:
-	Framebuffer* framebuffer;
+	Framebuffer framebuffer;
 
 	std::list<Source*> sources;
 	std::list<Shadow*> shadows;
@@ -148,6 +147,7 @@ public:
 		unsigned pheight {1};
 		Vector ppivot;
 		Color pcolor {1};
+		SortedFrame* pframe {getMainFrame()};
 		int pz {0};
 		Color pbase {0};
 
@@ -160,16 +160,21 @@ public:
 		Loader& bounds(unsigned u0, unsigned u1) { pwidth = u0; pheight = u1; return *this; }
 		Loader& pivot(Vector v) { ppivot = v; return *this; }
 		Loader& color(Color c) { pcolor = c; return *this; }
+		Loader& frame(SortedFrame* f) { pframe = f; return *this; }
 		Loader& z(int i) { pz = i; return *this; }
 		Loader& base(Color c) { pbase = c; return *this; }
 
-		Lighting* load() { return new Lighting(pparent, pposition, pscale, protation, pwidth, pheight, ppivot, pcolor, pz, pbase); }
+		Lighting* load() { return new Lighting(pparent, pposition, pscale, protation, pwidth, pheight, ppivot, pcolor, pframe, pz, pbase); }
 	};
 
 	Lighting(Point* parent, Vector position, Vector scale, Angle rotation,
-		unsigned width, unsigned height, Vector pivot, Color color, int z, Color base);
+		unsigned width, unsigned height, Vector pivot, Color color, SortedFrame* frame, int z, Color base)
+			: SortedSprite(parent, position, scale, rotation, {}, pivot, color, frame, z),
+				framebuffer(width, height, GL_RGB, true, GL_LINEAR, base) {}
 
-	Image* getImage() const;
+	const Image* getImage() const {
+		return framebuffer.getImage();
+	}
 
 	void draw() override;
 

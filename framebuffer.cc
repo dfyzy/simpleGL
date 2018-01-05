@@ -81,7 +81,7 @@ GLenum getStencilFormat() {
 namespace simpleGL {
 
 Framebuffer::Framebuffer(unsigned width, unsigned height, GLint internalFormat, GLenum format, GLenum type,
-	bool stencil, GLenum filtering, Color base) : internalFormat(internalFormat), base(base) {
+	bool stencil, GLenum filtering, Color base) : image(filtering), internalFormat(internalFormat), base(base) {
 		if (dynamic == 0) {
 			util::println("Uniform buffer:load");
 
@@ -119,8 +119,8 @@ Framebuffer::Framebuffer(unsigned width, unsigned height, GLint internalFormat, 
 		glGenFramebuffers(1, &rectFbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, rectFbo);
 
-		image = (new Image(filtering))->loadData(width, height, internalFormat, format, type, nullptr);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, image->getId(), 0);
+		image.loadData(width, height, internalFormat, format, type, nullptr);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, image.getId(), 0);
 	}
 
 Framebuffer::~Framebuffer() {
@@ -128,7 +128,6 @@ Framebuffer::~Framebuffer() {
 
 	glDeleteRenderbuffers(1, &colorRbo);
 	glDeleteRenderbuffers(1, &stencilRbo);
-	image->unload();
 	glDeleteFramebuffers(1, &msaaFbo);
 	glDeleteFramebuffers(1, &rectFbo);
 }
@@ -144,7 +143,7 @@ void Framebuffer::resize(unsigned width, unsigned height) {
 		glRenderbufferStorageMultisample(GL_RENDERBUFFER, SAMPLES_NUM, getStencilFormat(), width, height);
 	}
 
-	image->loadData(width, height, internalFormat, image->getFormat(), image->getDataType(), nullptr);
+	image.loadData(width, height, internalFormat, image.getFormat(), image.getDataType(), nullptr);
 }
 
 void Framebuffer::bind(Matrix view) {
@@ -153,7 +152,7 @@ void Framebuffer::bind(Matrix view) {
 	lastFbo = currentFbo;
 	lastView = currentView;
 
-	setResolution(image->getWidth(), image->getHeight());
+	setResolution(image.getWidth(), image.getHeight());
 	setFbo(msaaFbo);
 	setViewMatrix(view);
 
@@ -165,8 +164,8 @@ void Framebuffer::unbind() {
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, rectFbo);
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, msaaFbo);
 
-	glBlitFramebuffer(0, 0, image->getWidth(), image->getHeight(),
-							0, 0, image->getWidth(), image->getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	glBlitFramebuffer(0, 0, image.getWidth(), image.getHeight(),
+							0, 0, image.getWidth(), image.getHeight(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 	setResolution(lastWidth, lastHeight);
 	setFbo(lastFbo);

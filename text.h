@@ -13,7 +13,7 @@
 namespace simpleGL {
 
 class Font;
-class Sprite;
+class SortedSprite;
 
 //TODO parent rect
 class Text : public Point {
@@ -34,9 +34,9 @@ private:
 	Color color;
 
 	unsigned lastLineStr;
-	std::list<Sprite*>::const_iterator lastLineSpr;
+	std::list<SortedSprite*>::const_iterator lastLineSpr;
 
-	std::list<Sprite*> sprites;
+	std::list<SortedSprite*> sprites;
 
 protected:
 	~Text() {}
@@ -98,7 +98,7 @@ public:
 
 	Vector getBounds() const { return bounds; }
 
-	const std::list<Sprite*>& getSprites() const { return sprites; }
+	const std::list<SortedSprite*>& getSprites() const { return sprites; }
 
 	void clear();
 

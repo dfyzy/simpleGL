@@ -17,7 +17,7 @@ protected:
 	~SignalStreamSpeaker() {}
 
 	void openStream() override {}
-	bool getData(Sound* sound) override {
+	bool getData(Sound& sound) override {
 		signal.loadIntoSound(sound);
 
 		return true;
