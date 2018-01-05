@@ -1,7 +1,8 @@
 #include <simpleGL/simpleGL.h>
-#include <simpleGL/sprite.h>
+#include <simpleGL/sortedsprite.h>
 #include <simpleGL/image.h>
 #include <simpleGL/updatable.h>
+#include <simpleGL/window.h>
 #include <random>
 #include <functional>
 #include <ctime>
@@ -37,7 +38,7 @@ GLFWwindow* window;
 
 Point* anchor;
 
-std::pair<Sprite*, int> sprites[4*SPRITES_NUM];
+std::pair<SortedSprite*, int> sprites[4*SPRITES_NUM];
 
 Angle angles[4] {{PI}, {PI*1.5f}, {0}, {PI*0.5f}};
 
@@ -78,11 +79,11 @@ class MainTick : public Updatable<EUpdateType::Tick> {
 };
 
 int main() {
-	window = loadWindow("Title", WIN_SIZE, WIN_SIZE, false, true, {0});
+	window = Window::load("Title", WIN_SIZE, WIN_SIZE, false, true)->getWindow();
 
 	glfwSetKeyCallback(window, keyCallback);
 
-	Image* st = (new Image(GL_LINEAR))->loadData("stencils/big_circle.png");
+	Image st(GL_LINEAR); st.loadData("tests/stencils/big_circle.png");
 
 	Vector offsets[4] {{1, 1}, {-1, 1}, {-1, -1}, {1, -1}};
 
@@ -90,12 +91,12 @@ int main() {
 
 	for (int i = 0; i < 4; i++) {
 		Color c {colorRand(), colorRand(), colorRand()};
-		Sprite* back = Sprite::Loader().texture(st).parent(anchor).position(Vector(H_H_WIN_SIZE) * offsets[i]).color(c).load();
+		SortedSprite* back = SortedSprite::Loader().texture(&st).parent(anchor).position(Vector(H_H_WIN_SIZE) * offsets[i]).color(c).load();
 
 		Point* par = new Point(nullptr, {}, {1}, angles[i]);
 
 		for (int j = 0; j < SPRITES_NUM; j++) {
-			Sprite* sprite = Sprite::Loader().texture(st).parent(par).position(Vector(posRand(), posRand()))
+			SortedSprite* sprite = SortedSprite::Loader().texture(&st).parent(par).position(Vector(posRand(), posRand()))
 																		.scale({scaleRand()}).color(Color(1) - c).load();
 			sprite->setStencil(back);
 			sprites[j + i*SPRITES_NUM] = {sprite, speedRand()};

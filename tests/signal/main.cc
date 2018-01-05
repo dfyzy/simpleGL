@@ -2,6 +2,8 @@
 #include <simpleGL/signalStreamSpeaker.h>
 #include <simpleGL/slider.h>
 #include <simpleGL/signal.h>
+#include <simpleGL/camera.h>
+#include <simpleGL/window.h>
 #include <simpleGL/math.h>
 
 using namespace simpleGL;
@@ -34,7 +36,8 @@ void amplSlider(float f) {
 }
 
 int main() {
-	loadWindow("signal", 1000, 700, false, true, {0.3f});
+	Window::load("signal", 1000, 700, false, true);
+	Camera::getInstance()->setBaseColor({0.3f});
 
 	sig = new Signal(48000);
 

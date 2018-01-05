@@ -9,8 +9,9 @@ LIBS = -Wl,-Bstatic -lglew32 -lglfw3 -lopengl32 -lgdi32 -lsupc++ -lws2_32 -lfree
 			-lpng16 -lz -lm -lbz2 -lsndfile -lvorbis -lvorbisenc -logg -lspeex -lflac -Wl,-Bdynamic -lopenal
 
 INCS = $(wildcard *.h)
-SRCS = $(wildcard *.cc)
-OBJS = $(SRCS:.cc=.o)
+OBJS = $(patsubst %.cc, %.o, $(wildcard *.cc))
+
+TESTS = $(patsubst tests/%/main.cc, %.test, $(wildcard tests/*/main.cc))
 
 %.o: %.cc
 	g++ -DDEBUG -DFPS_COUNTER $(CPPFLAGS) -c $<
@@ -26,12 +27,12 @@ install: $(INCS) $(INCPATH)/simpleGL
 	cp libsimpleGL.a $(LIBPATH)
 	cp $(INCS) "$(INCPATH)/simpleGL"
 
-%.exe: static install %/main.cc
-	g++ $(CPPFLAGS) -o $(*F) $(*F)/main.cc -lsimpleGL $(LIBS)
+%.test: static install tests/%/main.cc
+	g++ $(CPPFLAGS) -o $(*F) tests/$(*F)/main.cc -lsimpleGL $(LIBS)
 
-test: example.exe sprites.exe shadow.exe stencils.exe
+tests: static install $(TESTS)
 
-all: static install
+all: tests
 
 clean:
 	rm -f *.o *.exe libsimpleGL.a
