@@ -101,7 +101,7 @@ public:
 	}
 
 	Vector getPosition() const { return position; }
-	Vector getRealPosition() { return getModelMatrix()*Vector(); }
+	Vector getRealPosition() { return getModelMatrix().getPosition(); }
 	void setPosition(Vector v) {
 		if (position == v)	return;
 

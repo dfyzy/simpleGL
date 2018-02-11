@@ -43,9 +43,9 @@ void setViewMatrix(simpleGL::Matrix view) {
 
 	simpleGL::Matrix m = view.inv();
 	//transposing and padding
-	float data[] {m.get(0, 0),		m.get(1, 0),	m.get(2, 0), 0,
-						m.get(0, 1),	m.get(1, 1),	m.get(2, 1), 0,
-						m.get(0, 2),	m.get(1, 2),	m.get(2, 2), 0};
+	float data[] {m.get(0, 0),		m.get(1, 0),	0, 0,
+						m.get(0, 1),	m.get(1, 1),	0, 0,
+						m.get(0, 2),	m.get(1, 2),	1, 0};
 
 	setUniform(data, EDynamicUniform::Camera);
 }

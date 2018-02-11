@@ -18,32 +18,44 @@ struct Vector {
 	constexpr Vector(float scale) : Vector(scale, scale) {}
 	constexpr Vector() : Vector(0, 0) {}
 
-	float length() const {
-		return std::sqrt(std::pow(x, 2) + std::pow(y, 2));
+	float lengthSquared() const {
+		return x*x + y*y;
 	}
 
-	const Vector normalize() const {
+	float length() const {
+		return std::sqrt(lengthSquared());
+	}
+
+	Vector normalize() const {
 		if (x || y)	return operator/(length());
 
 		return Vector();
 	}
 
-	const Vector rotate(Angle a) const;
+	Vector rotate(Angle a) const;
 
-	const Vector abs() const {
+	Vector abs() const {
 		return Vector(std::abs(x), std::abs(y));
 	}
 
-	const Vector round() const {
+	Vector round() const {
 		return Vector(std::round(x), std::round(y));
 	}
 
-	const Vector ceil() const {
+	Vector ceil() const {
 		return Vector(std::ceil(x), std::ceil(y));
 	}
 
-	const float dot(const Vector& v) const {
+	float dot(const Vector& v) const {
 		return x*v.x + y*v.y;
+	}
+
+	float cross(const Vector& v) const {
+		return x*v.y - y*v.x;
+	}
+
+	Vector perp() const {
+		return Vector(-y, x);
 	}
 
 	void load(float* array, int* offset) const {
@@ -51,17 +63,17 @@ struct Vector {
 		array[(*offset)++] = y;
 	}
 
-	const Vector operator+(const Vector& v) const {
+	Vector operator+(const Vector& v) const {
 
 		return Vector(x + v.x, y + v.y);
 	}
 
-	const Vector operator-(const Vector& v) const {
+	Vector operator-(const Vector& v) const {
 
 		return Vector(x - v.x, y - v.y);
 	}
 
-	const Vector operator-() const {
+	Vector operator-() const {
 
 		return Vector(-x, -y);
 	}
@@ -78,12 +90,12 @@ struct Vector {
 		return *this;
 	}
 
-	const Vector operator*(const Vector& v) const {
+	Vector operator*(const Vector& v) const {
 
 		return Vector(x * v.x, y * v.y);
 	}
 
-	const Vector operator/(const Vector& v) const {
+	Vector operator/(const Vector& v) const {
 
 		return Vector(x / v.x, y / v.y);
 	}
@@ -100,12 +112,12 @@ struct Vector {
 		return *this;
 	}
 
-	const Vector operator*(const float& f) const {
+	Vector operator*(const float& f) const {
 
 		return Vector(x * f, y * f);
 	}
 
-	const Vector operator/(const float& f) const {
+	Vector operator/(const float& f) const {
 
 		return operator*(1/f);
 	}
