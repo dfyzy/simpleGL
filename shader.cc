@@ -4,7 +4,7 @@
 
 #include "shader.h"
 #include "shaderData.h"
-#include "util.h"
+#include "log.h"
 
 namespace {
 
@@ -26,7 +26,7 @@ inline void printInfoLog(GLuint program) {
 	std::unique_ptr<GLchar[]> infoLog(new GLchar[length + 1]);
 	glGetProgramInfoLog(program, length, nullptr, infoLog.get());
 
-	simpleGL::util::println(infoLog.get());
+	simpleGL::println(infoLog.get());
 }
 
 }
@@ -56,16 +56,16 @@ GLuint getDefaultFragmentShader(bool empty) {
 
 GLuint loadShaderSource(const std::string& source, GLenum type) {
 	if (pipeline == 0) {
-		util::println("Shader pipeline:load");
+		println("Shader pipeline:load");
 
 		glGenProgramPipelines(1, &pipeline);
 		glBindProgramPipeline(pipeline);
 	}
 
-	util::println("Shader:load");
+	println("Shader:load");
 
 	if (type != GL_VERTEX_SHADER && type != GL_FRAGMENT_SHADER) {
-		util::println("error:Shader:wrong shader type");
+		println("error:Shader:wrong shader type");
 		return 0;
 	}
 
@@ -75,7 +75,7 @@ GLuint loadShaderSource(const std::string& source, GLenum type) {
 	GLint status;
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	if (!status) {
-		util::println("error:Shader:linking");
+		println("error:Shader:linking");
 		printInfoLog(program);
 		return 0;
 	}
@@ -84,7 +84,7 @@ GLuint loadShaderSource(const std::string& source, GLenum type) {
 
 	glGetProgramiv(program, GL_VALIDATE_STATUS, &status);
 	if (!status) {
-		util::println("error:Shader:validation");
+		println("error:Shader:validation");
 		printInfoLog(program);
 		return 0;
 	}
@@ -93,11 +93,11 @@ GLuint loadShaderSource(const std::string& source, GLenum type) {
 }
 
 GLuint loadShaderPath(const std::string& path, GLenum type) {
-	util::println(std::string("Shader:load file:") + path);
+	println(std::string("Shader:load file:") + path);
 
 	std::ifstream file(path);
 	if (file.fail()) {
-		util::println("error:Shader:failed to open file");
+		println("error:Shader:failed to open file");
 		return 0;
 	}
 

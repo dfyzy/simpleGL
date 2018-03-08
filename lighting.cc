@@ -114,8 +114,8 @@ void Lighting::Shadow::draw(Source* source) {
 }
 
 Lighting::~Lighting() {
-	util::unloadList(sources);
-	util::unloadList(shadows);
+	util::unloadContainer(sources);
+	util::unloadContainer(shadows);
 }
 
 void Lighting::draw() {

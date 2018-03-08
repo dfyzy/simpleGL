@@ -1,6 +1,4 @@
-#include <simpleGL/simpleGL.h>
 #include <simpleGL/window.h>
-#include <simpleGL/glfw.h>
 #include <simpleGL/camera.h>
 #include <simpleGL/image.h>
 #include <simpleGL/lighting.h>
@@ -60,12 +58,12 @@ class MainTick : public Updatable<EUpdateType::Tick> {
 
 		if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
 			rotation += 0.03f;
-			Camera::getInstance()->setRotation(rotation);
+			GlobalInstance<Camera>::get()->setRotation(rotation);
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 			scale -= 0.01f;
-			Camera::getInstance()->setScale(scale);
+			GlobalInstance<Camera>::get()->setScale(scale);
 		}
 	}
 };
@@ -73,9 +71,9 @@ class MainTick : public Updatable<EUpdateType::Tick> {
 int main() {
 	int width = 1000;
 	int height = 700;
-	Window::load("Title", width, height, true, true);
+	Window window("Title", width, height, true, true);
 
-	Camera::getInstance()->setBaseColor(Color(0.5f));
+	GlobalInstance<Camera>::get()->setBaseColor(Color(0.5f));
 
 	glfwSetKeyCallback(Window::getCurrent()->getWindow(), keyCallback);
 
@@ -117,5 +115,5 @@ int main() {
 	timer->add(0.1, {-50, 0});
 	timer->add(0.1, {});
 
-	draw();
+	window.draw();
 }

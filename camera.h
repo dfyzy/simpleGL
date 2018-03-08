@@ -3,24 +3,21 @@
 
 #include "glfw.h"
 #include "point.h"
+#include "drawObject.h"
 #include "sortedFrame.h"
 
 namespace simpleGL {
 
 class Camera : public Point {
 private:
-	static Camera* instance;
-
 	SortedFrame frame;
 	DrawObject drawObject;
 
 	const GLuint vertex;
 	GLuint fragment;
 
-	Camera();
-
 public:
-	static Camera* getInstance();
+	Camera(unsigned width, unsigned height);
 
 	SortedFrame* getFrame() { return &frame; }
 

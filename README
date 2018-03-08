@@ -6,20 +6,20 @@ TOFIX:
 -Text fractions blur
 
 TODO:
--ui for editor
+-remove component class(or at least change it considerably)
+
+-completely rehaul lighting
 
 -second pass at resizing window
 
 -research cmake
 
 -wrapper around any usefull glfw stuff
-	-Keys
+	-input system
 
--separate Cursor and Button into diff headers
+-?separate Cursor and Button into diff headers
 
--Timer cleanup
-
--input system
+-Timer refactoring
 
 -Sounds
 	-Listener class
@@ -29,7 +29,8 @@ TODO:
 	-Dopler effect
 	-Proper exiting
 
--Trigger sprites
+-Threads?
+
 -Particles(if there is a need for further optimization)
 
 -(maybe) Networking

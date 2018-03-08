@@ -2,12 +2,12 @@
 
 #include "soundFile.h"
 #include "sound.h"
-#include "util.h"
+#include "log.h"
 
 namespace simpleGL {
 
 SoundFile::SoundFile(const std::string& path) {
-	util::println("SoundFile:load:" + path);
+	println("SoundFile:load:" + path);
 
 	file = sf_open(path.c_str(), SFM_READ, &info);
 
@@ -21,12 +21,12 @@ SoundFile::SoundFile(const std::string& path) {
 		else if (result == SF_ERR_UNSUPPORTED_ENCODING)	errorString = "unsupported encoding";
 		else	errorString = sf_error_number(result);
 
-		util::println("error:libsndfile:failed to open file:" + errorString);
+		println("error:libsndfile:failed to open file:" + errorString);
 	}
 }
 
 SoundFile::~SoundFile() {
-	util::println("SoundFile:unload");
+	println("SoundFile:unload");
 
 	sf_close(file);
 }

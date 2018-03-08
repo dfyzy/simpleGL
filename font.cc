@@ -2,7 +2,7 @@
 #include <memory>
 
 #include "font.h"
-#include "util.h"
+#include "log.h"
 
 namespace {
 
@@ -17,10 +17,10 @@ float Font::dpiX, Font::dpiY;
 
 FT_Library Font::getFTLibrary() {
 	if (ftLibrary == nullptr) {
-		util::println("FreeType:load");
+		println("FreeType:load");
 
 		if (FT_Init_FreeType(&ftLibrary)) {
-			util::println("error:FreeType:failed to init");
+			println("error:FreeType:failed to init");
 			return nullptr;
 		}
 
@@ -43,17 +43,17 @@ FT_Library Font::getFTLibrary() {
 //}
 
 Font::Font(const std::string& path, int size) {
-	util::println(std::string("Font:load:") + path);
+	println(std::string("Font:load:") + path);
 
 	FT_Face face;
 
 	if (FT_New_Face(getFTLibrary(), path.c_str(), 0, &face)) {
-		util::println("error:Font:failed to create");
+		println("error:Font:failed to create");
 		return;
 	}
 
 	if (FT_Set_Pixel_Sizes(face, 0, size)) {
-		util::println("error:Font:failed to resize");
+		println("error:Font:failed to resize");
 		return;
 	}
 
@@ -66,7 +66,7 @@ Font::Font(const std::string& path, int size) {
 	unsigned height = 0;
 	for (int i = FIRST_CHAR; i <= LAST_CHAR; i++) {
 		if(FT_Load_Char(face, i, FT_LOAD_RENDER)) {
-			util::println("Failed loading char");
+			println("Failed loading char");
 			return;
 		}
 

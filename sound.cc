@@ -1,17 +1,17 @@
 #include "sound.h"
 #include "soundFile.h"
-#include "util.h"
+#include "log.h"
 
 namespace simpleGL {
 
 Sound::Sound() {
-	util::println("Sound:load");
+	println("Sound:load");
 
 	alGenBuffers(1, &id);
 }
 
 Sound::~Sound() {
-	util::println("Sound:unload");
+	println("Sound:unload");
 
 	alDeleteBuffers(1, &id);
 }
@@ -26,7 +26,7 @@ void Sound::loadData(int pchannels, unsigned psampleRate, unsigned plength, cons
 	else if (pchannels == 8)	format = alGetEnumValue("AL_FORMAT_71CHN16");
 
 	if (format == 0) {
-		util::println("error:Sound:unsupported number of channels");
+		println("error:Sound:unsupported number of channels");
 		return;
 	}
 
@@ -45,7 +45,7 @@ void Sound::loadData(int pchannels, unsigned psampleRate, unsigned plength, cons
 		else if (error == AL_INVALID_NAME)	errorString = "invalid name";
 		else if (error == AL_OUT_OF_MEMORY)	errorString = "out of memory";
 
-		util::println("error:OpenAL:" + errorString);
+		println("error:OpenAL:" + errorString);
 	}
 
 	return;

@@ -16,6 +16,8 @@ public:
 	SortedFrame(unsigned width, unsigned height, GLenum format, bool stencil, GLenum filtering, Color base)
 		: Framebuffer(width, height, format, stencil, filtering, base) {}
 
+	~SortedFrame();
+
 	void addSprite(SortedSprite* sprite) {
 		if (sprite->getFrame() != this) return;
 

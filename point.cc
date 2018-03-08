@@ -4,10 +4,10 @@
 namespace simpleGL {
 
 Point::~Point() {
-	util::unloadList(components);
+	util::unloadContainer(components);
 
-	parent->children.remove(this);
-	util::unloadList(children);
+	if (parent)	parent->children.remove(this);
+	util::unloadContainer(children);
 }
 
 }

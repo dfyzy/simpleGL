@@ -2,7 +2,7 @@
 
 #include "drawObject.h"
 #include "glfw.h"
-#include "util.h"
+#include "log.h"
 
 namespace {
 
@@ -26,7 +26,7 @@ DrawObject::DrawObject() {
 	if (buffersNotInited) {
 		buffersNotInited = false;
 
-		util::println("Data buffers:load");
+		println("Data buffers:load");
 
 		glGenBuffers((int)EDataType::Count, vbos);
 
@@ -48,7 +48,7 @@ DrawObject::DrawObject() {
 	}else	id = objectCount++;
 
 	if (objectCapacity < objectCount) {
-		util::println(std::string("Data buffers:resize:") + std::to_string(objectCapacity*RESIZE_FACTOR));
+		println(std::string("Data buffers:resize:") + std::to_string(objectCapacity*RESIZE_FACTOR));
 
 		for (int i = 0; i < (int)EDataType::Count; i++) {
 			GLuint tempVbo;
@@ -88,7 +88,7 @@ DrawObject::~DrawObject() {
 
 void DrawObject::bindData(EDataType type, float data[]) const {
 	if (type == EDataType::Count) {
-		util::println("error:DrawObject:do not use DataType::Count");
+		println("error:DrawObject:do not use DataType::Count");
 		return;
 	}
 

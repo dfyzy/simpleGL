@@ -1,5 +1,5 @@
-#ifndef SIMPLE_RECTANGLE_SHAPE
-#define SIMPLE_RECTANGLE_SHAPE
+#ifndef SIMPLE_RECTANGLE_H
+#define SIMPLE_RECTANGLE_H
 
 #include "point.h"
 

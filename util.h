@@ -4,33 +4,19 @@
 #ifndef SIMPLE_UTIL_H
 #define SIMPLE_UTIL_H
 
-#ifdef DEBUG
-	#include <iostream>
-#endif
-
-#include <string>
 #include <list>
 
 namespace simpleGL {
 
 namespace util {
 
-inline void print(const std::string& str) {
-	#ifdef DEBUG
-		std::cout << str << std::flush;
-	#endif
-}
+//for containers of objects that modify this container on destruction
+template<template<typename...> typename Container, typename Type, typename ... Args>
+void unloadContainer(Container<Type*, Args...>& container) {
+	Container<Type*, Args...> containerCopy = container;
+	container.clear();
 
-inline void println(const std::string& str) {
-	print(str + "\n");
-}
-
-//when object's list is mutated in the list elements' destructors.
-template<typename T>
-void unloadList(std::list<T*>& list) {
-	std::list<T*> listCopy = list;
-
-	for (T* t : listCopy) {
+	for (Type* t : containerCopy) {
 		t->unload();
 	}
 }

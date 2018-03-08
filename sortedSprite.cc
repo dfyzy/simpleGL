@@ -11,7 +11,7 @@ SortedSprite::SortedSprite(Point* parent, Vector position, Vector scale, Angle r
 }
 
 SortedSprite::~SortedSprite() {
-	frame->removeSprite(this);
+	if (frame)	frame->removeSprite(this);
 }
 
 void SortedSprite::setZ(int i) {

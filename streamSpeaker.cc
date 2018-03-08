@@ -1,6 +1,6 @@
 #include "streamSpeaker.h"
 #include "sound.h"
-#include "util.h"
+#include "log.h"
 
 namespace simpleGL {
 
@@ -40,7 +40,7 @@ void StreamSpeaker::update() {
 			ALuint buff;
 			alSourceUnqueueBuffers(getId(), 1, &buff);
 			if (buff != sounds[index].getId())	{
-				util::println("error:StreamSpeaker:welp");//temp
+				println("error:StreamSpeaker:welp");//temp
 				streaming = false;
 			}
 
@@ -51,7 +51,7 @@ void StreamSpeaker::update() {
 
 		if (stopped) {
 			alSourcePlay(getId());
-			util::println("warning:StreamSpeaker:stream stopped before it should, maybe you should increase buffersize or length of signals");
+			println("warning:StreamSpeaker:stream stopped before it should, maybe you should increase buffersize or length of signals");
 		}
 	} else if (stopped && bound) {
 		alSourcei(getId(), AL_BUFFER, 0);

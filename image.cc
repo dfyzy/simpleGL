@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "image.h"
-#include "util.h"
+#include "log.h"
 
 namespace {
 
@@ -27,7 +27,7 @@ void Image::unbind() {
 }
 
 Image::Image(GLenum filtering) {
-	util::println("Image:load");
+	println("Image:load");
 
 	glGenTextures(1, &id);
 
@@ -38,13 +38,13 @@ Image::Image(GLenum filtering) {
 }
 
 Image::~Image() {
-	util::println("Image:unload");
+	println("Image:unload");
 
 	glDeleteTextures(1, &id);
 }
 
 void Image::loadData(unsigned pwidth, unsigned pheight, GLenum pformat, GLint pinternal, GLenum ptype, const void* data) {
-	util::println("Image:loadData");
+	println("Image:loadData");
 
 	width = pwidth;
 	height = pheight;
@@ -61,44 +61,44 @@ void Image::loadData(unsigned pwidth, unsigned pheight, GLenum pformat, GLint pi
 		else if (error == GL_INVALID_VALUE)			errorString = "invalid value";
 		else if (error == GL_INVALID_OPERATION)	errorString = "invalid operation";
 
-		util::println("error:OpenGL:" + errorString);
+		println("error:OpenGL:" + errorString);
 	}
 }
 
 void Image::loadData(const std::string& path) {
-	util::println("Image:load file:" + path);
+	println("Image:load file:" + path);
 
 	FILE *file = fopen(path.c_str(), "rb");
 	if (!file) {
-		util::println("error:Image:failed to open file");
+		println("error:Image:failed to open file");
 		return;
 	}
 
 	png_byte header[8];
 	fread(header, 1, 8, file);
 	if (png_sig_cmp(header, 0, 8)) {
-		util::println("error:Image:file is not a png");
+		println("error:Image:file is not a png");
 		fclose(file);
 		return;
 	}
 
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	if (!png_ptr) {
-		util::println("error:Image:failed to create read struct");
+		println("error:Image:failed to create read struct");
 		fclose(file);
 		return;
 	}
 
 	png_infop info_ptr = png_create_info_struct(png_ptr);
 	if (!info_ptr) {
-		util::println("error:Image:failed to create info struct");
+		println("error:Image:failed to create info struct");
 		png_destroy_read_struct(&png_ptr, nullptr, nullptr);
 		fclose(file);
 		return;
 	}
 
 	if (setjmp(png_jmpbuf(png_ptr))) {
-		util::println("error:Image:libpng error");
+		println("error:Image:libpng error");
 		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 		fclose(file);
 		return;
@@ -130,7 +130,7 @@ void Image::loadData(const std::string& path) {
 
 void Image::setFiltering(GLenum gle) {
 	if ((gle != GL_LINEAR) && (gle != GL_NEAREST)) {
-		util::println("error:OpenGL:wrong filtering type");
+		println("error:OpenGL:wrong filtering type");
 		return;
 	}
 

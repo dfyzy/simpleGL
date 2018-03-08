@@ -138,7 +138,7 @@ public:
 
 	Matrix getModelMatrix() {
 		if (needUpdtModel) {
-			model = Matrix::translate(position) * Matrix::rotate(rotation) * Matrix::scale(scale);
+			model = Matrix::translateRotateScale(position, rotation, scale);
 			if (parent)	model = parent->getModelMatrix() * model;
 
 			needUpdtModel = false;

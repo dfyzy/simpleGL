@@ -14,7 +14,7 @@ OBJS = $(patsubst %.cc, %.o, $(wildcard *.cc))
 TESTS = $(patsubst tests/%/main.cc, %.test, $(wildcard tests/*/main.cc))
 
 %.o: %.cc
-	g++ -DDEBUG -DFPS_COUNTER $(CPPFLAGS) -c $<
+	g++ -DFPS_COUNTER $(CPPFLAGS) -c $<
 
 static: $(OBJS)
 	rm -f libsimpleGL.a

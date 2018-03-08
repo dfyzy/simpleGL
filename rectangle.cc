@@ -8,7 +8,7 @@ Rectangle::~Rectangle() {
 	for (Rectangle* m : masked)
 		m->mask = nullptr;
 
-	util::unloadList(anchors);
+	util::unloadContainer(anchors);
 	center->unload();
 }
 

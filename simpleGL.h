@@ -9,14 +9,6 @@ double getDeltaTime();
 
 SortedFrame* getMainFrame();
 
-//should probably move this somewhere
-void loadGLContext();
-
-/*
- *	Starts draw loop
- */
-void draw();
-
 }
 
 #endif

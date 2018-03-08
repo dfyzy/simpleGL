@@ -3,7 +3,7 @@
 #include "sortedSprite.h"
 #include "shader.h"
 #include "shaderData.h"
-#include "util.h"
+#include "log.h"
 
 namespace {
 
@@ -35,7 +35,7 @@ void Text::setColor(Color c) {
 }
 
 void Text::addCaption(const std::string& string) {
-	util::println("Text:addCaption");
+	println("Text:addCaption");
 
 	caption += string;
 

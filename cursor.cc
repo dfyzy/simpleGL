@@ -1,10 +1,11 @@
 #include <set>
 
 #include "cursor.h"
+#include "globalInstance.h"
 #include "camera.h"
 #include "sortedSprite.h"
 #include "window.h"
-#include "util.h"
+#include "log.h"
 
 namespace {
 
@@ -32,7 +33,7 @@ Cursor* Cursor::instance = nullptr;
 
 Cursor* Cursor::getInstance() {
 	if (instance == nullptr) {
-		util::println("Cursor:load");
+		println("Cursor:load");
 
 		instance = new Cursor();
 	}
@@ -40,7 +41,7 @@ Cursor* Cursor::getInstance() {
 	return instance;
 }
 
-Cursor::Cursor() : Sprite(Camera::getInstance(), {}, {1.0f}, {}, {}, {0.0f}, {1}) {
+Cursor::Cursor() : Sprite(GlobalInstance<Camera>::get(), {}, {1.0f}, {}, {}, {0.0f}, {1}) {
 	Window* current = Window::getCurrent();
 
 	glfwSetCursorPosCallback(current->getWindow(), positionCallback);
@@ -132,7 +133,7 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 
 bool Cursor::getMouseButton(int button) const {
 	if (button >= BUTTONS_MAX) {
-		util::println("error:Cursor:getMouseButton:not a valid parameter");
+		println("error:Cursor:getMouseButton:not a valid parameter");
 		return false;
 	}
 
@@ -140,7 +141,7 @@ bool Cursor::getMouseButton(int button) const {
 }
 
 Button::Button(Rectangle* rect, int z) : Component<Rectangle>(rect), z(z) {
-	util::println("Button:load");
+	println("Button:load");
 
 	Cursor::getInstance();
 	buttons.insert(this);
@@ -149,7 +150,7 @@ Button::Button(Rectangle* rect, int z) : Component<Rectangle>(rect), z(z) {
 Button::Button(SortedSprite* sprite) : Button(sprite, sprite->getZ()) {}
 
 Button::~Button() {
-	util::println("Button:unload");
+	println("Button:unload");
 
 	buttons.erase(this);
 	for (int i = 0; i < simpleGL::Cursor::BUTTONS_MAX; i++)

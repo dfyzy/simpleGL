@@ -1,7 +1,7 @@
 #include "framebuffer.h"
 #include "image.h"
 #include "window.h"
-#include "util.h"
+#include "log.h"
 
 namespace {
 
@@ -58,7 +58,7 @@ void setFbo(GLuint fbo) {
 
 GLenum getStencilFormat() {
 	if (stencilFormat == 0) {
-		simpleGL::util::print("simpleGL:stencil only support:");
+		simpleGL::print("simpleGL:stencil only support:");
 
 		std::string word;
 
@@ -70,7 +70,7 @@ GLenum getStencilFormat() {
 			stencilFormat = GL_DEPTH24_STENCIL8;
 		}
 
-		simpleGL::util::println(word);
+		simpleGL::println(word);
 	}
 
 	return stencilFormat;
@@ -83,7 +83,7 @@ namespace simpleGL {
 Framebuffer::Framebuffer(unsigned width, unsigned height, GLint internalFormat, GLenum format, GLenum type,
 	bool stencil, GLenum filtering, Color base) : image(filtering), internalFormat(internalFormat), base(base) {
 		if (dynamic == 0) {
-			util::println("Uniform buffer:load");
+			println("Uniform buffer:load");
 
 			glGenBuffers(1, &dynamic);
 			glBindBuffer(GL_UNIFORM_BUFFER, dynamic);
@@ -97,7 +97,7 @@ Framebuffer::Framebuffer(unsigned width, unsigned height, GLint internalFormat, 
 			setResolution(current->getWidth(), current->getHeight());
 		}
 
-		util::println("Framebuffer:load");
+		println("Framebuffer:load");
 
 		glGenFramebuffers(1, &msaaFbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, msaaFbo);
@@ -124,7 +124,7 @@ Framebuffer::Framebuffer(unsigned width, unsigned height, GLint internalFormat, 
 	}
 
 Framebuffer::~Framebuffer() {
-	util::println(std::string("Framebuffer:unload"));
+	println(std::string("Framebuffer:unload"));
 
 	glDeleteRenderbuffers(1, &colorRbo);
 	glDeleteRenderbuffers(1, &stencilRbo);

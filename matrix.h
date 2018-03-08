@@ -22,6 +22,7 @@ private:
 	}
 
 public:
+	static Matrix translateRotateScale(Vector pos, Angle rot, Vector sc);
 	static Matrix translate(Vector v);
 	static Matrix scale(Vector v);
 	static Matrix rotate(Angle a);
@@ -51,19 +52,14 @@ public:
 	}
 
 	float det() const {
-
 		return data[0]*data[4] - data[1]*data[3];
 	}
 
 	Matrix inv() const {
-		float newData[6] {data[4], -data[1], cof(1),
-								-data[3], data[0], -cof(0)};
-
 		float dt = det();
-		for (int i = 0; i < 6; i++)
-			newData[i] /= dt;
 
-		return Matrix(newData);
+		return Matrix (data[4]/dt, -data[1]/dt, cof(1)/dt,
+							-data[3]/dt, data[0]/dt, -cof(0)/dt);
 	}
 
 	Matrix operator*(const Matrix& m) const {
