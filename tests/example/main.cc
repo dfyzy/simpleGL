@@ -44,7 +44,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 
 void cursorPosCallback() {
 	Window* current = Window::getCurrent();
-	Vector v = Cursor::getInstance()->getPosition()/Vector(current->getWidth(), current->getHeight()) + Vector(0.5);
+	Vector v = GlobalInstance<Cursor>::get()->getPosition()/Vector(current->getWidth(), current->getHeight()) + Vector(0.5);
 	brimSortedSprite->setColor({v.x, v.y, 0, 1});
 }
 
@@ -102,10 +102,10 @@ int main() {
 
 	MainTick mainTick;
 
-	Cursor::getInstance()->setPositionCallback(cursorPosCallback);
-	Cursor::getInstance()->setMouseButtonCallback(mouseButtonCallback);
+	GlobalInstance<Cursor>::get()->setPositionCallback(cursorPosCallback);
+	GlobalInstance<Cursor>::get()->setMouseButtonCallback(mouseButtonCallback);
 
-	SortedSprite* red = SortedSprite::Loader().texture({50}).parent(Cursor::getInstance()).pivot({-1.0f}).color({1, 0, 0}).z(-50).load();
+	SortedSprite* red = SortedSprite::Loader().texture({50}).parent(GlobalInstance<Cursor>::get()).pivot({-1.0f}).color({1, 0, 0}).z(-50).load();
 	red->setStencil(back);
 
 	timer = new LerpTimer<SortedSprite, Vector>(red, SortedSprite::setPosition, {});

@@ -94,26 +94,25 @@ void Window::resize(unsigned pWidth, unsigned pHeight) {
 	BaseWindow::resize(pWidth, pHeight);
 
 	//properly resize camera?
-	cameraInstance.get()->resize(getWidth(), getHeight());
+	cameraInstance->resize(getWidth(), getHeight());
 }
 
 void Window::draw() {
 	println("simpleGL:Window:start of draw cycle");
 
-	previous = Clock::now();
+	deltaStopwatch.start();
 
 	#ifdef FPS_COUNTER
 		double fpsTime = 0.0;
 		int frames = 0;
 	#endif
+
 	while (!glfwWindowShouldClose(current->getWindow())) {
-		Clock::time_point now = Clock::now();
-		deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(now - previous).count() * 0.000001;
-		previous = now;
+		deltaTime = deltaStopwatch.lap();
 
 		#ifdef FPS_COUNTER
 			fpsTime += deltaTime;
-			frames++;
+			++frames;
 			if (fpsTime >= 1.0) {
 				std::cout << "fps: " << frames << "; spf: " << fpsTime/frames << ";" << std::endl;
 				fpsTime -= 1.0;
@@ -123,15 +122,11 @@ void Window::draw() {
 
 		glfwPollEvents();
 
-		glBindVertexArray(openGLContext.getVAO());
+		glBindVertexArray(openGLContext->getVAO());
 
-		Updatable<EUpdateType::PreTick>::updateAll();
+		globalUpdate();
 
-		Updatable<EUpdateType::Tick>::updateAll();
-
-		Updatable<EUpdateType::PostTick>::updateAll();
-
-		cameraInstance.get()->draw();
+		cameraInstance->draw();
 
 		glBindVertexArray(0);
 

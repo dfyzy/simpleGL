@@ -13,7 +13,13 @@ private:
 	bool createdInstance;
 
 public:
-	static T* get() { return instance; }
+	static T* get() {
+		if (!instance) {
+			println("warning:GlobalInstance:returning nullptr on get() call");
+		}
+
+		return instance;
+	}
 
 	template<typename ...Args>
 	GlobalInstance(Args&&... args) {
@@ -28,6 +34,10 @@ public:
 			delete instance;
 			instance = nullptr;
 		}
+	}
+
+	T* operator->() {
+		return instance;
 	}
 
 };

@@ -99,7 +99,7 @@ void Lighting::Shadow::draw(Source* source) {
 	(left + (left - pov).normalize()*length).load(data, &i);
 	(right + (right - pov).normalize()*length).load(data, &i);
 
-	middle.bindData(EDataType::Vertex, data);
+	middle.bindData(EBufferDataType::Vertex, data);
 
 	glStencilFunc(GL_EQUAL, 1, 0xFF);
 	glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO);

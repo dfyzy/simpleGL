@@ -5,6 +5,8 @@
 #ifndef SIMPLE_DRAW_OBJECT_H
 #define SIMPLE_DRAW_OBJECT_H
 
+#include "openGLContextTypes.h"
+
 #include "color.h"
 #include "matrix.h"
 #include "texture.h"
@@ -16,23 +18,19 @@ constexpr Vector QUAD[] = {{-0.5f, 0.5f},
 									{0.5f, 0.5f},
 									{0.5f, -0.5f}};
 
-constexpr int QUAD_VERTS = 4;
-
-enum class EDataType { Vertex, Texture, Color, Count };
-
 class DrawObject {
 private:
-	unsigned id;
+	GLint qid;
 
 public:
 	DrawObject();
 	~DrawObject();
 
-	unsigned getId() const { return id; }
+	GLint getId() const { return qid; }
 
-	void bindData(EDataType type, float data[]) const;
+	void bindData(EBufferDataType type, float data[]) const;
 
-	void bindQuadData(EDataType type, Matrix model) const {
+	void bindQuadData(EBufferDataType type, Matrix model) const {
 		float data[QUAD_VERTS*2];
 		int offset = 0;
 
@@ -43,10 +41,10 @@ public:
 	}
 
 	void bindVertexData(Matrix model) const {
-		bindQuadData(EDataType::Vertex, model);
+		bindQuadData(EBufferDataType::Vertex, model);
 	}
 	void bindTextureData(Texture texture) const {
-		bindQuadData(EDataType::Texture, texture.getMatrix());
+		bindQuadData(EBufferDataType::Texture, texture.getMatrix());
 	}
 	void bindColorData(Color color) const;
 

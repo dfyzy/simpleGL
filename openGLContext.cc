@@ -33,12 +33,80 @@ OpenGLContext::OpenGLContext() {
 
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
+
+	println("Data buffers:load");
+
+	glGenBuffers((int)EBufferDataType::Count, vbos);
+
+	for (int i = 0; i < (int)EBufferDataType::Count; i++) {
+		glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
+
+		//alocating data for quadCapacity number of quads.
+		glBufferData(GL_ARRAY_BUFFER, quadCapacity * bufferDataSize[i]*QUAD_VERTS*sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+
+		//binding buffers to layout locations in vertex shader.
+		glVertexAttribPointer(i, bufferDataSize[i], GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(i);
+	}
 }
 
 OpenGLContext::~OpenGLContext() {
 	println("OpenGL:unload");
 
-	//TODO
+	glDeleteBuffers((int)EBufferDataType::Count, vbos);
+	glDeleteVertexArrays(1, &vao);
+}
+
+GLint OpenGLContext::loadQID() {
+	GLint qid;
+
+	if (!deletedQIDs.empty()) {
+		qid = deletedQIDs.front();
+
+		deletedQIDs.pop();
+	} else {
+		qid = quadCount++;
+
+		if (quadCapacity < quadCount) {
+			println(std::string("Data buffers:resize:") + std::to_string(quadCapacity*RESIZE_FACTOR));
+
+			for (int i = 0; i < (int)EBufferDataType::Count; i++) {
+				GLuint tempVbo;
+				glGenBuffers(1, &tempVbo);
+
+				int oldSize = quadCapacity * bufferDataSize[i]*QUAD_VERTS*sizeof(float);
+				glBindBuffer(GL_COPY_WRITE_BUFFER, tempVbo);
+				glBufferData(GL_COPY_WRITE_BUFFER, oldSize, nullptr, GL_DYNAMIC_DRAW);
+
+				//loading current data into temp buffer, resizing this buffer and loading data back from temp buffer.
+				glBindBuffer(GL_COPY_READ_BUFFER, vbos[i]);
+
+				glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, 0, 0, oldSize);
+
+				glBufferData(GL_COPY_READ_BUFFER, RESIZE_FACTOR * oldSize, nullptr, GL_DYNAMIC_DRAW);
+
+				glCopyBufferSubData(GL_COPY_WRITE_BUFFER, GL_COPY_READ_BUFFER, 0, 0, oldSize);
+
+				glDeleteBuffers(1, &tempVbo);
+			}
+
+			//TOTRY: check if one copy/attribpointer is faster than copy/copy
+			//GLuint t = vbos;
+			//vbos = tempVbo;
+			//tempVbo = t;
+
+			quadCapacity *= RESIZE_FACTOR;
+		}
+	}
+
+	return qid;
+}
+
+void OpenGLContext::unloadQID(GLint qid) {
+	if (qid < quadCount - 1)
+		deletedQIDs.push(qid);
+	else
+		quadCount--;
 }
 
 }

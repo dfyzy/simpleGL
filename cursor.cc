@@ -29,23 +29,18 @@ simpleGL::Vector glfwToSimple(double xpos, double ypos) {
 
 namespace simpleGL {
 
-Cursor* Cursor::instance = nullptr;
-
-Cursor* Cursor::getInstance() {
-	if (instance == nullptr) {
-		println("Cursor:load");
-
-		instance = new Cursor();
-	}
-
-	return instance;
-}
-
 Cursor::Cursor() : Sprite(GlobalInstance<Camera>::get(), {}, {1.0f}, {}, {}, {0.0f}, {1}) {
 	Window* current = Window::getCurrent();
 
 	glfwSetCursorPosCallback(current->getWindow(), positionCallback);
 	glfwSetMouseButtonCallback(current->getWindow(), buttonCallback);
+}
+
+Cursor::~Cursor() {
+	Window* current = Window::getCurrent();
+	
+	glfwSetCursorPosCallback(current->getWindow(), nullptr);
+	glfwSetMouseButtonCallback(current->getWindow(), nullptr);
 }
 
 void Cursor::update() {
@@ -84,16 +79,22 @@ void Cursor::update() {
 }
 
 void Cursor::positionCallback(GLFWwindow* window, double xpos, double ypos) {
-	instance->setPosition(glfwToSimple(xpos, ypos));
+	Cursor* cursor = GlobalInstance<Cursor>::get();
+	if (!cursor) return;
+
+	cursor->setPosition(glfwToSimple(xpos, ypos));
 }
 
 void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mods) {
+	Cursor* cursor = GlobalInstance<Cursor>::get();
+	if (!cursor) return;
+
 	bool pressed = action == GLFW_PRESS;
-	instance->mouseButtons[mButton] = pressed;
+	cursor->mouseButtons[mButton] = pressed;
 
 	double xpos, ypos;
 	glfwGetCursorPos(Window::getCurrent()->getWindow(), &xpos, &ypos);
-	instance->setPosition(glfwToSimple(xpos, ypos));
+	cursor->setPosition(glfwToSimple(xpos, ypos));
 
 	std::list<Button*> on;
 
@@ -105,12 +106,12 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 			if (b->isOpaque())	notBlocked = false;
 		}
 
-	instance->changed.reset();
+	cursor->changed.reset();
 
 	for (Button* b : on)
 		if (pressed) {
 			b->onPress(mButton);
-			presses[mButton].push_back({b, false, b->getOwner()->getModelMatrix().inv()*instance->getRealPosition()});
+			presses[mButton].push_back({b, false, b->getOwner()->getModelMatrix().inv()*cursor->getRealPosition()});
 		} else {
 			b->onRelease(mButton);
 
@@ -128,7 +129,7 @@ void Cursor::buttonCallback(GLFWwindow* window, int mButton, int action, int mod
 		presses[mButton].clear();
 	}
 
-	if (instance->buttCallback)	instance->buttCallback(mButton, pressed);
+	if (cursor->buttCallback)	cursor->buttCallback(mButton, pressed);
 }
 
 bool Cursor::getMouseButton(int button) const {
@@ -141,17 +142,12 @@ bool Cursor::getMouseButton(int button) const {
 }
 
 Button::Button(Rectangle* rect, int z) : Component<Rectangle>(rect), z(z) {
-	println("Button:load");
-
-	Cursor::getInstance();
 	buttons.insert(this);
 }
 
 Button::Button(SortedSprite* sprite) : Button(sprite, sprite->getZ()) {}
 
 Button::~Button() {
-	println("Button:unload");
-
 	buttons.erase(this);
 	for (int i = 0; i < simpleGL::Cursor::BUTTONS_MAX; i++)
 		for (auto it = presses[i].begin(); it != presses[i].end(); it++)
@@ -168,8 +164,11 @@ void Button::setZ(int i) {
 }
 
 bool Button::isEntered() {
-	if (Cursor::getInstance()->hasChanged() || hasChanged())
-		entered = getOwner()->inBounds(Cursor::getInstance()->getRealPosition());
+	Cursor* cursor = GlobalInstance<Cursor>::get();
+	if (!cursor)	return false;
+
+	if (cursor->hasChanged() || hasChanged())
+		entered = getOwner()->inBounds(cursor->getRealPosition());
 
 	ownerChanged.reset();
 

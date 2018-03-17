@@ -2,13 +2,15 @@
 #define SIMPLE_WINDOW_H
 
 #include <string>
-#include <chrono>
+
+#include "stopwatch.h"
 
 #include "openGLContext.h"
 #include "openALContext.h"
 
 #include "globalInstance.h"
 #include "camera.h"
+#include "modules.h"
 
 struct GLFWwindow;
 struct GLFWmonitor;
@@ -49,15 +51,15 @@ public:
 
 class Window : public BaseWindow {
 private:
-	typedef std::chrono::high_resolution_clock Clock;
+	Stopwatch deltaStopwatch;
 
-	Clock::time_point previous;
-	double deltaTime = 0;
+	double deltaTime = 0.0;
 
-	OpenGLContext openGLContext;
-	OpenALContext openALContext;
-
+	GlobalInstance<OpenGLContext> openGLContext;
+	GlobalInstance<OpenALContext> openALContext;
 	GlobalInstance<Camera> cameraInstance;
+	
+	Modules modules;
 
 	Window(const std::string& title, unsigned width, unsigned height, bool resizable, bool decorated, bool fullscreen)
 		: BaseWindow(title, width, height, resizable, decorated, fullscreen), cameraInstance(getWidth(), getHeight()) {}

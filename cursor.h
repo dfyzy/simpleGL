@@ -17,8 +17,6 @@ public:
 	static constexpr int BUTTONS_MAX = 8;
 
 private:
-	static Cursor* instance;
-
 	static void positionCallback(GLFWwindow* window, double xpos, double ypos);
 	static void buttonCallback(GLFWwindow* window, int button, int action, int mods);
 
@@ -29,13 +27,11 @@ private:
 
 	//TODO: custom cursor images
 
-	Cursor();
-	~Cursor() {}
-
 	void update() override;
 
 public:
-	static Cursor* getInstance();
+	Cursor();
+	~Cursor();
 
 	bool hasChanged() const { return changed.get(); }
 

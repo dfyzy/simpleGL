@@ -8,7 +8,9 @@ namespace simpleGL {
 enum class EUpdateType {
 	PreTick,
 	Tick,
-	PostTick
+	PostTick,
+	Physics,
+	COUNT
 };
 
 template<EUpdateType updateType>
@@ -37,6 +39,22 @@ public:
 
 template<EUpdateType updateType>
 std::list<Updatable<updateType>*> Updatable<updateType>::updatableList;
+
+
+//global update function
+template<int i>
+struct GlobalUpdateImpl : public GlobalUpdateImpl<i + 1> {
+	~GlobalUpdateImpl() {
+		Updatable<static_cast<EUpdateType>(i)>::updateAll();
+	}
+};
+
+template<>
+struct GlobalUpdateImpl<static_cast<int>(EUpdateType::COUNT)> {};
+
+inline void globalUpdate() {
+	GlobalUpdateImpl<0>();
+}
 
 }
 
