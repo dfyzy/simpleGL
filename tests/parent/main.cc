@@ -76,8 +76,9 @@ class MainTick : public Updatable<EUpdateType::Tick> {
 };
 
 int main() {
-	window = Window::load("Title", 700, 700, false, true)->getWindow();
-	Camera::getInstance()->setBaseColor(Color(0.1f));
+	Window windowObj("Title", 700, 700, false, true);
+	window = windowObj.getWindow();
+	getInstance<Camera>()->setBaseColor(Color(0.1f));
 
 	glfwSetKeyCallback(window, keyCallback);
 
@@ -88,5 +89,5 @@ int main() {
 
 	MainTick tick;
 
-	draw();
+	windowObj.draw();
 }

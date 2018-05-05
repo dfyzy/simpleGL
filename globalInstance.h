@@ -45,6 +45,9 @@ public:
 template<typename T>
 T* GlobalInstance<T>::instance = nullptr;
 
+template<typename T>
+T* getInstance() { return GlobalInstance<T>::get(); }
+
 }
 
 #endif

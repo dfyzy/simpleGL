@@ -12,7 +12,7 @@
 
 namespace simpleGL {
 
-class Cursor : public Sprite, public Updatable<EUpdateType::PreTick> {
+class Cursor : public Point, public Updatable<EUpdateType::PreTick> {
 public:
 	static constexpr int BUTTONS_MAX = 8;
 

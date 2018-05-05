@@ -8,7 +8,11 @@ TOFIX:
 TODO:
 -remove component class(or at least change it considerably)
 
+-Probably weakpointers for points
+
 -completely rehaul lighting
+
+-Rectangle anchors and stretching
 
 -second pass at resizing window
 

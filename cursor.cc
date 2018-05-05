@@ -29,7 +29,7 @@ simpleGL::Vector glfwToSimple(double xpos, double ypos) {
 
 namespace simpleGL {
 
-Cursor::Cursor() : Sprite(GlobalInstance<Camera>::get(), {}, {1.0f}, {}, {}, {0.0f}, {1}) {
+Cursor::Cursor() : Point(GlobalInstance<Camera>::get(), {}, {1.0f}, {}) {
 	Window* current = Window::getCurrent();
 
 	glfwSetCursorPosCallback(current->getWindow(), positionCallback);
@@ -38,7 +38,7 @@ Cursor::Cursor() : Sprite(GlobalInstance<Camera>::get(), {}, {1.0f}, {}, {}, {0.
 
 Cursor::~Cursor() {
 	Window* current = Window::getCurrent();
-	
+
 	glfwSetCursorPosCallback(current->getWindow(), nullptr);
 	glfwSetMouseButtonCallback(current->getWindow(), nullptr);
 }

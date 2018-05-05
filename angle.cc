@@ -3,7 +3,7 @@
 
 namespace simpleGL {
 
-Angle::Angle(class Vector v) {
+Angle::Angle(Vector v) {
 	if (v != Vector()) {
 		angle = std::atan2(v.y, v.x);
 

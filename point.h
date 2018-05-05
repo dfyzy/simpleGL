@@ -109,7 +109,7 @@ public:
 
 		updateModel();
 	}
-
+	
 	void addPosition(Vector v) {
 		setPosition(getPosition() + v);
 	}

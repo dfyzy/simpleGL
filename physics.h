@@ -1,41 +1,36 @@
 #ifndef SIMPLE_PHYSICS_H
 #define SIMPLE_PHYSICS_H
 
+#include <vector>
+
 #include "updatable.h"
-#include "point.h"
-#include "globalInstance.h"
 
 namespace simpleGL {
 
+class PhysicalShape;
+
+struct CollisionData {
+	float time;//from 0.0f to 1.0f
+
+	PhysicalShape* firstShape;
+	PhysicalShape* secondShape;
+
+	CollisionData() {}
+	CollisionData(float time, PhysicalShape* firstShape, PhysicalShape* secondShape)
+		: time(time), firstShape(firstShape), secondShape(secondShape) {}
+};
+
 class Physics : public Updatable<EUpdateType::Physics> {
-public:
-	class Shape : public Point {
-	private:
-		//todo: aabb
-
-	protected:
-		~Shape() {
-			GlobalInstance<Physics>::get()->removeShape(this);
-		}
-
-	public:
-		Shape(Point* parent, Vector position, Vector scale, Angle rotation) : Point(parent, position, scale, rotation) {
-			GlobalInstance<Physics>::get()->addShape(this);
-		}
-
-
-		//virtual
-
-	};
-
 private:
-	std::list<Shape*> shapes;
+	std::list<PhysicalShape*> shapes;
 
-	void removeShape(Shape* shape) { shapes.remove(shape); }
-	void addShape(Shape* shape) { shapes.push_back(shape); }
+	std::vector<CollisionData> futureCollisions;
 
 public:
 	Physics() {}
+
+	void removeShape(PhysicalShape* shape) { shapes.remove(shape); }
+	void addShape(PhysicalShape* shape) { shapes.push_back(shape); }
 
 	void update() override;
 
