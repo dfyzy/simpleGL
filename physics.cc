@@ -1,7 +1,6 @@
 #include "physics.h"
 #include "physicalShape.h"
 #include "simpleGL.h"
-#include "log.h"
 
 namespace simpleGL {
 
@@ -25,13 +24,12 @@ void Physics::update() {
 
 			if (lowestRoot != 2.0f) {
 				futureCollisions.push_back({lowestRoot, *it, *otherit});
-				println("collision");
 			}
 		}
 	}
 
 	if (!futureCollisions.empty()) {
-		float deltaLeft = futureCollisions[0].time*deltaTime;
+		float deltaLeft = (1.0f - futureCollisions[0].time)*deltaTime;
 
 		futureCollisions[0].firstShape->stop(futureCollisions[0].time);
 		futureCollisions[0].secondShape->stop(futureCollisions[0].time);

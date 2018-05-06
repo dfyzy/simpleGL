@@ -49,7 +49,7 @@ int main() {
 	shape = new PhysicalShape({}, {}, 1.0f, {100.0f});
 	shape->addChild(SortedSprite::Loader().texture({100}).color({1.0f, 0.0f, 0.0f}).load());
 
-	PhysicalShape* otherShape = new PhysicalShape({300.0f}, {}, 1.0f, {100.0f});
+	PhysicalShape* otherShape = new PhysicalShape({300.0f, 0.0f}, {}, 1.0f, {100.0f});
 	otherShape->addChild(SortedSprite::Loader().texture({100}).color({0.0f, 0.0f, 1.0f}).load());
 
 	MainTick tick;

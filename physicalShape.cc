@@ -13,6 +13,7 @@ constexpr Vector PhysicalShape::staticPoints[4];
 
 MovingEdge::MovingEdge(Vector pointA, Vector pointB, Vector deltaA, Vector deltaB) {
 	this->pointA = pointA;
+	this->deltaA = deltaA;
 
 	diff = pointA - pointB;
 	deltaDiff = deltaA - deltaB;
@@ -35,9 +36,9 @@ bool MovingEdge::checkRoot(float root, Vector collidingPoint, Vector deltaCollid
 
 	float targetDiffX = diff.x + deltaDiff.x*root;
 	if (std::abs(targetDiffX) > 0.0001f)
-		return inBounds(targetDiffX, pointA.x - collidingPoint.x - deltaCollidingPoint.x*root);
+		return inBounds(targetDiffX, pointA.x - collidingPoint.x + (deltaA.x - deltaCollidingPoint.x)*root);
 	else
-		return inBounds(diff.y + deltaDiff.y*root, pointA.y - collidingPoint.y - deltaCollidingPoint.y*root);
+		return inBounds(diff.y + deltaDiff.y*root, pointA.y - collidingPoint.y + (deltaA.y - deltaCollidingPoint.y)*root);
 }
 
 float MovingEdge::findLowestRoot(Vector collidingPoint, Vector deltaCollidingPoint, float minRoot) {

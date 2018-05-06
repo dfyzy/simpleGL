@@ -8,6 +8,7 @@ namespace simpleGL {
 
 struct MovingEdge {
 	Vector pointA;
+	Vector deltaA;
 
 	Vector diff;
 	Vector deltaDiff;
